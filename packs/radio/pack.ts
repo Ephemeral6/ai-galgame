@@ -36,7 +36,7 @@ Never: genuinely threaten, frighten or scold the player; no horror, gore, mental
   me: { zh: '我', en: 'Me' },
   days: 4,
   slots: [{ zh: '白天', en: 'Daytime' }, { zh: '夜里', en: 'Night' }],
-  dayLabel: { zh: '停播前第 {n} 天', en: 'Day {n} before sign-off' },
+  dayLabel: { zh: '第 {n} 夜', en: 'Night {n}' },
   chapters: [
     { from: 1, title: { zh: '第一夜 · 试音', en: 'Night One · Sound Check' } },
     { from: 3, title: { zh: '第三夜 · 回放', en: 'Night Three · Playback' } },
@@ -178,8 +178,8 @@ Never: genuinely threaten, frighten or scold the player; no horror, gore, mental
       id: 'r1', from: 1, title: { zh: '第一幕 · 试音', en: 'Act I · Sound Check' },
       goal: { zh: '开端：「我」被塞进广播站，撞见她对着没人听的麦克风说话；第一处「好像重来过」的痕迹出现。', en: 'Opening: drafted into the booth, I catch her talking into a mic no one hears; the first trace of "this has happened before" appears.' },
       beats: [
-        { id: 'radio-deadmic', day: 1, by: 1, who: ['wanqing'], kind: { zh: '开端', en: 'Opening' }, text: { zh: '「我」撞见她对着关掉的麦克风轻声说「晚上好」，她红着脸说自己是在试音。', en: 'I catch her murmuring "good evening" into a switched-off mic; she flushes and says she is doing a sound check.' } },
-        { id: 'radio-tape', day: 2, by: 2, who: ['wanqing'], kind: { zh: '伏笔', en: 'Foreshadowing' }, text: { zh: '整理磁带时发现一段被重新录过的痕迹，她还记得被抹掉的那一句是什么。', en: 'Sorting tapes, we find a stretch that was recorded over, and she still remembers the erased sentence.' }, promise: { zh: '答应周四最后一次播音陪她从头播到尾，不打断、不重来', en: 'promise to stay with her for Thursday\'s final broadcast from start to finish, no interruptions, no starting over' } },
+        { id: 'radio-deadmic', day: 1, by: 1, who: ['wanqing'], slots: [1], places: ['booth'], kind: { zh: '开端', en: 'Opening' }, text: { zh: '「我」撞见她对着关掉的麦克风轻声说「晚上好」，她红着脸说自己是在试音。', en: 'I catch her murmuring "good evening" into a switched-off mic; she flushes and says she is doing a sound check.' } },
+        { id: 'radio-tape', day: 2, by: 2, who: ['wanqing'], places: ['booth'], kind: { zh: '伏笔', en: 'Foreshadowing' }, text: { zh: '整理磁带时发现一段被重新录过的痕迹，她还记得被抹掉的那一句是什么。', en: 'Sorting tapes, we find a stretch that was recorded over, and she still remembers the erased sentence.' }, promise: { zh: '答应周四最后一次播音陪她从头播到尾，不打断、不重来', en: 'promise to stay with her for Thursday\'s final broadcast from start to finish, no interruptions, no starting over' } },
       ],
       hook: { zh: '晚晴把那盘磁带塞进抽屉最里面，上了锁。楼下，看楼大爷的钥匙串响了一声。', en: 'Wanqing shoves the tape to the back of a drawer and locks it. Downstairs, the keeper\'s keys jingle once.' },
     },
@@ -187,7 +187,7 @@ Never: genuinely threaten, frighten or scold the player; no horror, gore, mental
       id: 'r2', from: 3, title: { zh: '第二幕 · 回放', en: 'Act II · Playback' },
       goal: { zh: '转折：停电夜，看楼大爷手里的电闸揭开「夜间节目没有校内听众」；她问出「这一天是不是过过一次」。', en: 'Turn: in the blackout, the keeper\'s fuse box reveals that the night show has no listener on campus; she asks whether today has happened before.' },
       beats: [
-        { id: 'radio-keeper', day: 3, by: 3, who: ['laogao'], kind: { zh: '秘密曝光', en: 'Secret out' }, text: { zh: '高大爷打着手电上楼查电路，随口说出喇叭每晚十点就断电——夜间节目从来没有人在楼下听见，除了他。', en: 'Old Gao comes up with a flashlight to check the wiring and lets slip that the loudspeakers are cut at ten every night: no one below has ever heard the night show, except him.' } },
+        { id: 'radio-keeper', day: 3, by: 3, who: ['laogao'], slots: [1], kind: { zh: '秘密曝光', en: 'Secret out' }, text: { zh: '高大爷打着手电上楼查电路，随口说出喇叭每晚十点就断电——夜间节目从来没有人在楼下听见，除了他。', en: 'Old Gao comes up with a flashlight to check the wiring and lets slip that the loudspeakers are cut at ten every night: no one below has ever heard the night show, except him.' } },
       ],
       hook: { zh: '天亮了。刘婶的收音机开着，沙沙声里，好像有人说了一句晚上好。', en: 'Morning. Auntie Liu\'s radio is on, and somewhere in the hiss someone seems to say good evening.' },
     },
@@ -261,7 +261,7 @@ Never: genuinely threaten, frighten or scold the player; no horror, gore, mental
       },
     },
     {
-      id: 'wanqing-near', who: 'wanqing', kind: 'normal', tier: 2, minStage: 3,
+      id: 'wanqing-near', who: 'wanqing', kind: 'normal', tier: 2, minStage: 3, maxBroken: 0,
       title: { zh: '磁带的 B 面', en: 'Side B of the Tape' },
       brief: {
         zh: '恋人未满：节目播完了，有一句话她留到了磁带的 B 面，说等「我」哪天想听再翻过来。两人约好以后一起去县城电台投稿。',
