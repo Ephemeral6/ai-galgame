@@ -11,13 +11,13 @@ const TEAR = 0x8fd3ff
 const WHITE = 0xffffff
 const EYE_LIGHT = 0xf2f2f2
 
-type Px = number | null
+export type Px = number | null
 const S = 2 // 立绘放大倍数
 const W = 14 // 字母图宽
 const SW = W * S
 const HEAD = 6 // 头顶留给跳跃
 const MAX_ROWS = 12
-export const STAGE_W = 64
+export const STAGE_W = 76
 const SH = MAX_ROWS * S + HEAD
 export const STAGE_ROWS = SH / 2
 export const PORTRAIT_ROWS = (MAX_ROWS + 2) / 2
@@ -48,6 +48,8 @@ export function sprite(sp: SpriteDef, expr: string, t: number): Px[][] {
   const eye = (f: (r: number, c: number, side: -1 | 1) => [number, number][]) => {
     eyes.slice(0, 2).forEach(([r, c], i) => { for (const [y, x] of f(r, c, i === 0 ? -1 : 1)) put(y, x, ink) })
   }
+  // 背过身：不画眼睛，左右翻转（害羞、赌气时）
+  if (expr === 'back') return g.map(row => row.map(v => (typeof v === 'number' ? v : v === '.' ? null : pal[v] ?? null)).reverse())
   switch (expr) {
     case 'smile': eye((r, c) => [[r, c - 1], [r - 1, c], [r, c + 1]]); break
     case 'blush': eye((r, c) => [[r, c]]); for (const [r, c] of sp.cheeks) put(r, c, CHEEK); break
@@ -78,11 +80,11 @@ export function sprite(sp: SpriteDef, expr: string, t: number): Px[][] {
   return out
 }
 
-function blank(w: number, h: number): Px[][] {
+export function blank(w: number, h: number): Px[][] {
   return Array.from({ length: h }, () => Array<Px>(w).fill(null))
 }
 
-function stamp(dst: Px[][], src: Px[][], ox: number, oy: number, scale: number): void {
+export function stamp(dst: Px[][], src: Px[][], ox: number, oy: number, scale: number): void {
   src.forEach((row, r) => row.forEach((v, c) => {
     if (v === null) return
     for (let a = 0; a < scale; a++) for (let b = 0; b < scale; b++) {
@@ -93,14 +95,38 @@ function stamp(dst: Px[][], src: Px[][], ox: number, oy: number, scale: number):
   }))
 }
 
-/** 舞台：一到两只小动物（主角色或有立绘的配角）；near 时靠在一起，far 时分站两边 */
-export function stageFrame(pack: Pack, cast: Actor[], distance: 'near' | 'far', t: number): Px[][] {
+/** 舞台演出：每位角色的位移（正数向中间靠）、是否背过身、是否在场、头顶的情绪气泡 */
+export type StageDir = Record<string, { offset: number; turned: boolean; hidden: boolean; emote: string }>
+
+/** 情绪气泡：5×5 小图标 */
+const EMOTES: Record<string, { color: number; art: string[] }> = {
+  '!': { color: 0xffd54f, art: ['..x..', '..x..', '..x..', '.....', '..x..'] },
+  '?': { color: 0x90caf9, art: ['.xxx.', '...x.', '..x..', '.....', '..x..'] },
+  note: { color: 0xf48fb1, art: ['..xx.', '..x.x', '..x..', 'xxx..', 'xx...'] },
+  '...': { color: 0xb0bec5, art: ['.....', '.....', '.....', '.....', 'x.x.x'] },
+  anger: { color: 0xef5350, art: ['x...x', '.x.x.', '.....', '.x.x.', 'x...x'] },
+  sweat: { color: 0x81d4fa, art: ['..x..', '.xx..', 'xxx..', 'xxx..', '.x...'] },
+  heart: { color: 0xff6f91, art: ['.....', 'xx.xx', 'xxxxx', '.xxx.', '..x..'] },
+}
+export const EMOTE_KEYS = Object.keys(EMOTES)
+
+export function emoteFrame(e: string): Px[][] {
+  const em = EMOTES[e]
+  if (!em) return []
+  return em.art.map(r => r.split('').map(ch => (ch === 'x' ? em.color : null)))
+}
+
+/** 舞台：一到两只小动物（主角色或有立绘的配角）；near 时靠在一起，far 时分站两边；dir 是演出指令算出的走位、转身与气泡 */
+export function stageFrame(pack: Pack, cast: Actor[], distance: 'near' | 'far', t: number, dir: StageDir = {}, width = STAGE_W): Px[][] {
+  const STAGE_W = width
   const px = blank(STAGE_W, SH)
   const shown = cast.filter(a => !!personOf(pack, a.id)?.sprite).slice(0, 2)
   const n = shown.length
   const xs = n === 1 ? [(STAGE_W - SW) / 2] : distance === 'near' ? [STAGE_W / 2 - SW - 1, STAGE_W / 2 + 1] : [2, STAGE_W - SW - 2]
   shown.forEach((act, i) => {
-    const spr = sprite(personOf(pack, act.id)!.sprite!, act.expression, t + i * 7)
+    const d = dir[act.id]
+    if (d?.hidden) return
+    const spr = sprite(personOf(pack, act.id)!.sprite!, d?.turned ? 'back' : act.expression, t + i * 7)
     let dy = 0
     let dx = 0
     const hop = HOP[act.expression]
@@ -108,7 +134,12 @@ export function stageFrame(pack: Pack, cast: Actor[], distance: 'near' | 'far', 
     else if (act.expression === 'sad') dy = 1
     else dy = Math.floor((t + i * 2) / 4) % 2 === 0 ? 0 : -1 // 待机起伏
     if (act.expression === 'angry' && t % 10 < 4) dx = t % 2 === 0 ? 1 : -1
-    stamp(px, spr, xs[i]! + dx, SH - spr.length * S - 1 + dy, S)
+    // 向舞台中间靠：左边的人往右，右边（或独自一人时）的人往左
+    const toward = n === 1 ? 0 : i === 0 ? 1 : -1
+    const x = xs[i]! + dx + (d ? (n === 1 ? -d.offset : d.offset * toward) : 0)
+    const top = SH - spr.length * S - 1 + dy
+    stamp(px, spr, x, top, S)
+    if (d?.emote) stamp(px, emoteFrame(d.emote), x + SW - 6, Math.max(0, top - 6), 1)
   })
   return px
 }

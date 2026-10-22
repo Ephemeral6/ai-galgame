@@ -62,6 +62,11 @@
 - 画面板（`ui.render`）时不许写状态，只能读；按钮的回调里可以写。状态或存档格式变了，要在 `engine.ts` 的 `normalizeStory` 里补默认值，迁移只在 `command.run` 和 `session.start` 里做（`register.tsx` 的 `migrate`）；读到认不出的格式要降级显示，不能报错。
 - 性能约束：不用定时器重绘整个面板；动画只用 `$.ui.blit` 重画立绘那块 Raster，≤ 5 帧/秒；不做逐字打字机。
 - 自动游玩（`hooks/pilot.ts` 决策，`register.tsx` 的 `autoStep` 排程）：用 `$.clock.after` 一步一步排程，不用高频定时器；定时器回调里写状态，画面板时只读；每一步先核对 `autoGen`，按键、关闭、热重载都会让排着的步骤作废。决策提示只放状态摘要，不打缓存标记，用量单独记在 `usage.pilot*`。新增按钮时用 `hit()` 包住，让玩家按键能暂停自动模式。
+- 画面效果在 `hooks/fx.ts`（纯函数，只算像素）。会动的像素块在 `register.tsx` 里用 `raster(key, 宽, 高, draw)` 登记，动画定时器 ≤ 4 帧/秒，只 blit 变了的块；新加的动画必须能被「立绘动画」开关关掉，面板不显示时要能停。
+- AI 导演：氛围（`atmo`）、镜头（`camera`）、演出指令（`cues`）、选项态度（`tone`）都在写一幕的同一次输出里，由 `engine.parseDirection` 校验，认不出的值丢掉、不影响这一幕。加新的演出种类时，同时改 `FORMAT`、`parseDirection`、`fx.stageDirections` 和测试。
+- 额外的模型调用一律用 Haiku、按需生成、结果缓存进存档，并在设置 · AI 功能里加独立开关（`extras`）；花费经 `charge()` 记账（本局用量、今日花费、每日预算）。默认配置下每幕仍是 1 次写作 + 1 次检查。
+- 写代码事件只用工具调用的种类和成败（`hooks/work.ts`），不得把命令、路径、输出或代码写进提示或存档。
+- 后台任务（生成剧本包、从项目生成、社区下载）的状态在 `job` 里，进度走状态栏，必须能取消；从项目生成前必须先把要读的文件列给玩家确认。
 - 成本约束：每幕最多 1 次写作调用 + 1 次检查调用（不过才重写 1 次）；固定内容放在提示第一块并打缓存标记；人多时每幕只放相关的人。改动调用次数或提示长度请同步更新 README 的估算。
 
 ## 四、校验与测试
@@ -108,6 +113,8 @@ claude plugin test .            # 全部测试；其中会校验所有内置包�
 **Multilingual fields**: any text is a string or `{ "zh": …, "en": … }`; `defaultLang` is the fallback; `langs` lists only complete languages; write your own translations.
 
 **License checklist**: accept only original work or works under CC0, CC BY, CC BY-SA or another license that clearly allows derivatives and covers the script text. No NC, no ND, no fan works, no commercial copyrighted works. Link the license text and the date you checked it in the PR. Use the text and characters only — never the original art, music, sound or fonts. Fill `source` completely (and `notice` when attribution is required). CC BY-SA adaptations stay CC BY-SA in their own folder with the full license.
+
+**Visuals and AI extras**: pixel effects live in `hooks/fx.ts`; animated rasters register through `raster(...)` in `register.tsx` (≤ 4 fps, blit only what changed, honor the animation toggle). Stage directions, atmosphere, camera and choice tones come in the same writer output and are validated by `parseDirection`. Any extra model call must use Haiku, be on demand and cached, have its own switch under settings · AI features, and be charged through `charge()`. Coding events may only use the kind and outcome of a tool call, never commands, paths, output or code. Background jobs report progress in the status line, can be cancelled, and repo generation must show the files it will read before reading them.
 
 **Engine**: keep `$.state` access in `hooks/register.tsx` and game logic as pure, tested functions in `hooks/engine.ts`. Never write state while drawing the pane (`ui.render`); migrate state and saves only in `command.run` and `session.start` (via `normalizeStory`), and show an unknown save format as unreadable instead of failing. Autoplay (`hooks/pilot.ts` for decisions, `autoStep` in `register.tsx` for scheduling) advances one step at a time with `$.clock.after`, writes state only in timer callbacks, and checks `autoGen` so a key press, toggle or reload cancels pending steps; decision prompts are short state summaries, uncached, counted in `usage.pilot*`. Wrap new buttons with `hit()` so a key press pauses autoplay. Keep the performance limits (blit-only sprite animation ≤ 5 fps, no typewriter timers) and the cost limits (≤ 1 writer + 1 checker call per scene, one rewrite at most, cached fixed prompt block).
 

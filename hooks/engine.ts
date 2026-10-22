@@ -3,8 +3,11 @@
 
 import type { EngineInterface, ModelTextBlock } from 'claude-code'
 
-import type { Actor, BeatDef, CastDef, Choice, EndingDef, HState, IncidentDef, Keepsake, Lang, NpcDef, Pack, RelationDef, Scene, Story, Usage } from '../types'
+import type { Actor, Atmo, BeatDef, Camera, CastDef, Choice, EndingDef, HState, IncidentDef, Keepsake, Lang, NpcDef, Pack, RelationDef, Scene, StageCue, Story, Tone, Usage } from '../types'
 import { EXPRS, validKeepsake } from './art'
+import { costOf } from './cost'
+import { workLine } from './work'
+import type { WorkEvent } from './work'
 import { t } from './i18n'
 import { actOf, allBeats, beatOf, castOf, dayText, meterOf, npcOf, packText, personOf, tr } from './pack'
 
@@ -12,8 +15,9 @@ export const WRITER = 'sonnet'
 export const CHECKER = 'haiku'
 /** 每个角色最多几个信物 */
 export const KEEPSAKES_PER = 2
-/** 存档格式版本：2 起有 flags / incident / seed */
-export const STORY_V = 2
+/** 存档格式版本：2 起有 flags / incident / seed；3 起有 deltas / profile / echoes / gossip / letter / diary / portrait */
+export const STORY_V = 3
+export const TONES: Tone[] = ['honest', 'evasive', 'joking', 'committed', 'caring', 'bold']
 /** 人物（主角色 + 配角）多于这个数时，提示只放这一幕相关的人的完整设定，其余人一行摘要 */
 export const FOCUS_ABOVE = 3
 
@@ -38,6 +42,7 @@ export function freshStory(p: Pack, lang: Lang, loop = 1, seed = 1): Story {
     phase: 'plan', day: 1, slot: 0, heroines, promises: [], notes: [], facts: [], keepsakes: [], album: [],
     scene: null, after: '', reveal: 0, loadingText: '', ending: '', endingId: '', error: '', usage: zeroUsage(),
     v: STORY_V, seed: seed >>> 0, flags: [], incident: '',
+    deltas: {}, profile: {}, echoes: [], gossip: [], letter: null, diary: {}, portrait: {}, world: [], daily: '', quotes: [],
   }
   return { ...s, incident: rollIncident(p, s) }
 }
@@ -79,13 +84,30 @@ export function normalizeStory(raw: unknown, p: Pack | undefined): Story | null 
     seed: num(raw.seed, hashSeed(`${raw.pack}:${raw.day}:${raw.slot}`)) >>> 0,
     flags: arr<unknown>(raw.flags).filter((x): x is string => typeof x === 'string'),
     incident: str(raw.incident),
+    deltas: numMap(raw.deltas),
+    profile: numMap(raw.profile),
+    echoes: arr<unknown>(raw.echoes).filter((x): x is string => typeof x === 'string').slice(0, 12),
+    gossip: arr<unknown>(raw.gossip).filter((g): g is { day: number; text: string } => isObj(g) && typeof g.day === 'number' && typeof g.text === 'string').slice(-20),
+    letter: isObj(raw.letter) && typeof raw.letter.from === 'string' && typeof raw.letter.text === 'string' ? { from: raw.letter.from, text: raw.letter.text } : null,
+    diary: strMap(raw.diary),
+    portrait: strMap(raw.portrait),
+    world: arr<unknown>(raw.world).filter((x): x is string => typeof x === 'string').slice(-4),
+    daily: str(raw.daily),
+    quotes: arr<unknown>(raw.quotes).filter((q): q is { day: number; who: string; text: string } => isObj(q) && typeof q.day === 'number' && typeof q.who === 'string' && typeof q.text === 'string').slice(-60),
   }
+}
+
+function numMap(x: unknown): Record<string, number> {
+  return isObj(x) ? Object.fromEntries(Object.entries(x).filter(([, v]) => typeof v === 'number')) as Record<string, number> : {}
+}
+function strMap(x: unknown): Record<string, string> {
+  return isObj(x) ? Object.fromEntries(Object.entries(x).filter(([, v]) => typeof v === 'string')) as Record<string, string> : {}
 }
 
 /** 旧格式（或补了字段才完整）的存档需要写回 */
 export function needsMigration(raw: unknown, p: Pack | undefined): boolean {
   if (!isObj(raw)) return false
-  if (raw.v !== STORY_V || !Array.isArray(raw.flags) || typeof raw.seed !== 'number' || typeof raw.incident !== 'string') return true
+  if (raw.v !== STORY_V || !Array.isArray(raw.flags) || typeof raw.seed !== 'number' || typeof raw.incident !== 'string' || !isObj(raw.profile) || !Array.isArray(raw.gossip)) return true
   return !!p && p.cast.some(c => !isObj((raw.heroines as Record<string, unknown> | undefined)?.[c.id]))
 }
 
@@ -223,11 +245,18 @@ export function applyScene(s: Story, sc: Scene): Story {
   if (sc.beat && !flags.includes(`beat:${sc.beat}`)) flags.push(`beat:${sc.beat}`)
   if (sc.incident && !flags.includes(`inc:${sc.incident}`)) flags.push(`inc:${sc.incident}`)
   return {
-    ...s, phase: 'scene', scene: sc, reveal: 0, heroines, notes, promises, error: '', after: '', flags,
+    ...s, phase: 'scene', scene: sc, reveal: 0, heroines, notes, promises, error: '', after: '', flags, world: [],
     incident: sc.incident && sc.incident === s.incident ? '' : s.incident,
+    quotes: keyQuote(s, sc),
     facts: sc.fact ? [...s.facts, sc.fact].slice(-40) : s.facts,
     album: [...s.album, { day: s.day, slot: s.slot, heroine: firstHeroine(s, sc) || sc.cast[0]?.id || '', text: sc.summary }].slice(-80),
   }
+}
+
+/** 每幕留一句关键台词（主角色说的最长的一句），导出整局时用 */
+function keyQuote(s: Story, sc: Scene): Story['quotes'] {
+  const line = sc.lines.filter(l => !!s.heroines[l.who]).sort((a, b) => b.text.length - a.text.length)[0]
+  return line ? [...s.quotes, { day: s.day, who: line.who, text: line.text }].slice(-60) : s.quotes
 }
 
 /** 同一天同一时段的标识，防止「刚答应就在同一幕里算兑现」 */
@@ -271,7 +300,10 @@ export function applyChoice(p: Pack, s: Story, c: Choice, lang: Lang): ChoiceRes
   const after = [c.reaction || '…', ...turns.map(x => `（${x}）`)].join('\n\n')
   const have = (id: string) => s.keepsakes.filter(k => k.heroine === id).length
   const keepsakeFor = advanced.filter(id => heroines[id]!.stage >= 3 && have(id) < KEEPSAKES_PER)
-  return { story: { ...s, phase: 'after', heroines, notes, promises, reveal: 0, after }, advanced, keepsakeFor }
+  const deltas: Record<string, number> = {}
+  for (const [id, d] of Object.entries(c.effects)) if (heroines[id] && d) deltas[id] = clamp(Math.round(Number(d)) || 0, -2, 2)
+  const profile = c.tone ? { ...s.profile, [c.tone]: (s.profile[c.tone] ?? 0) + 1 } : s.profile
+  return { story: { ...s, phase: 'after', heroines, notes, promises, reveal: 0, after, deltas, profile }, advanced, keepsakeFor }
 }
 
 export type AdvanceResult = { story: Story; finished: boolean; looped: boolean; broken: string[] }
@@ -367,14 +399,15 @@ function json(text: string | null): Record<string, unknown> | null {
   }
 }
 
-async function ask($: EngineInterface, model: string, prompt: ModelTextBlock[], maxTokens: number, u: Usage): Promise<string | null> {
+async function ask($: EngineInterface, model: string, prompt: ModelTextBlock[], maxTokens: number, u: Usage, kind: 'write' | 'check' = 'write'): Promise<string | null> {
   const r = await $.model.complete({ model, prompt, maxTokens, timeoutMs: 90_000 })
-  if (model === WRITER) u.writer++
-  else u.checker++
+  if (model === CHECKER && kind === 'check') u.checker++
+  else u.writer++
   u.input += r.usage.input_tokens
   u.output += r.usage.output_tokens
   u.cacheRead += r.usage.cache_read_input_tokens
   u.cacheWrite += r.usage.cache_creation_input_tokens
+  u.cost = (u.cost ?? 0) + costOf(model, r.usage)
   return r.isAnswered ? r.text : null
 }
 
@@ -460,8 +493,9 @@ function actsOverview(p: Pack, lang: Lang): string {
 }
 
 const FORMAT = `Reply with ONE JSON object only:
-{"title":"scene title","cast":[{"id":"<cast or supporting id>","expression":"normal|smile|blush|sad|angry|surprised"}],"distance":"near|far","narration":"2-4 sentences","lines":[{"who":"<cast id, supporting id, or me>","text":"..."}],"choices":[{"text":"...","kind":"reply|observe|promise","effects":{"<cast id>":1},"promise":"what I promised (promise only)","reaction":"the immediate reaction and close of the scene after this choice, 2-3 sentences, may include one line of dialogue"}],"summary":"one-sentence summary","callback":"which earlier note this scene calls back, or empty","fact":"one concrete new fact this scene establishes"}
-Rules: at most two characters on stage (romanceable or supporting; zero is allowed); 3-7 lines of dialogue; exactly 3 choices with clearly different attitudes, at least one "reply"; "observe" gains a detail and does not change affection; "promise" must fill the promise field; effects range -2..+2 and list only affected romanceable cast ids.`
+{"title":"scene title","atmo":{"weather":"clear|rain|snow|fog|storm|wind","time":"dawn|day|dusk|night","fx":"rain|snow|fireflies|cicadas|lanterns|meteors|mist|stars|none"},"camera":{"focus":"one small object the camera lingers on, or empty","pause":0},"cast":[{"id":"<cast or supporting id>","expression":"normal|smile|blush|sad|angry|surprised"}],"distance":"near|far","narration":"2-4 sentences","lines":[{"who":"<cast id, supporting id, or me>","text":"..."}],"cues":[{"at":1,"who":"<id on stage>","emote":"!|?|note|...|anger|sweat|heart","move":"enter|exit|approach|turn|face"}],"choices":[{"text":"...","kind":"reply|observe|promise","tone":"honest|evasive|joking|committed|caring|bold","effects":{"<cast id>":1},"promise":"what I promised (promise only)","reaction":"the immediate reaction and close of the scene after this choice, 2-3 sentences, may include one line of dialogue"}],"summary":"one-sentence summary","callback":"which earlier note this scene calls back, or empty","fact":"one concrete new fact this scene establishes"}
+Rules: at most two characters on stage (romanceable or supporting; zero is allowed); 3-7 lines of dialogue; exactly 3 choices with clearly different attitudes, at least one "reply"; "observe" gains a detail and does not change affection; "promise" must fill the promise field; effects range -2..+2 and list only affected romanceable cast ids.
+Direction (you are also the director): "atmo" sets the weather, time of day and the ambient particles; "camera.focus" names one object for a close-up, "camera.pause" is the line number after which a silent beat falls (0 = none); "cues" are 0-4 stage directions — "at" is the line number (0 = narration) when it happens: an emote bubble over someone's head, entering or leaving, stepping closer, turning away when shy or hurt, turning back. Use them sparingly, only where they add something. Give every choice a "tone".`
 
 /** 固定不变的部分（前提、文风、人物、分幕、格式）放第一块并打缓存标记，每一幕复用 */
 export function staticBlock(p: Pack, lang: Lang): string {
@@ -522,7 +556,8 @@ function focusNotes(p: Pack, ids: string[], lang: Lang): string {
   return `[People relevant to this scene — full notes]\n${people || '(nobody in particular; keep the stage empty or bring someone in only by mention)'}\n${rel ? `[Relations in play]\n${rel}\n` : ''}`
 }
 
-export type MetaInfo = { endingsSeen: string[]; clears: number }
+/** 每一幕的写法开关：写作模型（省额度时换 haiku）、短幕、现实里写代码的事件 */
+export type MetaInfo = { endingsSeen: string[]; clears: number; writer?: string; short?: boolean; world?: string[] }
 
 export function sceneDynamic(p: Pack, s: Story, opt: PlanOption, who: string | null, fix: string, lang: Lang, meta: MetaInfo, ctx?: SceneCtx): string {
   const T = packText(p, lang)
@@ -544,9 +579,13 @@ export function sceneDynamic(p: Pack, s: Story, opt: PlanOption, who: string | n
   const inc = c.incident
   const incLine = inc ? `\n[Something happens this time] ${T(inc.text)}${inc.who?.length ? ` (brings in ${inc.who.join(', ')})` : ''}\n` : ''
   const present = opt.maybe.length ? `\n[Likely here] ${opt.maybe.join(', ')}` : ''
+  const echoes = s.loop >= 2 && s.echoes.length ? `\n[Echoes of a previous playthrough] The characters do not remember it, but now and then one may feel a faint déjà vu ("have we... met somewhere before?") tied to one of these; at most one subtle hint per scene, never a clear memory: ${s.echoes.slice(0, 6).join(' / ')}` : ''
+  const prof = profileLine(s)
+  const gossip = s.gossip.filter(g => g.day === s.day - 1).map(g => g.text).join(' ')
+  const extra = `${echoes}${prof ? `\n[How I tend to act] ${prof}. Characters who know me may notice the pattern and say so, once, in their own words ("you always joke when it matters").` : ''}${gossip ? `\n[Overnight in town — offstage, may be mentioned] ${gossip}` : ''}`
   return `[Now] ${dayText(p, lang, s.day)} of ${p.days} · ${T(p.slots[s.slot])} · place: ${opt.place} (${opt.mood})${opt.forced ? ` · fixed event: ${opt.forced}` : ''}
 ${actLine}${today ? `Today: ${today}\n` : ''}${focusNotes(p, c.focus, lang)}[State]
-${stateText(p, s, lang, c.focus)}${present}
+${stateText(p, s, lang, c.focus)}${present}${extra}
 ${lead}${wall}${cyc}${beatLine}${incLine}
 [Established facts — do not contradict]
 ${s.facts.slice(-24).map(f => `- ${f}`).join('\n') || '(none)'}
@@ -555,7 +594,14 @@ ${open.map(x => `- day ${x.day} promised ${x.heroine}: ${x.text} (due day ${x.du
 [Notebook: my earlier choices — call one back naturally]
 ${notes.map(n => `- day ${n.day} (${n.heroine}): ${n.text}`).join('\n') || '(none)'}
 ${fix ? `\n[Problems in the previous draft — must fix] ${fix}\n` : ''}
-Write this scene following the current stage beat of whoever is present. ${langRule(lang)}`
+${meta.world?.length ? `${workLine(meta.world as WorkEvent[])}\n` : ''}${meta.short ? '[Short scene] This is a short scene for a quick break: narration 1-2 sentences, only 2-4 lines of dialogue, still exactly 3 choices.\n' : ''}Write this scene following the current stage beat of whoever is present. ${langRule(lang)}`
+}
+
+/** 选择倾向的一行摘要：选过 3 次以上才有 */
+export function profileLine(s: Story): string {
+  const total = Object.values(s.profile).reduce((a, b) => a + (b ?? 0), 0)
+  if (total < 3) return ''
+  return Object.entries(s.profile).filter(([, n]) => (n ?? 0) > 0).sort((a, b) => (b[1] ?? 0) - (a[1] ?? 0)).slice(0, 3).map(([k, n]) => `${k} ${n}`).join(', ')
 }
 
 export function checkDynamic(p: Pack, s: Story, draft: string, lang: Lang, ctx?: SceneCtx): string {
@@ -583,6 +629,7 @@ export function parseScene(p: Pack, j: Record<string, unknown>, place: string): 
     })
     .filter((a, i, all) => onStage.includes(a.id) && all.findIndex(x => x.id === a.id) === i)
     .slice(0, 2)
+  const TONE_SET = new Set<string>(TONES)
   const choices: Choice[] = (j.choices as unknown[]).slice(0, 3).map(raw => {
     const c = (raw ?? {}) as Record<string, unknown>
     const eff: Record<string, number> = {}
@@ -590,6 +637,7 @@ export function parseScene(p: Pack, j: Record<string, unknown>, place: string): 
     return {
       text: String(c.text ?? '…'),
       kind: c.kind === 'observe' || c.kind === 'promise' ? c.kind : 'reply',
+      ...(TONE_SET.has(String(c.tone)) ? { tone: c.tone as Tone } : {}),
       effects: eff,
       promise: typeof c.promise === 'string' && c.promise ? c.promise : undefined,
       reaction: typeof c.reaction === 'string' ? c.reaction : '',
@@ -603,7 +651,45 @@ export function parseScene(p: Pack, j: Record<string, unknown>, place: string): 
       return { who: String(o.who ?? ''), text: String(o.text ?? '') }
     }).filter(l => l.text),
     choices, summary: String(j.summary ?? ''), callback: String(j.callback ?? ''), fact: String(j.fact ?? ''),
+    ...parseDirection(j, cast.map(a => a.id), Array.isArray(j.lines) ? j.lines.length : 0),
   }
+}
+
+const WEATHER = ['clear', 'rain', 'snow', 'fog', 'storm', 'wind']
+const TIMES = ['dawn', 'day', 'dusk', 'night']
+const FX = ['rain', 'snow', 'fireflies', 'cicadas', 'lanterns', 'meteors', 'mist', 'stars', 'none']
+const EMOTE = ['!', '?', 'note', '...', 'anger', 'sweat', 'heart']
+const MOVES = ['enter', 'exit', 'approach', 'turn', 'face']
+
+/** 氛围、镜头、演出指令：认不出的值直接丢掉，不影响这一幕 */
+export function parseDirection(j: Record<string, unknown>, onStage: string[], nLines: number): { atmo?: Atmo; camera?: Camera; cues?: StageCue[] } {
+  const out: { atmo?: Atmo; camera?: Camera; cues?: StageCue[] } = {}
+  const a = isObj(j.atmo) ? j.atmo : null
+  if (a) {
+    const atmo: Atmo = {}
+    if (WEATHER.includes(String(a.weather))) atmo.weather = a.weather as Atmo['weather']
+    if (TIMES.includes(String(a.time))) atmo.time = a.time as Atmo['time']
+    if (FX.includes(String(a.fx))) atmo.fx = a.fx as Atmo['fx']
+    if (typeof a.mood === 'string' && a.mood) atmo.mood = a.mood.slice(0, 24)
+    if (Object.keys(atmo).length) out.atmo = atmo
+  }
+  const c = isObj(j.camera) ? j.camera : null
+  if (c) {
+    const cam: Camera = {}
+    if (typeof c.focus === 'string' && c.focus.trim()) cam.focus = c.focus.trim().slice(0, 40)
+    const pause = Math.round(Number(c.pause))
+    if (pause >= 1 && pause <= nLines) cam.pause = pause
+    if (Object.keys(cam).length) out.camera = cam
+  }
+  if (Array.isArray(j.cues)) {
+    const cues = (j.cues as unknown[]).filter(isObj).map(x => ({
+      at: Math.round(Number(x.at)), who: String(x.who ?? ''),
+      ...(EMOTE.includes(String(x.emote)) ? { emote: x.emote as StageCue['emote'] } : {}),
+      ...(MOVES.includes(String(x.move)) ? { move: x.move as StageCue['move'] } : {}),
+    })).filter(x => x.at >= 0 && x.at <= nLines && onStage.includes(x.who) && (x.emote || x.move)).slice(0, 6)
+    if (cues.length) out.cues = cues
+  }
+  return out
 }
 
 // ---------- 模型调用 ----------
@@ -617,12 +703,12 @@ export async function writeScene($: EngineInterface, p: Pack, s: Story, opt: Pla
   const ctx = sceneContext(p, s, opt, who)
   let fix = ''
   for (let attempt = 0; attempt < 2; attempt++) {
-    const draft = await ask($, WRITER, [head, { text: sceneDynamic(p, s, opt, who, fix, lang, meta, ctx) }], 1800, u)
+    const draft = await ask($, meta.writer ?? WRITER, [head, { text: sceneDynamic(p, s, opt, who, fix, lang, meta, ctx) }], 1800, u)
     const j = json(draft)
     const sc = j ? parseScene(p, j, opt.place) : null
     if (!sc) { fix = 'The previous reply was not valid JSON or missed fields.'; continue }
     if (attempt === 0) {
-      const verdict = json(await ask($, CHECKER, [{ text: checkerBlock(p, lang), cache: true }, { text: checkDynamic(p, s, draft!, lang, ctx) }], 200, u))
+      const verdict = json(await ask($, CHECKER, [{ text: checkerBlock(p, lang), cache: true }, { text: checkDynamic(p, s, draft!, lang, ctx) }], 200, u, 'check'))
       if (verdict && verdict.ok === false && typeof verdict.fix === 'string' && verdict.fix) { fix = verdict.fix; continue }
     }
     sc.proactive = !!who
@@ -634,7 +720,7 @@ export async function writeScene($: EngineInterface, p: Pack, s: Story, opt: Pla
 }
 
 /** 画信物：一次调用；不合格再试一次 */
-export async function drawKeepsake($: EngineInterface, p: Pack, s: Story, id: string, lang: Lang): Promise<Gen<Keepsake>> {
+export async function drawKeepsake($: EngineInterface, p: Pack, s: Story, id: string, lang: Lang, model = WRITER): Promise<Gen<Keepsake>> {
   const u = zeroUsage()
   const T = packText(p, lang)
   const c = castOf(p, id)
@@ -648,7 +734,7 @@ Ideas: ${T(c.keepsakeIdeas) || 'a concrete small object tied to the moments abov
 Use at most 5 colors. ${langRule(lang)}
 Reply with JSON only: {"title":"object name","desc":"one sentence on why it matters","palette":{"a":"#rrggbb","b":"#rrggbb"},"art":["8 chars per row, '.' = transparent", "... 8 rows"]}`
   for (let i = 0; i < 2; i++) {
-    const j = json(await ask($, WRITER, [{ text: prompt }], 500, u))
+    const j = json(await ask($, model, [{ text: prompt }], 500, u))
     const ok = j ? validKeepsake(j.art, j.palette) : null
     if (j && ok) return { value: { pack: p.id, day: s.day, heroine: id, title: String(j.title ?? '?').slice(0, 24), desc: String(j.desc ?? '').slice(0, 120), art: ok.art, palette: ok.palette }, usage: u }
   }
@@ -656,7 +742,7 @@ Reply with JSON only: {"title":"object name","desc":"one sentence on why it matt
 }
 
 /** 写结局：一次调用，回收回忆、信物、关键约定 */
-export async function writeEnding($: EngineInterface, p: Pack, s: Story, e: EndingDef, lang: Lang): Promise<Gen<string>> {
+export async function writeEnding($: EngineInterface, p: Pack, s: Story, e: EndingDef, lang: Lang, model = WRITER): Promise<Gen<string>> {
   const u = zeroUsage()
   const T = packText(p, lang)
   const promises = s.promises.map(x => `${x.heroine} "${x.text}" ${x.status}${x.key ? ' (key promise)' : ''}`).join('; ') || 'none'
@@ -664,7 +750,7 @@ export async function writeEnding($: EngineInterface, p: Pack, s: Story, e: Endi
   const album = s.album.slice(-30).map(m => `${dayText(p, lang, m.day)}: ${m.text}`).join('\n')
   const who = e.who ? [e.who] : p.cast.filter(c => (s.heroines[c.id]?.stage ?? 0) >= 2).map(c => c.id)
   const kind = e.kind ? ` [${e.kind} ending]` : ''
-  const text = await ask($, WRITER, [{ text: staticBlock(p, lang), cache: true }, {
+  const text = await ask($, model, [{ text: staticBlock(p, lang), cache: true }, {
     text: `Now write the ENDING instead of a scene. Plain prose, no JSON.
 Ending: "${T(e.title)}"${kind} — ${T(e.brief)}${e.who ? ` (with ${T(castOf(p, e.who)?.name)})` : ''}${e.who && !meterOf(castOf(p, e.who)).romance ? `\n${noRomance(p, castOf(p, e.who)!, lang)}.` : ''}
 ${focusNotes(p, who, lang)}Final state:
@@ -682,5 +768,7 @@ export function addUsage(a: Usage, b: Usage): Usage {
   return {
     writer: a.writer + b.writer, checker: a.checker + b.checker, input: a.input + b.input, output: a.output + b.output, cacheRead: a.cacheRead + b.cacheRead, cacheWrite: a.cacheWrite + b.cacheWrite,
     pilot: (a.pilot ?? 0) + (b.pilot ?? 0), pilotIn: (a.pilotIn ?? 0) + (b.pilotIn ?? 0), pilotOut: (a.pilotOut ?? 0) + (b.pilotOut ?? 0),
+    extra: (a.extra ?? 0) + (b.extra ?? 0), extraIn: (a.extraIn ?? 0) + (b.extraIn ?? 0), extraOut: (a.extraOut ?? 0) + (b.extraOut ?? 0),
+    cost: (a.cost ?? 0) + (b.cost ?? 0),
   }
 }

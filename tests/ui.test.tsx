@@ -35,10 +35,10 @@ const SCENE = {
 
 const gal = (args: string) => ({ command: 'gal', args, origin: { kind: 'composer' as const }, presentation: { isFullscreen: true, columns: 160 } })
 
-type Calls = { writer: number; checker: number; firstBlockCached: boolean[]; writerPrompts: string[] }
+type Calls = { writer: number; checker: number; extras: number; firstBlockCached: boolean[]; writerPrompts: string[] }
 
 function engineBeneath(on: On, opts: { checkerSays?: string; files?: Record<string, string>; scene?: unknown; store?: Record<string, unknown> } = {}): Calls {
-  const calls: Calls = { writer: 0, checker: 0, firstBlockCached: [], writerPrompts: [] }
+  const calls: Calls = { writer: 0, checker: 0, extras: 0, firstBlockCached: [], writerPrompts: [] }
   mock.store(on, opts.store)
   on('command.register', () => ({ value: { command: 'gal' } }))
   on('ui.open', () => ({ value: { isPlaced: true } }))
@@ -55,6 +55,12 @@ function engineBeneath(on: On, opts: { checkerSays?: string; files?: Record<stri
   })
   on('model.complete', (_, e) => {
     const usage = { input_tokens: 100, output_tokens: 50, cache_read_input_tokens: 900, cache_creation_input_tokens: 0 }
+    const first = e.promptBlocks?.[0]?.text ?? ''
+    if (e.model === 'haiku' && !first.startsWith('Continuity')) {
+      // AI 原生机制的额外调用（夜里的八卦、离开后的消息……）单独计数
+      calls.extras++
+      return { value: { isAnswered: true as const, text: '夜里老街的馄饨摊收得很晚。', usage } }
+    }
     calls.firstBlockCached.push(e.promptBlocks?.[0]?.cache === true)
     if (e.model === 'haiku') {
       calls.checker++
@@ -187,8 +193,8 @@ test('通关：结局解锁、通关次数、自动存档、二周目', async ($
   }
   expect(await ui.find({ type: 'Text', text: /终幕/ })).toBeDefined()
   expect(await ui.find({ type: 'Text', text: /已见结局 1\/\d · 通关 1 次/ })).toBeDefined()
-  // 8 幕 × (1 写作 + 1 检查) + 1 次结局
-  expect([calls.writer, calls.checker]).toEqual([9, 8])
+  // 默认配置：8 幕 × (1 写作 + 1 检查) + 1 次结局；另外每过一天 1 次 Haiku 写夜里的小镇（可关）
+  expect([calls.writer, calls.checker, calls.extras]).toEqual([9, 8, 3])
   await ui.press({ key: 'kb-1' }) // 二周目
   expect(await ui.find({ type: 'Text', text: /第 2 周目/ })).toBeDefined()
   await ui.unmount()
@@ -208,7 +214,7 @@ test('配角上台说话：名字、颜色来自配角设定', async ($, on) => 
   await ui.press({ key: 'menu-new' })
   await ui.press({ key: 'go-2' }) // 小卖部
   await ui.press({ key: 'kb-a' })
-  expect(await ui.find({ type: 'Text', text: /^黄阿姨/ })).toBeDefined()
+  expect(await ui.find({ type: 'Text', text: /^ 黄阿姨 $/ })).toBeDefined()
   expect(await ui.find({ type: 'Text', text: /小鬼头，绿豆冰棍最后三根了/ })).toBeDefined()
   await ui.press({ key: 'c0' })
   await ui.press({ key: 'kb-p' }) // 相册：回忆记在知遥名下

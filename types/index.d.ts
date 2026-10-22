@@ -249,9 +249,29 @@ export type Pack = {
 // ---------- 运行状态 ----------
 export type Line = { who: string; text: string }
 export type Actor = { id: string; expression: string }
+/** 这一幕的氛围：AI 每幕给出，引擎据此选主题色和氛围带粒子 */
+export type Atmo = {
+  weather?: 'clear' | 'rain' | 'snow' | 'fog' | 'storm' | 'wind'
+  time?: 'dawn' | 'day' | 'dusk' | 'night'
+  /** 氛围带粒子 */
+  fx?: 'rain' | 'snow' | 'fireflies' | 'cicadas' | 'lanterns' | 'meteors' | 'mist' | 'stars' | 'none'
+  mood?: string
+}
+/** 演出指令：第 at 句（0 = 旁白）出现时，who 做这件事 */
+export type StageCue = {
+  at: number
+  who: string
+  emote?: '!' | '?' | 'note' | '...' | 'anger' | 'sweat' | 'heart'
+  move?: 'enter' | 'exit' | 'approach' | 'turn' | 'face'
+}
+/** 镜头：特写哪个物件、第几句后留白 */
+export type Camera = { focus?: string; pause?: number }
+/** 选项透露的态度，用来总结「你在她眼里」 */
+export type Tone = 'honest' | 'evasive' | 'joking' | 'committed' | 'caring' | 'bold'
 export type Choice = {
   text: string
   kind: 'reply' | 'observe' | 'promise'
+  tone?: Tone
   effects: Record<string, number>
   promise?: string
   reaction?: string
@@ -272,6 +292,9 @@ export type Scene = {
   beat?: string
   /** 这一幕带上的随机事件 id */
   incident?: string
+  atmo?: Atmo
+  cues?: StageCue[]
+  camera?: Camera
 }
 export type HState = { affection: number; stage: number; scenes: number; mood: string; lastDay: number }
 export type Promise_ = { text: string; heroine: string; day: number; due: number; status: 'open' | 'kept' | 'broken'; made?: string; /** 关键约定：对应的 beat id */ key?: string }
@@ -283,6 +306,10 @@ export type Usage = {
   writer: number; checker: number; input: number; output: number; cacheRead: number; cacheWrite: number
   /** 自动游玩的决策调用（Haiku，不走设定集缓存块），单独计数 */
   pilot?: number; pilotIn?: number; pilotOut?: number
+  /** AI 原生机制的额外调用（Haiku：消息、八卦、日记、画像） */
+  extra?: number; extraIn?: number; extraOut?: number
+  /** 估算花费（美元） */
+  cost?: number
 }
 export type Story = {
   pack: string
@@ -319,12 +346,56 @@ export type Story = {
   flags: string[]
   /** 当前时段掷出的随机事件 id（'' 表示没有） */
   incident: string
+  /** 上一次选择带来的好感变化（关系网上闪一下） */
+  deltas: Record<string, number>
+  /** 我的选择倾向：每种态度选过几次（「你在她眼里」） */
+  profile: Partial<Record<Tone, number>>
+  /** 二周目起：上一局留下的回声（相册摘要），角色会隐约「记得」 */
+  echoes: string[]
+  /** 每天结束时小镇里发生的事（配角之间的八卦、幕后） */
+  gossip: { day: number; text: string }[]
+  /** 你离开很久后她发来的消息 */
+  letter: { from: string; text: string } | null
+  /** 她的日记 / 视角（打开时才生成，之后缓存）：key 为 `${heroine}:${day}` */
+  diary: Record<string, string>
+  /** 「你在她眼里」（打开时才生成，缓存）：heroine → 一段话 */
+  portrait: Record<string, string>
+  /** 现实里写代码的事件（只有类型），下一幕提到后清空 */
+  world: string[]
+  /** 每日挑战的日期（不是挑战局为 ''） */
+  daily: string
+  /** 关键台词（每幕一句，导出整局时用） */
+  quotes: { day: number; who: string; text: string }[]
 }
 
-export type View = 'game' | 'album' | 'saves' | 'settings' | 'help' | 'packs'
-export type UiState = { view: View; tab: number; saveMode: 'save' | 'load'; back: View }
+export type View = 'game' | 'album' | 'saves' | 'settings' | 'help' | 'packs' | 'graph' | 'feats'
+export type UiState = { view: View; tab: number; saveMode: 'save' | 'load'; back: View; pick?: string }
+/** 成就、统计、今日花费、每日挑战（跨会话，存在 $.store） */
+export type Feats = {
+  achievements: string[]
+  stats: { clears: number; scenes: number; cost: number }
+  /** 今日花费（每日预算用） */
+  today: { date: string; usd: number }
+  /** 每日挑战：日期 → 结果 */
+  daily: Record<string, { pack: string; ending: string; kind: string }>
+}
+/** 边等边玩与陪伴模式的运行状态（会话内） */
+export type WorkState = {
+  /** Claude 正在干活 */
+  busy: boolean
+  /** 面板上的提示：趁现在玩一幕 / 写完了 / 在等你批准 */
+  notice: '' | 'busy' | 'done' | 'permission'
+  /** 连续工作从什么时候开始（毫秒） */
+  since: number
+  /** 上一次 Claude 回合的时间 */
+  lastTurn: number
+  /** 陪伴模式最近说话的时间点 */
+  said: number[]
+  /** 陪伴模式最近一句 */
+  line: string
+}
 /** 自动游玩的策略：专一 / 随心 / 收集 / 混乱（随机、不调用模型） */
-export type AutoStrategy = 'focus' | 'whim' | 'collect' | 'chaos'
+export type AutoStrategy = 'focus' | 'whim' | 'collect' | 'chaos' | 'self'
 export type AutoSpeed = 'slow' | 'mid' | 'fast'
 export type GalSettings = {
   lang: Lang; anim: boolean; pageMode: 'line' | 'page'; pack: string
@@ -334,6 +405,30 @@ export type GalSettings = {
   autoLimit?: number
   /** 专一策略锁定的角色 id；'' 表示开局时问 AI 想追谁 */
   autoTarget?: string
+  /** 像素小镇地图 */
+  map?: boolean
+  /** AI 原生机制逐项开关：echoes / letters / gossip / diary / portrait / letItBe */
+  extras?: Partial<Record<string, boolean>>
+  /** 边等边玩：Claude 干活时提示、干完或等批准时暂停 */
+  watch?: boolean
+  /** 写代码的事件进入剧情（默认关） */
+  workEvents?: boolean
+  /** 写剧情用的模型：sonnet（默认）或 haiku（省额度） */
+  writer?: 'sonnet' | 'haiku'
+  /** 每日预算（美元，0 = 不限） */
+  budget?: number
+  /** 短幕：旁白 1–2 句、台词 2–4 句 */
+  short?: boolean
+  /** 陪伴模式：常驻状态栏的角色 id，'' 关闭 */
+  companion?: string
+  /** 朗读台词 */
+  voice?: boolean
+  /** 音效 */
+  sfx?: boolean
+  /** 排版：auto 按宽度自动、compact 紧凑、full 完整 */
+  layout?: 'auto' | 'compact' | 'full'
+  /** 配色：default 或 cb（色盲友好） */
+  palette?: 'default' | 'cb'
 }
 /** 自动游玩的运行状态（会话内） */
 export type AutoState = {
@@ -349,13 +444,32 @@ export type AutoState = {
   /** 暂停或停下的原因 */
   note: string
 }
-export type PackMeta = { endings: string[]; clears: number; keepsakes: Keepsake[] }
+export type PackMeta = {
+  endings: string[]; clears: number; keepsakes: Keepsake[]
+  /** 上一局的结局与回忆摘要：二周目时化作「回声」 */
+  lastRun?: { ending: string; lines: string[] }
+}
 export type Meta = Record<string, PackMeta>
 /** 标题页可选的剧本包：内置、目录里的、导入的 */
-export type PackEntry = { id: string; origin: 'builtin' | 'folder' | 'imported'; pack: Pack }
+export type PackEntry = { id: string; origin: 'builtin' | 'folder' | 'imported' | 'community'; pack: Pack }
+/** 生成剧本包、从仓库生成、社区下载这些后台任务的状态（会话内） */
+export type JobState = {
+  /** '' 空闲；gen / repo 生成中；confirm 等玩家确认要读哪些文件；browse 读社区索引；download 下载中 */
+  kind: '' | 'gen' | 'repo' | 'confirm' | 'browse' | 'download'
+  /** 生成的步骤：outline / expand / repair */
+  step: string
+  /** 第几次（修复第几处） */
+  attempt: number
+  /** 最近一条结果或错误 */
+  message: string
+  /** 从仓库生成前，要读的文件清单（等确认） */
+  scan: { root: string; idea: string; files: string[]; bytes: number } | null
+  /** 社区索引（显示用） */
+  entries: { id: string; title: string; author: string; license: string; lang: string; summary: string }[]
+}
 
 declare module 'claude-code' {
   interface PluginState {
-    'ai-galgame': { story: Story; undo: string[]; ui: UiState; settings: GalSettings; meta: Meta; packs: PackEntry[]; auto: AutoState }
+    'ai-galgame': { story: Story; undo: string[]; ui: UiState; settings: GalSettings; meta: Meta; packs: PackEntry[]; auto: AutoState; work: WorkState; feats: Feats; job: JobState }
   }
 }

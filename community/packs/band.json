@@ -1,0 +1,2131 @@
+{
+  "id": "band",
+  "version": "1.0.0",
+  "defaultLang": "zh",
+  "langs": [
+    "zh",
+    "en"
+  ],
+  "author": "ai-galgame contributors",
+  "source": "original",
+  "title": {
+    "zh": "防空洞与江雾音乐节",
+    "en": "The Shelter Band & the River Fog Festival"
+  },
+  "subtitle": {
+    "zh": "西南山城 · 防空洞排练室 · 高考后的十三天",
+    "en": "A foggy mountain river city, a rehearsal room in an old air-raid shelter, thirteen days after the exams"
+  },
+  "premise": {
+    "zh": "第一人称「我」十八岁，刚考完高考，暑假被爸妈送到西南山城雾江市的舅舅家住。舅舅在半山腰开了一家小 Livehouse「坡上」，门口贴着一张手写的「贝斯手急招」。\n雾江市在两条江交汇的山上，楼比路高，轻轨从居民楼中间穿过去，出门就是几百级梯坎。半山有一个废弃的防空洞，被一支叫「七号防空洞」的地下乐队租来当排练室。\n十三天后，江边的「江雾音乐节」开幕，新人舞台只有一个名额。「我」会弹一点贝斯，于是被拽了进去。",
+    "en": "The first-person narrator (\"I\") is eighteen and has just sat the college entrance exam. For the summer my parents have packed me off to my uncle's place in Wujiang, a foggy mountain city in the southwest. Halfway up the hill my uncle runs a tiny live-music bar called Slope, and taped to its door is a handwritten sign: BASSIST WANTED, URGENT.\nWujiang sits on a hill where two rivers meet. The buildings are taller than the streets, the light rail runs straight through an apartment block, and every errand means a few hundred stone steps. Halfway up the hill an old air-raid shelter has been rented out as a rehearsal room by an underground band called Shelter No. 7.\nIn thirteen days the River Fog Festival opens on the riverbank, and the newcomers' stage has exactly one slot. I can play a little bass, so I get dragged in."
+  },
+  "style": {
+    "zh": "文风：国产青春小说的质感，克制、具体、有声音。多写山城和乐队的细节：防空洞里的潮气和回声、贝斯弦勒出的指茧、效果器踏板上的胶布、梯坎上的青苔、轻轨穿楼时整栋楼一震、江边夜市的辣椒味和蒸汽、雾把对岸的灯泡成一团。少写空泛形容词和心理独白。\n音乐要写得像真的在排练：数拍子、对和弦、拔错线、返送太吵、鼓棒断了。不要写成「才华横溢」「惊艳全场」这种空话。\n每个人的说话方式必须分得开。可以有一点西南口音（「要得」「莫慌」「噻」），点到为止。乐队之间是竞争不是仇恨，没有反派。\n禁忌：不要出现任何日本元素（前后辈称呼、樱花、神社、祭典、浴衣、便当、轻音部、社团部室文化）；不要出现任何真实的乐队名、歌名、音乐节名或综艺节目名；不要写死亡、车祸、绝症；不要用「命运」「羁绊」这类空词。",
+    "en": "Style: understated, concrete Chinese young-adult fiction that you can hear. Lean on the details of a mountain city and a band: the damp and echo of the shelter, calluses from bass strings, tape on the pedalboard, moss on the stone steps, the whole building shuddering as the light rail passes through it, chili smoke and steam at the riverside night market, fog smearing the far bank's lights into one glow. Avoid empty adjectives and long inner monologue.\nMusic should feel like real rehearsal: counting in, agreeing on chords, pulling the wrong cable, monitors too loud, a drumstick snapping. Never \"dazzling talent\" or \"stunned the crowd\".\nEvery character must sound distinct. A light touch of southwestern speech is fine. The bands are competitors, not enemies; there is no villain.\nNever: anything Japanese (senpai/kohai, cherry blossoms, shrines, festivals in the matsuri sense, yukata, bento, school light-music clubs or club-room culture); any real band, song, festival or TV show name; death, car crashes or terminal illness; empty words like \"destiny\" or \"bond\"."
+  },
+  "me": {
+    "zh": "我",
+    "en": "Me"
+  },
+  "days": 13,
+  "slots": [
+    {
+      "zh": "白天",
+      "en": "Day"
+    },
+    {
+      "zh": "傍晚",
+      "en": "Dusk"
+    },
+    {
+      "zh": "夜里",
+      "en": "Night"
+    }
+  ],
+  "dayLabel": {
+    "zh": "第 {n} 天",
+    "en": "Day {n}"
+  },
+  "places": [
+    {
+      "id": "shelter",
+      "name": {
+        "zh": "七号防空洞",
+        "en": "Shelter No. 7"
+      },
+      "mood": {
+        "zh": "拱顶滴水、一盏吊着的灯泡、墙上贴满鸡蛋托吸音",
+        "en": "a dripping vaulted ceiling, one hanging bulb, egg cartons stapled to the walls for soundproofing"
+      },
+      "slots": [
+        0,
+        1,
+        2
+      ]
+    },
+    {
+      "id": "stairs",
+      "name": {
+        "zh": "十八梯坎",
+        "en": "The Long Steps"
+      },
+      "mood": {
+        "zh": "几百级石阶、青苔、挑担子的人和冰粉摊",
+        "en": "hundreds of stone steps, moss, porters with shoulder poles, an ice-jelly stall"
+      },
+      "slots": [
+        0,
+        1
+      ]
+    },
+    {
+      "id": "lightrail",
+      "name": {
+        "zh": "穿楼轻轨站",
+        "en": "Through-the-Building Station"
+      },
+      "mood": {
+        "zh": "列车从六楼钻进居民楼，整栋楼跟着一震",
+        "en": "the train slides into the sixth floor of an apartment block and the whole building shivers"
+      },
+      "slots": [
+        0,
+        1
+      ]
+    },
+    {
+      "id": "musicshop",
+      "name": {
+        "zh": "老调琴行",
+        "en": "Old Tune Music Shop"
+      },
+      "mood": {
+        "zh": "挂满二手吉他的窄铺子、焊锡味、一台修了一半的音箱",
+        "en": "a narrow shop hung with second-hand guitars, solder smell, an amp half repaired"
+      },
+      "slots": [
+        0,
+        1
+      ]
+    },
+    {
+      "id": "ferry",
+      "name": {
+        "zh": "过江缆车",
+        "en": "River Cable Car"
+      },
+      "mood": {
+        "zh": "摇晃的铁皮车厢、脚下的江、对岸的雾",
+        "en": "a swaying tin cabin, the river below, fog on the far bank"
+      },
+      "slots": [
+        0,
+        1
+      ]
+    },
+    {
+      "id": "livehouse",
+      "name": {
+        "zh": "坡上 Livehouse",
+        "en": "Slope (live bar)"
+      },
+      "mood": {
+        "zh": "五十个人就挤满、地板黏脚、墙上贴着旧演出海报",
+        "en": "packed at fifty people, sticky floor, old gig posters on every wall"
+      },
+      "slots": [
+        1,
+        2
+      ]
+    },
+    {
+      "id": "rooftop",
+      "name": {
+        "zh": "老楼天台",
+        "en": "Old Building Rooftop"
+      },
+      "mood": {
+        "zh": "晾着的床单、水箱、脚下整座山城的灯",
+        "en": "drying sheets, a water tank, the whole hill city lit up below"
+      },
+      "slots": [
+        1,
+        2
+      ]
+    },
+    {
+      "id": "nightmarket",
+      "name": {
+        "zh": "江边夜市",
+        "en": "Riverside Night Market"
+      },
+      "mood": {
+        "zh": "烤脑花、凉面、塑料凳和江上的雾",
+        "en": "grilled skewers, cold noodles, plastic stools and fog on the river"
+      },
+      "slots": [
+        2
+      ]
+    }
+  ],
+  "cast": [
+    {
+      "id": "wendi",
+      "name": {
+        "zh": "闻笛",
+        "en": "Wen Di"
+      },
+      "short": {
+        "zh": "闻笛",
+        "en": "Di"
+      },
+      "color": "#e2553f",
+      "tagline": {
+        "zh": "七号防空洞主唱兼吉他，拍板的那个人，嗓子比脾气还冲",
+        "en": "Shelter No. 7's singer and guitarist, the one who decides; her voice is louder than her temper"
+      },
+      "look": {
+        "zh": "红棕色小熊猫，眼周两团白，尾巴一圈一圈的",
+        "en": "a russet red panda with white patches round the eyes and a ringed tail"
+      },
+      "voice": {
+        "zh": "说话短、像下命令，句尾爱带「噻」「要得」；从不说「谢谢」，只说「行」；心虚时就去调弦。叫「我」「贝斯」，生气时连这个都不叫，只说「喂」。",
+        "en": "Short sentences like orders; ends lines with \"right?\" or \"deal\"; never says thank you, only \"fine\"; tunes her guitar when she feels guilty. Calls me \"Bass\"; when she's angry, not even that, just \"Hey.\""
+      },
+      "samples": [
+        {
+          "zh": "三根弦也是贝斯。会数拍子噻？会就上。",
+          "en": "Three strings is still a bass. You can count to four, right? Then you're in."
+        },
+        {
+          "zh": "行。……我说的是「行」，不是「谢谢」，你莫多想。",
+          "en": "Fine. ...I said \"fine\", not \"thanks\". Don't read into it."
+        },
+        {
+          "zh": "这首歌要是只能唱一次，我想在你们面前唱。",
+          "en": "If this song only ever gets sung once, I want it to be in front of you lot."
+        }
+      ],
+      "secret": {
+        "zh": "她已经和一家选秀经纪公司签了意向书：音乐节一结束就去北京集训，以个人歌手出道，七号防空洞就散了。她一直没告诉乐队，想在解散前把最后一首新歌唱完。",
+        "en": "She has already signed a letter of intent with a talent-show agency: the day after the festival she leaves for training camp in Beijing to debut solo, and Shelter No. 7 ends. She hasn't told the band; she wants to sing one last new song before it's over."
+      },
+      "arc": [
+        {
+          "zh": "试音：在坡上门口一把撕下「贝斯手急招」，把一把三根弦的旧贝斯塞进「我」怀里，说「明天十点，防空洞」。",
+          "en": "Sound check: she tears the BASSIST WANTED sign off Slope's door, shoves a three-string bass into my arms and says, \"Ten tomorrow. The shelter.\""
+        },
+        {
+          "zh": "合拍：一起在防空洞写新歌，为一个和弦吵到半夜，吵完去梯坎下吃一碗小面。",
+          "en": "In sync: writing the new song in the shelter, arguing over one chord until midnight, then a bowl of noodles at the foot of the steps."
+        },
+        {
+          "zh": "走音：她排练时总在最后一句破音，手机一响就出门去接，回来眼睛是红的。",
+          "en": "Off key: she keeps cracking on the last line, steps out whenever her phone rings, and comes back red-eyed."
+        },
+        {
+          "zh": "独奏：在天台上把意向书递给「我」看，说「我想红，也想要你们，选不了」。",
+          "en": "Solo: on the rooftop she shows me the letter of intent: \"I want to make it, and I want you lot. I can't pick.\""
+        },
+        {
+          "zh": "安可：音乐节之后，留下来，还是去北京——以及新歌最后一句唱给谁。",
+          "en": "Encore: after the festival, stay or go to Beijing, and who the last line of the new song is sung to."
+        }
+      ],
+      "haunts": {
+        "0": [
+          "musicshop",
+          "stairs"
+        ],
+        "1": [
+          "shelter",
+          "rooftop"
+        ],
+        "2": [
+          "shelter",
+          "livehouse"
+        ]
+      },
+      "deadline": {
+        "day": 13,
+        "text": {
+          "zh": "江雾音乐节，之后就去北京",
+          "en": "the River Fog Festival, then Beijing"
+        }
+      },
+      "keepsakeIdeas": {
+        "zh": "被她咬出牙印的拨片、写在烟盒纸上的歌词、那根断掉换下来的 E 弦",
+        "en": "a pick with her teeth marks in it, lyrics scrawled on a torn snack wrapper, the snapped E string she replaced"
+      },
+      "sprite": {
+        "pal": {
+          "B": "#c8502e",
+          "b": "#7a2e1a",
+          "W": "#fff3e8",
+          "k": "#3a1f17"
+        },
+        "art": [
+          "..BB.....BB...",
+          ".BWWB...BWWB..",
+          ".BBBBBBBBBBB..",
+          "BWWBBBBBBBWWB.",
+          "BWBBBBBBBBBWB.",
+          "BWWBBBkBBBWWBb",
+          ".BBWWWWWWWBB.B",
+          "..bbbbbbbbb..b",
+          "..bBBBBBBBb.bB",
+          "..kk.....kk.Bb"
+        ],
+        "eyes": [
+          [
+            4,
+            4
+          ],
+          [
+            4,
+            8
+          ]
+        ],
+        "cheeks": [
+          [
+            5,
+            3
+          ],
+          [
+            5,
+            9
+          ]
+        ],
+        "motion": "tail"
+      }
+    },
+    {
+      "id": "suzhen",
+      "name": {
+        "zh": "苏枕",
+        "en": "Su Zhen"
+      },
+      "short": {
+        "zh": "苏枕",
+        "en": "Zhen"
+      },
+      "color": "#9fb3c8",
+      "tagline": {
+        "zh": "七号防空洞鼓手，话最少，节拍最准，耳朵里总塞着耳塞",
+        "en": "Shelter No. 7's drummer: fewest words, steadiest time, always wearing earplugs"
+      },
+      "look": {
+        "zh": "灰色小浣熊，眼睛上一道黑色面罩，背后插着两根鼓棒",
+        "en": "a grey raccoon with a black mask across the eyes and two drumsticks tucked at her back"
+      },
+      "voice": {
+        "zh": "一句话不超过五个字，常用数字回答（「八拍」「一百二十」「三次」）；从不抱怨，不舒服就敲桌子；冷笑话讲得面无表情。叫「我」「四根弦」——等「我」把贝斯换成四根弦以后才改口叫名字。",
+        "en": "Never more than five words at a time; answers in numbers (\"eight bars\", \"one-twenty\", \"three times\"); never complains, just drums on the table when something's wrong; tells deadpan jokes with a straight face. Calls me \"Four Strings\", and only uses my name once I actually have four."
+      },
+      "samples": [
+        {
+          "zh": "一百二十。跟我。",
+          "en": "One-twenty. Follow me."
+        },
+        {
+          "zh": "你快了半拍。……第三次了。",
+          "en": "You're half a beat early. ...Third time."
+        },
+        {
+          "zh": "左边……听不清。别告诉她。",
+          "en": "Left side... can't hear. Don't tell her."
+        }
+      ],
+      "secret": {
+        "zh": "半年前在一场没有耳返的演出后，她的左耳开始持续耳鸣，听不清左边的返送音箱。医生让她至少停打三个月。她怕说出来乐队就去不了音乐节，一直用耳塞和看闻笛的嘴型硬撑。",
+        "en": "Since a gig half a year ago with no in-ear monitors, her left ear has rung without stopping, and she can barely hear the monitor on her left. The doctor told her to stop drumming for at least three months. Afraid the band would miss the festival, she has been getting by on earplugs and reading Wen Di's lips."
+      },
+      "arc": [
+        {
+          "zh": "试音：第一次合排，她只说了一句「你快了」，然后用鼓棒在「我」的谱上敲出每一拍的位置。",
+          "en": "Sound check: at our first run-through she only says \"You're rushing,\" then taps every beat onto my chart with a drumstick."
+        },
+        {
+          "zh": "合拍：她带「我」去梯坎上听挑夫的号子数节奏，在苏婆婆的冰粉摊上一人一碗不说话。",
+          "en": "In sync: she takes me to the steps to count rhythm off the porters' work calls, and we share silent bowls of ice jelly at her grandmother's stall."
+        },
+        {
+          "zh": "走音：她总站在闻笛右边，排练时连着几次没跟上节拍器，一下排练就躲去天台。",
+          "en": "Off key: she always stands to Wen Di's right, misses the click several times running, and hides on the rooftop after rehearsal."
+        },
+        {
+          "zh": "独奏：摘下左耳的耳塞让「我」对着那边说话，她听不见，只是笑了一下。",
+          "en": "Solo: she takes out her left earplug and has me speak into that side; she can't hear it, and just smiles."
+        },
+        {
+          "zh": "安可：音乐节那天，要不要替她站在左边打拍子，还是劝她现在就放下鼓棒。",
+          "en": "Encore: on festival day, stand on her left and count her in, or persuade her to put the sticks down now."
+        }
+      ],
+      "haunts": {
+        "0": [
+          "shelter"
+        ],
+        "1": [
+          "shelter",
+          "stairs"
+        ],
+        "2": [
+          "rooftop"
+        ]
+      },
+      "deadline": {
+        "day": 13,
+        "text": {
+          "zh": "音乐节当天，之后她答应医生停打",
+          "en": "festival day; after that she has promised the doctor to stop"
+        }
+      },
+      "keepsakeIdeas": {
+        "zh": "一根打断的鼓棒、一对用旧了的耳塞盒、在谱子上敲出来的小点",
+        "en": "a snapped drumstick, a worn earplug case, the little dots she tapped onto my chart"
+      },
+      "sprite": {
+        "pal": {
+          "G": "#9aa5b1",
+          "g": "#5f6b78",
+          "K": "#2a2d33",
+          "W": "#eef1f4",
+          "A": "#d9a35a"
+        },
+        "art": [
+          ".GG........GG.",
+          ".GWG......GWG.",
+          ".GGGGGGGGGGGG.",
+          "GGWWGGGGGGWWGG",
+          "GKKKKKGGKKKKKG",
+          "GKKKKKWWKKKKKG",
+          ".GWWWWKKWWWWG.",
+          "A.GGGGGGGGGG.A",
+          ".AgGGGGGGGGgA.",
+          "...gg....gg..."
+        ],
+        "eyes": [
+          [
+            5,
+            4
+          ],
+          [
+            5,
+            9
+          ]
+        ],
+        "cheeks": [
+          [
+            6,
+            2
+          ],
+          [
+            6,
+            11
+          ]
+        ],
+        "motion": "bob"
+      }
+    },
+    {
+      "id": "liqiao",
+      "name": {
+        "zh": "黎雀",
+        "en": "Li Que"
+      },
+      "short": {
+        "zh": "黎雀",
+        "en": "Que"
+      },
+      "color": "#3f8fd8",
+      "tagline": {
+        "zh": "对手乐队「霓虹渡口」的键盘手，闻笛的旧搭档，现在见面就呛",
+        "en": "Keyboardist of the rival band Neon Ferry, Wen Di's old bandmate, now a sparring partner"
+      },
+      "look": {
+        "zh": "蓝色孔雀，头上一把绿金色的尾羽扇，脖子上挂着一串钥匙",
+        "en": "a blue peacock with a fan of green-and-gold plumes and a ring of keys round her neck"
+      },
+      "voice": {
+        "zh": "说话甜而带刺，爱夹几个音乐术语（「你这个转调很勇敢」）；永远从容，从不当面发火，只会笑着把话说得更狠；被说中时会去摸脖子上的钥匙。叫「我」「蒋老板家的外甥」，熟了叫「小贝斯」。",
+        "en": "Sweet with a sting, likes dropping music jargon (\"brave key change you've got there\"); always composed, never loses her temper to your face, just smiles and cuts deeper; touches the keys at her neck when you hit a nerve. Calls me \"the Slope owner's nephew\", later \"Little Bass\"."
+      },
+      "samples": [
+        {
+          "zh": "你们还缺贝斯？我们缺的是观众。要不要换换？",
+          "en": "You're still short a bassist? We're short an audience. Want to trade?"
+        },
+        {
+          "zh": "这段 bridge 写得挺勇敢的。我是说，勇敢。",
+          "en": "That bridge is very brave. I mean it. Brave."
+        },
+        {
+          "zh": "……钥匙？哦，一把旧锁的。早就不用了。",
+          "en": "...The keys? Oh, an old lock. Haven't used it in ages."
+        }
+      ],
+      "secret": {
+        "zh": "防空洞排练室这半年的租金，一直是她托蒋舅匿名交的——脖子上那串就是防空洞铁门的备用钥匙。她退出七号防空洞，是因为攒的钱交完房租就空了，只能去霓虹渡口拿演出费，好继续垫下去。闻笛以为她是为钱背叛。",
+        "en": "For the past six months she has been paying the shelter's rent anonymously through my uncle; the keys at her neck are the spare set for its iron door. She left Shelter No. 7 because the rent ate all her savings, and joined Neon Ferry for gig fees so she could keep paying. Wen Di thinks she sold them out for money."
+      },
+      "arc": [
+        {
+          "zh": "试音：在坡上当众和闻笛呛了三句，转身却记住了「我」的名字，还顺手帮「我」把贝斯的音调准。",
+          "en": "Sound check: she trades three barbs with Wen Di in front of everyone at Slope, then remembers my name on the way out and tunes my bass for me while she's at it."
+        },
+        {
+          "zh": "合拍：在老调琴行碰见她修键盘，她教「我」看合成器的旋钮，嘴上一句好话都没有。",
+          "en": "In sync: I find her fixing a keyboard at Old Tune; she teaches me the synth's knobs without one kind word."
+        },
+        {
+          "zh": "心事：泄露事件后所有人都怀疑她，她不辩解，只在缆车里看着防空洞的方向发呆。",
+          "en": "Off key: after the leak everyone suspects her; she doesn't argue, only stares toward the shelter from the cable car."
+        },
+        {
+          "zh": "独奏：承认房租的事，说「我只是想让那个洞里一直有声音」。",
+          "en": "Solo: she admits the rent: \"I just wanted that hole in the hill to keep making noise.\""
+        },
+        {
+          "zh": "安可：两支乐队要不要在音乐节上同台，她要不要回到闻笛身边弹那首新歌。",
+          "en": "Encore: whether the two bands share the festival stage, and whether she goes back to play the new song beside Wen Di."
+        }
+      ],
+      "haunts": {
+        "0": [
+          "musicshop"
+        ],
+        "1": [
+          "livehouse",
+          "ferry"
+        ],
+        "2": [
+          "livehouse"
+        ]
+      },
+      "deadline": {
+        "day": 12,
+        "text": {
+          "zh": "霓虹渡口和坡上签三年驻场，签了就不能和别的乐队同台",
+          "en": "Neon Ferry signs a three-year residency at Slope, after which she can't play with any other band"
+        }
+      },
+      "keepsakeIdeas": {
+        "zh": "防空洞铁门的备用钥匙、一张缴费收据、她画在合成器上的小音符贴纸",
+        "en": "the shelter's spare key, a rent receipt, the little music-note sticker she drew on her synth"
+      },
+      "sprite": {
+        "pal": {
+          "F": "#1f7a6d",
+          "f": "#3fb8a8",
+          "E": "#f2c14e",
+          "B": "#2f6fd8",
+          "b": "#1d4b9a",
+          "Y": "#f5d76e"
+        },
+        "art": [
+          ".EF.fEFFEf.FE.",
+          "FfFfFfFFfFfFfF",
+          "fFfFBBBBBBFfFf",
+          ".fFBBBBBBBBFf.",
+          "..FBBBBBBBBF..",
+          "..BBBBYYBBBB..",
+          "..bBBBBBBBBb..",
+          "...bBBBBBBb...",
+          "....YY..YY...."
+        ],
+        "eyes": [
+          [
+            4,
+            5
+          ],
+          [
+            4,
+            8
+          ]
+        ],
+        "cheeks": [
+          [
+            5,
+            3
+          ],
+          [
+            5,
+            10
+          ]
+        ],
+        "motion": "bob"
+      }
+    },
+    {
+      "id": "chumeng",
+      "name": {
+        "zh": "楚檬",
+        "en": "Chu Meng"
+      },
+      "short": {
+        "zh": "楚檬",
+        "en": "Meng"
+      },
+      "color": "#9ccc3c",
+      "tagline": {
+        "zh": "江边夜市凉面摊的女儿，走到哪录到哪，要做一张「雾江声音地图」",
+        "en": "Daughter of the cold-noodle stall at the night market; records everything for her \"Sound Map of Wujiang\""
+      },
+      "look": {
+        "zh": "青绿色小青蛙，戴一副橙红色大耳机，脖子上挂着录音笔",
+        "en": "a lime-green frog in big orange-red headphones with a voice recorder round her neck"
+      },
+      "voice": {
+        "zh": "说话跳、爱用拟声词（「哐——」「叮叮」「呼噜噜」），描述什么都先说它是什么声音；一紧张就把录音笔开开关关。叫「我」「低音炮」。",
+        "en": "Bouncy, full of sound effects (\"clang—\", \"ding-ding\", \"glug-glug\"), describes everything by what it sounds like first; clicks her recorder on and off when she's nervous. Calls me \"Subwoofer\"."
+      },
+      "samples": [
+        {
+          "zh": "嘘——你听，轻轨进楼那一下，「咚」，整栋楼都在打拍子！",
+          "en": "Shh, listen! When the train goes into the building: boom. The whole block keeps time!"
+        },
+        {
+          "zh": "低音炮，你的贝斯是「嗡嗡」的，像江上的雾，我录走了哈。",
+          "en": "Subwoofer, your bass goes \"vmmm\", like fog on the river. I'm recording it, okay?"
+        },
+        {
+          "zh": "……要是大家知道是我，会不会以后都不让我进防空洞了。",
+          "en": "...If everyone finds out it was me, will they ever let me into the shelter again."
+        }
+      ],
+      "secret": {
+        "zh": "网上那个匿名账号「雾里收音」就是她。七号防空洞能进新人舞台的候选，是她偷偷把排练录音投了稿；后来泄露出去的新歌小样也是她传的——她只想让更多人听到，配文却被转发的人改成了嘲讽。",
+        "en": "She runs \"Heard in the Fog\", the anonymous account everyone follows. She secretly submitted Shelter No. 7's rehearsal recording, which is how they got shortlisted for the newcomers' stage; and she posted the leaked demo of the new song too. She only wanted more people to hear it, but reposters twisted the caption into mockery."
+      },
+      "arc": [
+        {
+          "zh": "试音：在缆车上把录音笔伸到「我」面前说「说句话，随便，我收集口音」，然后一路跟到防空洞门口。",
+          "en": "Sound check: in the cable car she sticks her recorder in my face, \"Say something, anything, I collect accents,\" and follows me all the way to the shelter door."
+        },
+        {
+          "zh": "合拍：带「我」跑遍山城录声音——梯坎的脚步、轻轨的「咚」、夜市的油锅——说要给乐队的新歌做一段开场采样。",
+          "en": "In sync: she drags me all over the hill city recording: footsteps on the steps, the train's \"boom\", the hiss of the night-market woks, for an intro sample on the band's new song."
+        },
+        {
+          "zh": "心事：泄露事件后她突然不来防空洞了，账号也停更，只在夜市帮家里收碗。",
+          "en": "Off key: after the leak she stops coming to the shelter, her account goes quiet, and she just clears bowls at the family stall."
+        },
+        {
+          "zh": "独奏：收摊后在江边把录音笔塞给「我」，里面是她自己的声音：「是我传的。」",
+          "en": "Solo: after closing up by the river she presses the recorder into my hand. On it, her own voice: \"It was me.\""
+        },
+        {
+          "zh": "安可：陪她当面认错，还是替她瞒下去；夜市拆迁前最后一晚，她想把「声音地图」的最后一格留给谁。",
+          "en": "Encore: go with her to own up, or help her keep it buried; and on the night market's last night, whose sound fills the final square on her map."
+        }
+      ],
+      "haunts": {
+        "0": [
+          "ferry",
+          "lightrail"
+        ],
+        "1": [
+          "stairs",
+          "lightrail"
+        ],
+        "2": [
+          "nightmarket"
+        ]
+      },
+      "deadline": {
+        "day": 12,
+        "text": {
+          "zh": "江边夜市拆迁前最后一晚，凉面摊要搬走",
+          "en": "the night market's last night before demolition; the noodle stall moves away"
+        }
+      },
+      "keepsakeIdeas": {
+        "zh": "一张手绘的「声音地图」、录着江雾声的旧磁带、凉面摊的竹筷子",
+        "en": "a hand-drawn sound map, an old tape of river fog, bamboo chopsticks from the noodle stall"
+      },
+      "sprite": {
+        "pal": {
+          "G": "#8cc63f",
+          "g": "#5a8f22",
+          "L": "#eaf7c8",
+          "R": "#ff6b3d"
+        },
+        "art": [
+          "..GGG....GGG..",
+          ".GGLGG..GGLGG.",
+          ".GGGGGGGGGGGG.",
+          "RGGGGGGGGGGGGR",
+          "RGGGGGGGGGGGGR",
+          ".GLLLLLLLLLLG.",
+          "..GLLLLLLLLG..",
+          ".gGGGGGGGGGGg.",
+          "gg.gg....gg.gg"
+        ],
+        "eyes": [
+          [
+            1,
+            3
+          ],
+          [
+            1,
+            10
+          ]
+        ],
+        "cheeks": [
+          [
+            3,
+            2
+          ],
+          [
+            3,
+            11
+          ]
+        ],
+        "motion": "bob"
+      }
+    }
+  ],
+  "npcs": [
+    {
+      "id": "jiangjiu",
+      "name": {
+        "zh": "蒋舅",
+        "en": "Uncle Jiang"
+      },
+      "short": {
+        "zh": "舅舅",
+        "en": "Uncle"
+      },
+      "color": "#c8a070",
+      "role": {
+        "zh": "「我」的舅舅，坡上 Livehouse 老板，替黎雀匿名交防空洞房租的中间人",
+        "en": "my uncle, owner of Slope, and the go-between who passes on Li Que's anonymous rent for the shelter"
+      },
+      "look": {
+        "zh": "一只慢吞吞的水豚，围着沾了啤酒的围裙",
+        "en": "an unhurried capybara in a beer-stained apron"
+      },
+      "voice": {
+        "zh": "慢、稳、爱说「莫慌」，什么事都先泡一杯茶再说；爱讲冷笑话，替人保密时就开始擦杯子。",
+        "en": "Slow and steady, says \"No rush\" a lot, makes a pot of tea before dealing with anything; loves bad puns, and starts polishing glasses when he's keeping someone's secret."
+      },
+      "samples": [
+        {
+          "zh": "莫慌，天塌下来也是先塌在山顶上。",
+          "en": "No rush. If the sky falls, it hits the hilltop first."
+        },
+        {
+          "zh": "你们年轻人吵架，我只管收场地费。",
+          "en": "You kids can fight all you like. I just collect the venue fee."
+        },
+        {
+          "zh": "……这个杯子，我再擦一下。",
+          "en": "...This glass needs another wipe."
+        }
+      ],
+      "haunts": {
+        "1": [
+          "livehouse"
+        ],
+        "2": [
+          "livehouse"
+        ]
+      },
+      "sprite": {
+        "pal": {
+          "C": "#a07850",
+          "c": "#7a5636",
+          "N": "#3b2a1e",
+          "L": "#d8bc94"
+        },
+        "art": [
+          ".cc........cc.",
+          ".CCCCCCCCCCCC.",
+          "CCCCCCCCCCCCCC",
+          "CCCCCCCCCCCCCC",
+          "CCCCCCCCCCCCCC",
+          "CCCLLLLLLLLCCC",
+          "CCCLLNLLNLLCCC",
+          "CCCCLLLLLLCCCC",
+          ".cCCCCCCCCCCc.",
+          ".cc.cc..cc.cc."
+        ],
+        "eyes": [
+          [
+            3,
+            4
+          ],
+          [
+            3,
+            9
+          ]
+        ],
+        "cheeks": [
+          [
+            4,
+            2
+          ],
+          [
+            4,
+            11
+          ]
+        ],
+        "motion": "bob"
+      }
+    },
+    {
+      "id": "wenchuan",
+      "name": {
+        "zh": "闻川",
+        "en": "Wen Chuan"
+      },
+      "short": {
+        "zh": "闻川",
+        "en": "Chuan"
+      },
+      "color": "#a0703f",
+      "role": {
+        "zh": "闻笛的哥哥，七号防空洞的初代队长，乐队散后进了轻轨检修队，反对妹妹再玩乐队",
+        "en": "Wen Di's older brother, Shelter No. 7's founding leader, now on the light-rail maintenance crew; he wants his sister to quit"
+      },
+      "look": {
+        "zh": "一只穿橙色反光背心的棕熊",
+        "en": "a brown bear in an orange hi-vis vest"
+      },
+      "voice": {
+        "zh": "话糙、句子短，用工地上的说法讲道理（「线没接牢就别通电」）；从不夸人，关心人的方式是递一瓶冰水。",
+        "en": "Rough, short sentences, reasons in work-site terms (\"Don't switch on till the wiring's tight\"); never compliments anyone; shows he cares by handing you a cold bottle of water."
+      },
+      "samples": [
+        {
+          "zh": "你们还在搞那个嘛？",
+          "en": "You lot still doing that thing?"
+        },
+        {
+          "zh": "线没接牢就别通电。人也一样。",
+          "en": "Don't switch on till the wiring's tight. Same with people."
+        },
+        {
+          "zh": "……她小时候唱跑调，我是第一个笑的。也是第一个鼓掌的。",
+          "en": "...When she sang off-key as a kid, I was the first to laugh. And the first to clap."
+        }
+      ],
+      "haunts": {
+        "0": [
+          "lightrail"
+        ],
+        "2": [
+          "nightmarket"
+        ]
+      },
+      "sprite": {
+        "pal": {
+          "U": "#8a5a36",
+          "u": "#5a3820",
+          "L": "#d4a878",
+          "K": "#222222",
+          "O": "#ff7a1a"
+        },
+        "art": [
+          ".uu........uu.",
+          "uUUu......uUUu",
+          "uUUUUUUUUUUUUu",
+          ".UUUUUUUUUUUU.",
+          ".UUUUUUUUUUUU.",
+          ".UUUULLLLUUUU.",
+          ".UUULLKKLLUUU.",
+          "OOOOOOOOOOOOOO",
+          "UUUUUUUUUUUUUU",
+          "UUUUOOOOOOUUUU",
+          ".uuu......uuu."
+        ],
+        "eyes": [
+          [
+            4,
+            4
+          ],
+          [
+            4,
+            9
+          ]
+        ],
+        "cheeks": [
+          [
+            5,
+            3
+          ],
+          [
+            5,
+            10
+          ]
+        ],
+        "motion": "ears"
+      }
+    },
+    {
+      "id": "heyizhou",
+      "name": {
+        "zh": "贺一舟",
+        "en": "He Yizhou"
+      },
+      "short": {
+        "zh": "贺一舟",
+        "en": "Yizhou"
+      },
+      "color": "#c9a66b",
+      "role": {
+        "zh": "霓虹渡口的主唱兼吉他，和七号防空洞抢同一个新人名额，黎雀现在的队长",
+        "en": "Neon Ferry's singer-guitarist, competing with Shelter No. 7 for the same newcomers' slot; Li Que's current bandleader"
+      },
+      "look": {
+        "zh": "一只耳尖带黑毛的猞猁，挎一根红色吉他背带",
+        "en": "a lynx with black ear tufts and a red guitar strap"
+      },
+      "voice": {
+        "zh": "自来熟、爱挑衅，句句带比较（「我们排了三百遍，你们呢」）；输了也笑，笑完回去加练。",
+        "en": "Overfamiliar and provocative, everything a comparison (\"We've run it three hundred times. You?\"); laughs when he loses, then goes home and practises harder."
+      },
+      "samples": [
+        {
+          "zh": "新人舞台一个位置，你们打算排第几？",
+          "en": "One slot on the newcomers' stage. Where do you lot plan to place?"
+        },
+        {
+          "zh": "闻笛，你那嗓子拿去选秀可惜了。……我是说，可惜了乐队。",
+          "en": "Wen Di, that voice would be wasted on a talent show. ...I mean wasted for the band."
+        },
+        {
+          "zh": "输就输嘛，明年再来。今年我先赢。",
+          "en": "If we lose, we lose. There's next year. This year I win first."
+        }
+      ],
+      "haunts": {
+        "1": [
+          "musicshop"
+        ],
+        "2": [
+          "livehouse"
+        ]
+      },
+      "sprite": {
+        "pal": {
+          "Y": "#c9a66b",
+          "y": "#9c7b45",
+          "K": "#2b2b2b",
+          "W": "#f5ecd9",
+          "R": "#d63a3a"
+        },
+        "art": [
+          ".K..........K.",
+          ".KY........YK.",
+          ".YYY......YYY.",
+          ".YYYYYYYYYYYY.",
+          "YYYYYYYYYYYYYY",
+          "YYKYYYYYYYYKYY",
+          "YWWWYYKKYYWWWY",
+          ".WWWWWWWWWWWW.",
+          "..yYYRYYRYYy..",
+          "..yy......yy.."
+        ],
+        "eyes": [
+          [
+            4,
+            4
+          ],
+          [
+            4,
+            9
+          ]
+        ],
+        "cheeks": [
+          [
+            5,
+            3
+          ],
+          [
+            5,
+            10
+          ]
+        ],
+        "motion": "ears"
+      }
+    },
+    {
+      "id": "lingche",
+      "name": {
+        "zh": "凌澈",
+        "en": "Ling Che"
+      },
+      "short": {
+        "zh": "凌澈",
+        "en": "Ling"
+      },
+      "color": "#e8e8e8",
+      "role": {
+        "zh": "江雾音乐节新人舞台的选拔负责人，只看现场，不看粉丝数",
+        "en": "the River Fog Festival's newcomers'-stage booker, who judges only the live set, never the follower count"
+      },
+      "look": {
+        "zh": "一只挂着工作证的企鹅，走路飞快",
+        "en": "a penguin with a lanyard badge who walks very fast"
+      },
+      "voice": {
+        "zh": "语速快、只讲时间和条件（「二十分钟，三首歌，一首原创」）；不夸人，最高评价是「可以」。",
+        "en": "Talks fast, only in times and terms (\"Twenty minutes, three songs, one original\"); never praises; her highest compliment is \"Workable.\""
+      },
+      "samples": [
+        {
+          "zh": "二十分钟，三首，至少一首没人听过的。",
+          "en": "Twenty minutes. Three songs. At least one nobody's heard."
+        },
+        {
+          "zh": "粉丝数我不看。我看你们下台的时候喘不喘。",
+          "en": "I don't look at followers. I look at whether you're out of breath when you walk off."
+        },
+        {
+          "zh": "……可以。",
+          "en": "...Workable."
+        }
+      ],
+      "sprite": {
+        "pal": {
+          "K": "#22262e",
+          "W": "#f4f4f4",
+          "O": "#f29e3a",
+          "R": "#c0392b"
+        },
+        "art": [
+          "....KKKKKK....",
+          "...KKKKKKKK...",
+          "..KKWWKKWWKK..",
+          "..KWWWWWWWWK..",
+          "..KWWWOOWWWK..",
+          ".KKWWWWWWWWKK.",
+          "KKKWWWWWWWWKKK",
+          ".KKWWWRWWWWKK.",
+          "..KWWWWWWWWK..",
+          "...OO....OO..."
+        ],
+        "eyes": [
+          [
+            3,
+            4
+          ],
+          [
+            3,
+            9
+          ]
+        ],
+        "cheeks": [
+          [
+            4,
+            3
+          ],
+          [
+            4,
+            10
+          ]
+        ],
+        "motion": "bob"
+      }
+    },
+    {
+      "id": "supopo",
+      "name": {
+        "zh": "苏婆婆",
+        "en": "Granny Su"
+      },
+      "short": {
+        "zh": "苏婆婆",
+        "en": "Granny Su"
+      },
+      "color": "#7fa7d4",
+      "role": {
+        "zh": "苏枕的外婆，在防空洞口的梯坎上卖冰粉，带大了苏枕，唯一知道她耳朵的事",
+        "en": "Su Zhen's grandmother, who sells ice jelly on the steps by the shelter; raised Su Zhen and is the only one who knows about her ear"
+      },
+      "look": {
+        "zh": "一只裹着蓝头巾的穿山甲，背上的鳞片一格一格",
+        "en": "a pangolin in a blue headscarf, scales neat as roof tiles"
+      },
+      "voice": {
+        "zh": "絮叨、爱往人手里塞吃的，说话夹着老山城的说法（「吃了再说」「莫得事」）；讲到外孙女就压低声音。",
+        "en": "Chatty, always pressing food into your hands, full of old hill-city sayings (\"Eat first, talk later\", \"It's nothing\"); lowers her voice whenever her granddaughter comes up."
+      },
+      "samples": [
+        {
+          "zh": "吃了再说，红糖多放点。",
+          "en": "Eat first, talk later. Extra brown sugar."
+        },
+        {
+          "zh": "我们枕枕打鼓，整条梯坎都听得到。",
+          "en": "When my Zhen drums, the whole flight of steps can hear it."
+        },
+        {
+          "zh": "（压低声音）她左边那只耳朵……你帮婆婆看着点。",
+          "en": "(Quietly) That left ear of hers... keep an eye on it for me, love."
+        }
+      ],
+      "haunts": {
+        "0": [
+          "stairs"
+        ],
+        "1": [
+          "stairs"
+        ]
+      },
+      "sprite": {
+        "pal": {
+          "F": "#4f7cac",
+          "L": "#e8d4b0",
+          "s": "#8a6a40",
+          "S": "#b08a5a"
+        },
+        "art": [
+          "....FFFFFF....",
+          "...FFFFFFFF...",
+          "...LLLLLLLL...",
+          "..LLLLLLLLLL..",
+          "..LLLLssLLLL..",
+          ".SsSsSsSsSsSs.",
+          "SsSsSsSsSsSsSs",
+          "sSsSsSsSsSsSsS",
+          ".SsSsSsSsSsSs.",
+          "..ss......ss.."
+        ],
+        "eyes": [
+          [
+            3,
+            4
+          ],
+          [
+            3,
+            9
+          ]
+        ],
+        "cheeks": [
+          [
+            4,
+            3
+          ],
+          [
+            4,
+            10
+          ]
+        ],
+        "motion": "bob"
+      }
+    }
+  ],
+  "relations": [
+    {
+      "a": "wendi",
+      "b": "liqiao",
+      "kind": {
+        "zh": "旧友反目",
+        "en": "old friends, fallen out"
+      },
+      "text": {
+        "zh": "初中起一起组了七号防空洞；去年黎雀突然退队加入霓虹渡口，闻笛认定她是为了演出费背叛，两人见面就呛。",
+        "en": "They started Shelter No. 7 together in middle school; last year Li Que suddenly quit for Neon Ferry, and Wen Di is sure she sold out for gig fees. Now every meeting is a fight."
+      }
+    },
+    {
+      "a": "wendi",
+      "b": "wenchuan",
+      "kind": {
+        "zh": "兄妹",
+        "en": "siblings"
+      },
+      "text": {
+        "zh": "闻川是乐队的初代队长，五年前乐队散了就再没碰过吉他；他反对妹妹继续玩乐队，却记得她每一首歌。",
+        "en": "Wen Chuan led the band's first line-up; when it broke up five years ago he never touched a guitar again. He wants his sister to quit, yet knows every one of her songs."
+      }
+    },
+    {
+      "a": "liqiao",
+      "b": "jiangjiu",
+      "kind": {
+        "zh": "秘密约定",
+        "en": "a secret arrangement"
+      },
+      "text": {
+        "zh": "防空洞的房租一直是黎雀托蒋舅匿名交的，两人约好谁也不说。",
+        "en": "Li Que has been paying the shelter's rent anonymously through Uncle Jiang; they agreed never to tell."
+      },
+      "hiddenUntil": 3
+    },
+    {
+      "a": "chumeng",
+      "b": "liqiao",
+      "kind": {
+        "zh": "误会",
+        "en": "misunderstanding"
+      },
+      "text": {
+        "zh": "新歌小样泄露后所有人怀疑黎雀，其实是楚檬传的；楚檬知道黎雀在替她背锅，却不敢开口。",
+        "en": "When the demo leaks everyone blames Li Que, but Chu Meng posted it; she knows Li Que is taking the fall for her and can't bring herself to speak."
+      },
+      "hiddenUntil": 3
+    },
+    {
+      "a": "suzhen",
+      "b": "supopo",
+      "kind": {
+        "zh": "祖孙",
+        "en": "grandmother and granddaughter"
+      },
+      "text": {
+        "zh": "苏婆婆带大了苏枕，是唯一知道她左耳耳鸣的人。",
+        "en": "Granny Su raised Su Zhen and is the only person who knows about the ringing in her left ear."
+      },
+      "hiddenUntil": 3
+    },
+    {
+      "a": "suzhen",
+      "b": "wendi",
+      "kind": {
+        "zh": "搭档",
+        "en": "rhythm partners"
+      },
+      "text": {
+        "zh": "小学同桌，苏枕的鼓是看着闻笛的嘴型打的；苏枕瞥见过那封意向书，替她瞒着。",
+        "en": "Desk-mates since primary school; Su Zhen drums by watching Wen Di's lips. She has glimpsed the letter of intent and keeps it quiet."
+      },
+      "hiddenUntil": 2
+    },
+    {
+      "a": "wendi",
+      "b": "heyizhou",
+      "kind": {
+        "zh": "对手",
+        "en": "rivals"
+      },
+      "text": {
+        "zh": "两支乐队抢同一个新人名额；贺一舟嘴上挑衅，心里最怕闻笛去选秀。",
+        "en": "Their bands are after the same newcomers' slot; He Yizhou needles her constantly, and secretly dreads her leaving for a talent show."
+      }
+    },
+    {
+      "a": "me",
+      "b": "jiangjiu",
+      "kind": {
+        "zh": "舅甥",
+        "en": "uncle and nephew"
+      },
+      "text": {
+        "zh": "「我」暑假住在舅舅家阁楼，晚上在坡上帮忙搬音箱。",
+        "en": "I sleep in my uncle's attic for the summer and haul amps at Slope in the evenings."
+      }
+    },
+    {
+      "a": "chumeng",
+      "b": "suzhen",
+      "kind": {
+        "zh": "同学",
+        "en": "classmates"
+      },
+      "text": {
+        "zh": "高二同班，楚檬的「声音地图」里录得最多的就是苏枕的鼓。",
+        "en": "Same class at school; the sound Chu Meng has recorded most for her map is Su Zhen's drumming."
+      }
+    }
+  ],
+  "acts": [
+    {
+      "id": "act1",
+      "from": 1,
+      "title": {
+        "zh": "第一幕 · 试音",
+        "en": "Act I · Sound Check"
+      },
+      "goal": {
+        "zh": "开端：「我」被拽进七号防空洞补贝斯，认识所有人；乐队为新人舞台的试演拼命排练，闻笛与黎雀的旧怨露出来。",
+        "en": "Opening: I get dragged into Shelter No. 7 as their bassist and meet everyone; the band scrambles toward the newcomers' audition, and the old feud between Wen Di and Li Que surfaces."
+      },
+      "beats": [
+        {
+          "id": "b-three-strings",
+          "day": 1,
+          "by": 2,
+          "who": [
+            "wendi"
+          ],
+          "kind": {
+            "zh": "开端",
+            "en": "opening"
+          },
+          "text": {
+            "zh": "闻笛把一把只剩三根弦的旧贝斯塞给「我」，宣布四天后试演，少一个人就上不了台。",
+            "en": "Wen Di shoves a three-string bass at me and announces the audition is in four days; one player short and they can't go on."
+          }
+        },
+        {
+          "id": "b-old-feud",
+          "day": 2,
+          "by": 3,
+          "who": [
+            "liqiao",
+            "wendi"
+          ],
+          "kind": {
+            "zh": "旧怨",
+            "en": "old feud"
+          },
+          "text": {
+            "zh": "黎雀当众对闻笛说「你们还缺贝斯？我们缺观众」，两人吵到舅舅出面；「我」第一次知道她们以前是一支乐队。",
+            "en": "Li Que tells Wen Di in front of everyone, \"You're short a bassist? We're short an audience.\" They argue until my uncle steps in, and I learn for the first time that they used to be one band."
+          }
+        },
+        {
+          "id": "b-audition",
+          "day": 4,
+          "by": 4,
+          "who": [
+            "wendi",
+            "lingche"
+          ],
+          "kind": {
+            "zh": "转折",
+            "en": "turning point"
+          },
+          "text": {
+            "zh": "试演结束，凌澈说名额可以给，但音乐节上必须有一首没人听过的新歌；闻笛当场答应。",
+            "en": "After the audition Ling Che says the slot can be theirs, but only with a brand-new song nobody has heard; Wen Di agrees on the spot."
+          },
+          "promise": {
+            "zh": "答应闻笛：新歌的贝斯线由我来写，音乐节前一定写完",
+            "en": "promise Wen Di I'll write the new song's bass line and finish it before the festival"
+          }
+        }
+      ],
+      "hook": {
+        "zh": "凌澈临走留下一句：「新人舞台只有一个位置，霓虹渡口也报了名。」",
+        "en": "On her way out Ling Che adds: \"There's only one slot on the newcomers' stage. Neon Ferry signed up too.\""
+      }
+    },
+    {
+      "id": "act2",
+      "from": 5,
+      "title": {
+        "zh": "第二幕 · 走音",
+        "en": "Act II · Off Key"
+      },
+      "goal": {
+        "zh": "转折：新歌写到一半就被泄露到网上，误会炸开；苏枕的耳朵和闻笛的意向书相继曝光，乐队在第 9 天散了。",
+        "en": "Turn: the half-written song leaks online and a misunderstanding explodes; Su Zhen's ear and Wen Di's letter of intent come out one after another, and by Day 9 the band has fallen apart."
+      },
+      "beats": [
+        {
+          "id": "b-leak",
+          "day": 6,
+          "by": 7,
+          "who": [
+            "wendi",
+            "liqiao"
+          ],
+          "kind": {
+            "zh": "误会",
+            "en": "misunderstanding"
+          },
+          "text": {
+            "zh": "新歌没写完的排练录音出现在网上，配文嘲讽；闻笛认定是黎雀干的，当众翻脸，黎雀一句也不辩解。",
+            "en": "A rough rehearsal recording of the unfinished song turns up online with a mocking caption; Wen Di is sure Li Que did it and turns on her in public. Li Que doesn't say a word in her defence."
+          }
+        },
+        {
+          "id": "b-left-ear",
+          "day": 7,
+          "by": 8,
+          "who": [
+            "suzhen"
+          ],
+          "kind": {
+            "zh": "秘密",
+            "en": "secret"
+          },
+          "text": {
+            "zh": "排练时苏枕连着三次没跟上节拍器，摘下耳塞——她左耳一直在耳鸣，听不清左边的返送。",
+            "en": "In rehearsal Su Zhen misses the click three times running and pulls out her earplugs: her left ear has been ringing for months and she can't hear the left monitor."
+          },
+          "promise": {
+            "zh": "答应苏枕：音乐节那天站在她左边，用手势给她打拍子，不告诉任何人",
+            "en": "promise Su Zhen to stand on her left at the festival and count her in with hand signals, and tell no one"
+          }
+        },
+        {
+          "id": "b-letter",
+          "day": 8,
+          "by": 9,
+          "who": [
+            "wendi",
+            "wenchuan"
+          ],
+          "kind": {
+            "zh": "秘密曝光",
+            "en": "secret exposed"
+          },
+          "text": {
+            "zh": "闻川在家里翻到选秀公司的意向书，当着乐队的面摊开：闻笛音乐节后就去北京集训。闻笛摔门而去。",
+            "en": "Wen Chuan finds the talent agency's letter of intent at home and lays it out in front of the band: Wen Di leaves for Beijing right after the festival. She slams the door on her way out."
+          }
+        }
+      ],
+      "hook": {
+        "zh": "防空洞的铁门被贴上封条：「汛期临时征用」。离音乐节还有四天，乐队只剩一把三根弦的贝斯。",
+        "en": "A notice is pasted across the shelter's iron door: REQUISITIONED FOR FLOOD SEASON. Four days to the festival, and all that's left of the band is a three-string bass."
+      }
+    },
+    {
+      "id": "act3",
+      "from": 10,
+      "title": {
+        "zh": "第三幕 · 安可",
+        "en": "Act III · Encore"
+      },
+      "goal": {
+        "zh": "高潮：真相一件件摊开（泄露的人、房租、耳朵），把散了的人重新拉回来，在江雾音乐节上第一次完整唱完那首新歌——或者没有。",
+        "en": "Climax: the truths come out one by one (who leaked it, the rent, the ear), the scattered band is pulled back together, and the new song is played through for the first time at the River Fog Festival, or it isn't."
+      },
+      "beats": [
+        {
+          "id": "b-confess",
+          "day": 10,
+          "by": 11,
+          "who": [
+            "chumeng"
+          ],
+          "kind": {
+            "zh": "真相",
+            "en": "the truth"
+          },
+          "text": {
+            "zh": "楚檬收摊后承认录音是她传的——她只想让更多人听到，没想到配文被人改了；她怕说出来就再也进不了防空洞。",
+            "en": "After closing the stall, Chu Meng admits she posted the recording; she only wanted more people to hear it and never meant the caption to turn ugly. She's afraid that if she says so she'll never be let into the shelter again."
+          },
+          "promise": {
+            "zh": "答应楚檬：陪她当面跟闻笛和黎雀说清楚",
+            "en": "promise Chu Meng to go with her and tell Wen Di and Li Que face to face"
+          }
+        },
+        {
+          "id": "b-rent",
+          "day": 11,
+          "by": 12,
+          "who": [
+            "liqiao",
+            "jiangjiu"
+          ],
+          "kind": {
+            "zh": "秘密曝光",
+            "en": "secret exposed"
+          },
+          "text": {
+            "zh": "舅舅说漏了嘴：防空洞这半年的租金一直是黎雀匿名交的，她脖子上那串就是铁门的备用钥匙。",
+            "en": "My uncle lets it slip: Li Que has been paying the shelter's rent anonymously for six months, and the keys round her neck are the spares for its iron door."
+          },
+          "promise": {
+            "zh": "答应黎雀：音乐节上让两支乐队同台合奏那首新歌",
+            "en": "promise Li Que that the two bands will play the new song together on the festival stage"
+          }
+        },
+        {
+          "id": "b-encore",
+          "day": 13,
+          "by": 13,
+          "who": [
+            "wendi"
+          ],
+          "kind": {
+            "zh": "高潮",
+            "en": "climax"
+          },
+          "text": {
+            "zh": "江雾音乐节新人舞台：乐队（不管剩下谁）上台，新歌第一次完整演出；台下人群里站着闻川。",
+            "en": "The River Fog Festival's newcomers' stage: whoever is left of the band goes on, and the new song is played all the way through for the first time. Wen Chuan is standing in the crowd."
+          }
+        }
+      ]
+    }
+  ],
+  "incidents": [
+    {
+      "id": "rain",
+      "chance": 0.12,
+      "days": [
+        2,
+        12
+      ],
+      "text": {
+        "zh": "山城下起暴雨，梯坎变成一道道小瀑布，防空洞里开始渗水",
+        "en": "A downpour hits the hill city; the steps turn into little waterfalls and water seeps into the shelter"
+      }
+    },
+    {
+      "id": "fog",
+      "chance": 0.15,
+      "slots": [
+        0
+      ],
+      "text": {
+        "zh": "大雾封江，轻轨停运半小时，整座城都慢了下来",
+        "en": "Fog shuts the river and the light rail stops for half an hour; the whole city slows down"
+      }
+    },
+    {
+      "id": "string",
+      "chance": 0.3,
+      "places": [
+        "shelter",
+        "livehouse"
+      ],
+      "text": {
+        "zh": "贝斯的一根弦「嘣」地断了，备用弦在琴行",
+        "en": "One of the bass strings snaps with a twang; the spares are back at the music shop"
+      }
+    },
+    {
+      "id": "blackout",
+      "chance": 0.35,
+      "days": [
+        1,
+        8
+      ],
+      "places": [
+        "shelter"
+      ],
+      "who": [
+        "suzhen"
+      ],
+      "text": {
+        "zh": "防空洞跳闸，一片漆黑，只剩苏枕在黑里接着打鼓",
+        "en": "The shelter's breaker trips; pitch dark, and only Su Zhen keeps drumming"
+      }
+    },
+    {
+      "id": "cancelled",
+      "chance": 0.4,
+      "slots": [
+        2
+      ],
+      "places": [
+        "livehouse"
+      ],
+      "who": [
+        "jiangjiu"
+      ],
+      "text": {
+        "zh": "坡上今晚的演出临时取消，舞台空着，舅舅问要不要上去试试",
+        "en": "Tonight's act at Slope cancels last minute; the stage sits empty and my uncle asks if we want it"
+      }
+    },
+    {
+      "id": "residency",
+      "chance": 0.5,
+      "places": [
+        "livehouse"
+      ],
+      "who": [
+        "jiangjiu"
+      ],
+      "after": [
+        "beat:b-audition"
+      ],
+      "need": {
+        "who": "wendi",
+        "minStage": 1
+      },
+      "text": {
+        "zh": "舅舅提出给七号防空洞一个每周驻场——条件是乐队得有人留在雾江",
+        "en": "My uncle offers Shelter No. 7 a weekly residency, on condition that the band actually stays in Wujiang"
+      }
+    },
+    {
+      "id": "hoarse",
+      "chance": 0.12,
+      "days": [
+        5,
+        11
+      ],
+      "who": [
+        "wendi"
+      ],
+      "text": {
+        "zh": "闻笛嗓子哑了，高音上不去，她拒绝去医院",
+        "en": "Wen Di's voice has gone hoarse and she can't reach the high notes; she refuses to see a doctor"
+      }
+    },
+    {
+      "id": "scores",
+      "chance": 0.4,
+      "days": [
+        6,
+        8
+      ],
+      "text": {
+        "zh": "高考查分了：「我」的分数出来了，爸妈的电话一个接一个打来",
+        "en": "Exam results are out: my score has arrived, and my parents call one after another"
+      }
+    },
+    {
+      "id": "meet-chuan",
+      "chance": 0.5,
+      "places": [
+        "lightrail",
+        "ferry"
+      ],
+      "who": [
+        "wenchuan"
+      ],
+      "text": {
+        "zh": "在站台上碰见穿着反光背心收工的闻川",
+        "en": "On the platform I run into Wen Chuan heading home in his hi-vis vest"
+      }
+    },
+    {
+      "id": "meet-yizhou",
+      "chance": 0.4,
+      "places": [
+        "nightmarket",
+        "musicshop"
+      ],
+      "who": [
+        "heyizhou"
+      ],
+      "text": {
+        "zh": "撞见贺一舟在买新琴弦，他非要和「我」比一段 solo",
+        "en": "I catch He Yizhou buying new strings, and he insists on a solo-off with me"
+      }
+    },
+    {
+      "id": "icejelly",
+      "chance": 0.4,
+      "places": [
+        "stairs"
+      ],
+      "who": [
+        "supopo"
+      ],
+      "text": {
+        "zh": "苏婆婆把一碗冰粉塞进「我」手里，说有话要讲",
+        "en": "Granny Su presses a bowl of ice jelly into my hands and says she has something to tell me"
+      }
+    },
+    {
+      "id": "shop-que",
+      "chance": 0.4,
+      "places": [
+        "musicshop"
+      ],
+      "who": [
+        "liqiao"
+      ],
+      "need": {
+        "who": "liqiao",
+        "minStage": 1
+      },
+      "text": {
+        "zh": "黎雀在琴行焊一台坏掉的效果器，焊锡烫了手也不吭声",
+        "en": "Li Que is soldering a broken pedal at the shop and burns her finger without a sound"
+      }
+    }
+  ],
+  "stages": [
+    {
+      "zh": "试音",
+      "en": "Sound Check"
+    },
+    {
+      "zh": "合拍",
+      "en": "In Sync"
+    },
+    {
+      "zh": "走音",
+      "en": "Off Key"
+    },
+    {
+      "zh": "独奏",
+      "en": "Solo"
+    },
+    {
+      "zh": "安可",
+      "en": "Encore"
+    }
+  ],
+  "gates": [
+    {
+      "affection": 0,
+      "scenes": 0
+    },
+    {
+      "affection": 3,
+      "scenes": 1
+    },
+    {
+      "affection": 6,
+      "scenes": 3
+    },
+    {
+      "affection": 9,
+      "scenes": 5
+    },
+    {
+      "affection": 12,
+      "scenes": 7
+    }
+  ],
+  "events": [
+    {
+      "day": 1,
+      "text": {
+        "zh": "到雾江的第一天；坡上门口贴着「贝斯手急招」",
+        "en": "First day in Wujiang; BASSIST WANTED is taped to Slope's door"
+      }
+    },
+    {
+      "day": 4,
+      "text": {
+        "zh": "江雾音乐节新人舞台试演",
+        "en": "Newcomers' stage auditions for the River Fog Festival"
+      }
+    },
+    {
+      "day": 8,
+      "text": {
+        "zh": "霓虹渡口在坡上首演",
+        "en": "Neon Ferry's first headline night at Slope"
+      }
+    },
+    {
+      "day": 9,
+      "text": {
+        "zh": "汛期，防空洞被临时征用",
+        "en": "Flood season: the shelter is requisitioned"
+      }
+    },
+    {
+      "day": 12,
+      "text": {
+        "zh": "江边夜市拆迁前最后一晚",
+        "en": "The night market's last night before demolition"
+      }
+    },
+    {
+      "day": 13,
+      "text": {
+        "zh": "江雾音乐节",
+        "en": "The River Fog Festival"
+      }
+    }
+  ],
+  "fixed": [
+    {
+      "day": 4,
+      "slot": 1,
+      "place": {
+        "zh": "坡上 Livehouse",
+        "en": "Slope (live bar)"
+      },
+      "mood": {
+        "zh": "试演，台下只坐着凌澈和一杯凉掉的茶",
+        "en": "the audition; in the audience, only Ling Che and a cup of cold tea"
+      },
+      "title": {
+        "zh": "二十分钟的试演",
+        "en": "A Twenty-Minute Audition"
+      },
+      "cast": [
+        "wendi",
+        "suzhen",
+        "lingche"
+      ]
+    },
+    {
+      "day": 9,
+      "slot": 2,
+      "place": {
+        "zh": "防空洞铁门前",
+        "en": "Outside the Shelter Door"
+      },
+      "mood": {
+        "zh": "雨里贴着封条的铁门，门里还放着鼓",
+        "en": "the iron door sealed with a notice in the rain, the drum kit still inside"
+      },
+      "title": {
+        "zh": "封条",
+        "en": "The Seal"
+      },
+      "cast": [
+        "wendi",
+        "suzhen"
+      ]
+    },
+    {
+      "day": 12,
+      "slot": 2,
+      "place": {
+        "zh": "江边夜市 · 最后一晚",
+        "en": "Night Market · Last Night"
+      },
+      "mood": {
+        "zh": "摊主们拆着棚子，江上的雾一点点漫上来",
+        "en": "stallholders taking down their awnings as the fog creeps up from the river"
+      },
+      "title": {
+        "zh": "夜市的最后一晚",
+        "en": "The Market's Last Night"
+      },
+      "cast": [
+        "chumeng",
+        "liqiao"
+      ]
+    },
+    {
+      "day": 13,
+      "slot": 1,
+      "place": {
+        "zh": "江雾音乐节 · 新人舞台",
+        "en": "River Fog Festival · Newcomers' Stage"
+      },
+      "mood": {
+        "zh": "江风、雾、几千个人和一盏追光",
+        "en": "river wind, fog, a few thousand people and one spotlight"
+      },
+      "title": {
+        "zh": "新人舞台",
+        "en": "The Newcomers' Stage"
+      },
+      "cast": [
+        "wendi",
+        "suzhen",
+        "liqiao",
+        "chumeng"
+      ]
+    }
+  ],
+  "proactiveAfter": 3,
+  "endings": [
+    {
+      "id": "wendi-true",
+      "who": "wendi",
+      "kind": "true",
+      "tier": 4,
+      "minStage": 4,
+      "minAffection": 12,
+      "maxBroken": 0,
+      "keptKey": "b-audition",
+      "title": {
+        "zh": "雾灯",
+        "en": "Fog Lamp"
+      },
+      "brief": {
+        "zh": "真结局：你写完了新歌的贝斯线，新歌在音乐节上完整唱完，最后一句她转身唱给你。她撕了意向书，接下舅舅的驻场，说「北京明年再说，今年先在雾江红」。恋爱结局。",
+        "en": "True ending: you finished the bass line, the new song is played through at the festival, and she turns to sing the last line to you. She tears up the letter of intent and takes the residency at Slope: \"Beijing can wait a year. This year I make it in Wujiang.\" Romance ending."
+      }
+    },
+    {
+      "id": "wendi-good",
+      "who": "wendi",
+      "kind": "good",
+      "tier": 3,
+      "minStage": 4,
+      "minAffection": 12,
+      "maxBroken": 0,
+      "title": {
+        "zh": "北上的绿皮车",
+        "en": "The Train North"
+      },
+      "brief": {
+        "zh": "好结局：音乐节后她还是去了北京，你送她到车站，她把那把三根弦的贝斯留给你，说「换上第四根弦，等我回来合排」。隔着两千公里的恋爱结局。",
+        "en": "Good ending: after the festival she still goes to Beijing. You see her off at the station; she leaves you the three-string bass: \"Put the fourth string on. Wait for me to come back and rehearse.\" A romance across two thousand kilometres."
+      }
+    },
+    {
+      "id": "wendi-normal",
+      "who": "wendi",
+      "kind": "normal",
+      "tier": 2,
+      "minStage": 3,
+      "title": {
+        "zh": "最后一句没唱",
+        "en": "The Last Line Unsung"
+      },
+      "brief": {
+        "zh": "普通结局：新歌唱到最后一句她停住了，换成了一声吉他扫弦。你们还是搭档，有些话留到了下一首歌。",
+        "en": "Normal ending: she stops before the last line of the new song and lets a guitar strum say it instead. You stay bandmates; some things wait for the next song."
+      }
+    },
+    {
+      "id": "wendi-bad",
+      "who": "wendi",
+      "kind": "bad",
+      "tier": 1,
+      "minStage": 2,
+      "minBroken": 1,
+      "title": {
+        "zh": "电视里的她",
+        "en": "On TV"
+      },
+      "brief": {
+        "zh": "坏结局：你没兑现对她的约定，乐队在音乐节前散了。秋天你在大学宿舍的电视里看到她在选秀舞台上唱歌，唱的不是那首新歌。",
+        "en": "Bad ending: you broke your word to her and the band fell apart before the festival. That autumn, on the TV in your college dorm, you see her singing on a talent show. It isn't the new song."
+      }
+    },
+    {
+      "id": "suzhen-true",
+      "who": "suzhen",
+      "kind": "true",
+      "tier": 4,
+      "minStage": 4,
+      "minAffection": 12,
+      "maxBroken": 0,
+      "keptKey": "b-left-ear",
+      "title": {
+        "zh": "左边的拍子",
+        "en": "The Beat on the Left"
+      },
+      "brief": {
+        "zh": "真结局：音乐节上你站在她左边，用手势给她数完了每一拍，一拍也没错。下台后她摘下耳塞，第一次主动说了一整句话，然后答应去看医生，休息三个月——「你等我。一百二十。」恋爱结局。",
+        "en": "True ending: at the festival you stand on her left and count every beat for her by hand, without a single miss. Offstage she takes out her earplugs and, for the first time, says a whole sentence unprompted, then agrees to see the doctor and rest for three months: \"Wait for me. One-twenty.\" Romance ending."
+      }
+    },
+    {
+      "id": "suzhen-good",
+      "who": "suzhen",
+      "kind": "good",
+      "tier": 3,
+      "minStage": 4,
+      "minAffection": 12,
+      "maxBroken": 0,
+      "title": {
+        "zh": "一百二十",
+        "en": "One-Twenty"
+      },
+      "brief": {
+        "zh": "好结局：她在音乐节后放下了鼓棒去治耳朵，把节拍器送给你，说你的拍子终于准了。恋爱结局，安静而确定。",
+        "en": "Good ending: after the festival she puts down her sticks to get her ear treated, and gives you her metronome: your time is finally steady. A quiet, certain romance ending."
+      }
+    },
+    {
+      "id": "suzhen-normal",
+      "who": "suzhen",
+      "kind": "normal",
+      "tier": 2,
+      "minStage": 3,
+      "title": {
+        "zh": "四根弦",
+        "en": "Four Strings"
+      },
+      "brief": {
+        "zh": "普通结局：你换上了第四根弦，她第一次叫了你的名字。暑假结束，你们约好寒假再合排。",
+        "en": "Normal ending: you put the fourth string on and she says your name for the first time. Summer ends with a promise to rehearse again in winter."
+      }
+    },
+    {
+      "id": "suzhen-bad",
+      "who": "suzhen",
+      "kind": "bad",
+      "tier": 1,
+      "minStage": 2,
+      "minBroken": 1,
+      "title": {
+        "zh": "没跟上的那一拍",
+        "en": "The Missed Beat"
+      },
+      "brief": {
+        "zh": "坏结局：音乐节上她左边没有人，第二首歌她丢了拍子，全场都听见了。她没有怪任何人，只是再也没回防空洞。",
+        "en": "Bad ending: at the festival no one stands on her left; she loses the beat in the second song and everyone hears it. She blames no one. She just never goes back to the shelter."
+      }
+    },
+    {
+      "id": "liqiao-true",
+      "who": "liqiao",
+      "kind": "true",
+      "tier": 4,
+      "minStage": 4,
+      "minAffection": 12,
+      "maxBroken": 0,
+      "keptKey": "b-rent",
+      "title": {
+        "zh": "两支乐队一首歌",
+        "en": "Two Bands, One Song"
+      },
+      "brief": {
+        "zh": "真结局：音乐节上霓虹渡口和七号防空洞同台合奏那首新歌，黎雀坐回闻笛身边的键盘前。散场后她把防空洞的备用钥匙挂到你脖子上，说「以后房租你也有份」。恋爱结局。",
+        "en": "True ending: at the festival Neon Ferry and Shelter No. 7 play the new song together, and Li Que sits back down at the keyboard beside Wen Di. Afterwards she hangs the shelter's spare key round your neck: \"From now on, you're on the rent too.\" Romance ending."
+      }
+    },
+    {
+      "id": "liqiao-good",
+      "who": "liqiao",
+      "kind": "good",
+      "tier": 3,
+      "minStage": 4,
+      "minAffection": 12,
+      "maxBroken": 0,
+      "title": {
+        "zh": "备用钥匙",
+        "en": "The Spare Key"
+      },
+      "brief": {
+        "zh": "好结局：她签了驻场，留在霓虹渡口，但把防空洞的钥匙交给了你。每周六你们在缆车上碰头，她嘴上一句好话都没有。恋爱结局。",
+        "en": "Good ending: she signs the residency and stays with Neon Ferry, but hands you the shelter key. Every Saturday you meet on the cable car, and she still never says a kind word. Romance ending."
+      }
+    },
+    {
+      "id": "liqiao-normal",
+      "who": "liqiao",
+      "kind": "normal",
+      "tier": 2,
+      "minStage": 3,
+      "title": {
+        "zh": "勇敢的转调",
+        "en": "A Brave Key Change"
+      },
+      "brief": {
+        "zh": "普通结局：她和闻笛在后台说了一句「好久不见」，然后各回各的乐队。你看着她们，觉得有些和弦要过很久才解决。",
+        "en": "Normal ending: backstage she and Wen Di manage a \"long time no see\" before going back to their own bands. Watching them, you think some chords take a long time to resolve."
+      }
+    },
+    {
+      "id": "liqiao-bad",
+      "who": "liqiao",
+      "kind": "bad",
+      "tier": 1,
+      "minStage": 2,
+      "minBroken": 1,
+      "title": {
+        "zh": "锈住的锁",
+        "en": "A Rusted Lock"
+      },
+      "brief": {
+        "zh": "坏结局：泄露的锅一直扣在她头上，她签了三年驻场，再也没和七号防空洞说过话。防空洞的锁到秋天就锈住了。",
+        "en": "Bad ending: the blame for the leak stays on her; she signs the three-year residency and never speaks to Shelter No. 7 again. By autumn the shelter's lock has rusted shut."
+      }
+    },
+    {
+      "id": "chumeng-true",
+      "who": "chumeng",
+      "kind": "true",
+      "tier": 4,
+      "minStage": 4,
+      "minAffection": 12,
+      "maxBroken": 0,
+      "keptKey": "b-confess",
+      "title": {
+        "zh": "声音地图的最后一格",
+        "en": "The Last Square on the Map"
+      },
+      "brief": {
+        "zh": "真结局：你陪她当面认了错，闻笛骂了她三句，然后让她在音乐节上负责开场采样。新歌开头是梯坎的脚步、轻轨的「咚」和夜市的油锅；地图最后一格，她录的是你的心跳。恋爱结局。",
+        "en": "True ending: you stand beside her as she owns up; Wen Di scolds her three times, then puts her in charge of the intro sample at the festival. The new song opens with footsteps on the stairs, the train's \"boom\" and the hiss of the night-market woks; the last square on her map is your heartbeat. Romance ending."
+      }
+    },
+    {
+      "id": "chumeng-good",
+      "who": "chumeng",
+      "kind": "good",
+      "tier": 3,
+      "minStage": 4,
+      "minAffection": 12,
+      "maxBroken": 0,
+      "title": {
+        "zh": "雾里收音",
+        "en": "Heard in the Fog"
+      },
+      "brief": {
+        "zh": "好结局：夜市拆了，凉面摊搬去了对岸，她的账号重新更新，第一条是你弹贝斯的录音。恋爱结局。",
+        "en": "Good ending: the night market is torn down and the noodle stall moves across the river; her account comes back, and the first new post is a recording of you playing bass. Romance ending."
+      }
+    },
+    {
+      "id": "chumeng-normal",
+      "who": "chumeng",
+      "kind": "normal",
+      "tier": 2,
+      "minStage": 3,
+      "title": {
+        "zh": "嗡嗡的雾",
+        "en": "Fog That Hums"
+      },
+      "brief": {
+        "zh": "普通结局：她把录音笔送给你，说暑假的声音都在里面，让你上大学以后想雾江了就听一听。",
+        "en": "Normal ending: she gives you her recorder; the summer's sounds are all on it, for whenever you miss Wujiang at college."
+      }
+    },
+    {
+      "id": "chumeng-bad",
+      "who": "chumeng",
+      "kind": "bad",
+      "tier": 1,
+      "minStage": 2,
+      "minBroken": 1,
+      "title": {
+        "zh": "删除的账号",
+        "en": "Account Deleted"
+      },
+      "brief": {
+        "zh": "坏结局：没人陪她开口，她删掉了「雾里收音」，夜市拆的那晚她没有出现。你在她空掉的摊位上，只听见江上的雾。",
+        "en": "Bad ending: no one went with her to speak up, so she deletes \"Heard in the Fog\" and doesn't show on the night the market comes down. At her empty stall you hear only the fog on the river."
+      }
+    },
+    {
+      "id": "whole-band",
+      "kind": "good",
+      "tier": 2,
+      "minStage": 2,
+      "flags": [
+        "beat:b-encore"
+      ],
+      "title": {
+        "zh": "全员安可",
+        "en": "Encore, Everyone"
+      },
+      "brief": {
+        "zh": "群像结局：你没有和谁走到最后，却把四个人都拉回了舞台。新歌唱完，台下喊安可，你们在一盏追光下挤成一团，舅舅在侧台举着茶杯。",
+        "en": "Ensemble ending: you didn't go all the way with anyone, but you brought all four back to the stage. The new song ends, the crowd calls for an encore, and you all crowd into one spotlight while your uncle raises his teacup from the wings."
+      }
+    },
+    {
+      "id": "normal",
+      "kind": "normal",
+      "tier": 0,
+      "title": {
+        "zh": "雾散了",
+        "en": "The Fog Lifts"
+      },
+      "brief": {
+        "zh": "普通结局：音乐节照常开幕，七号防空洞的名字排在节目单上，也可能没有。暑假结束，你坐轻轨穿过那栋楼离开雾江，楼又震了一下。",
+        "en": "Normal ending: the festival opens as planned, with Shelter No. 7 on the bill or not. Summer ends; you ride the light rail through that building on your way out of Wujiang, and the building shivers once more."
+      }
+    }
+  ],
+  "finale": {
+    "zh": "最后一句点题「雾」或「防空洞」，落在一个具体的声音上（轻轨进楼、贝斯低音、江上的雾之一）。",
+    "en": "The last sentence should echo the title, the fog or the shelter, and land on one concrete sound (the train entering the building, a low bass note, or fog on the river)."
+  },
+  "loading": [
+    {
+      "zh": "防空洞的拱顶滴下一滴水，「嗒」…",
+      "en": "A drop falls from the shelter ceiling: plink..."
+    },
+    {
+      "zh": "轻轨钻进楼里，整栋楼震了一下…",
+      "en": "The train slides into the building, and the whole block shivers..."
+    },
+    {
+      "zh": "有人在梯坎上数台阶…",
+      "en": "Someone on the steps is counting them..."
+    },
+    {
+      "zh": "鼓棒在桌沿上敲出一百二十…",
+      "en": "A drumstick taps one-twenty on the table edge..."
+    },
+    {
+      "zh": "江上的雾又漫上来一点…",
+      "en": "The fog on the river creeps a little higher..."
+    }
+  ]
+}

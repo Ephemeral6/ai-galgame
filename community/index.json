@@ -1,0 +1,139 @@
+{
+  "version": 1,
+  "updated": "2026-10-23",
+  "packs": [
+    {
+      "id": "cicada",
+      "title": {
+        "zh": "蝉鸣与晚自习",
+        "en": "Cicadas & Evening Study"
+      },
+      "author": "ai-galgame contributors",
+      "license": "CC-BY-4.0",
+      "lang": [
+        "zh",
+        "en"
+      ],
+      "summary": {
+        "zh": "江南小镇 · 县城中学 · 暑假前的十四天",
+        "en": "A county-town high school, fourteen days before summer break"
+      },
+      "url": "https://raw.githubusercontent.com/Ephemeral6/ai-galgame/main/community/packs/cicada.json",
+      "version": "2.0.0"
+    },
+    {
+      "id": "band",
+      "title": {
+        "zh": "防空洞与江雾音乐节",
+        "en": "The Shelter Band & the River Fog Festival"
+      },
+      "author": "ai-galgame contributors",
+      "license": "CC-BY-4.0",
+      "lang": [
+        "zh",
+        "en"
+      ],
+      "summary": {
+        "zh": "西南山城 · 防空洞排练室 · 高考后的十三天",
+        "en": "A foggy mountain river city, a rehearsal room in an old air-raid shelter, thirteen days after the exams"
+      },
+      "url": "https://raw.githubusercontent.com/Ephemeral6/ai-galgame/main/community/packs/band.json",
+      "version": "1.0.0"
+    },
+    {
+      "id": "snow",
+      "title": {
+        "zh": "白桦岭的最后一班车",
+        "en": "Last Train from Birch Ridge"
+      },
+      "author": "ai-galgame contributors",
+      "license": "CC-BY-4.0",
+      "lang": [
+        "zh",
+        "en"
+      ],
+      "summary": {
+        "zh": "东北林区小镇 · 整体搬迁前的十天",
+        "en": "A northeastern logging town, ten days before it empties"
+      },
+      "url": "https://raw.githubusercontent.com/Ephemeral6/ai-galgame/main/community/packs/snow.json",
+      "version": "1.1.0"
+    },
+    {
+      "id": "loop",
+      "title": {
+        "zh": "潮信七日",
+        "en": "Seven Tides"
+      },
+      "author": "ai-galgame contributors",
+      "license": "CC-BY-4.0",
+      "lang": [
+        "zh",
+        "en"
+      ],
+      "summary": {
+        "zh": "南方海边小县城 · 台风周 · 一直重来的七天",
+        "en": "A small southern seaside town, typhoon week, seven days that keep coming back"
+      },
+      "url": "https://raw.githubusercontent.com/Ephemeral6/ai-galgame/main/community/packs/loop.json",
+      "version": "1.1.0"
+    },
+    {
+      "id": "radio",
+      "title": {
+        "zh": "停播前的四个夜晚",
+        "en": "Four Nights Before Sign-Off"
+      },
+      "author": "ai-galgame contributors",
+      "license": "CC-BY-4.0",
+      "lang": [
+        "zh",
+        "en"
+      ],
+      "summary": {
+        "zh": "县城中学 · 校园广播站 · 最后四天",
+        "en": "A county-town school radio booth, four days before it goes silent"
+      },
+      "url": "https://raw.githubusercontent.com/Ephemeral6/ai-galgame/main/community/packs/radio.json",
+      "version": "1.1.0"
+    },
+    {
+      "id": "equalia",
+      "title": {
+        "en": "Bridge to eQualia",
+        "zh": "通往 eQualia 的桥"
+      },
+      "author": "ai-galgame contributors",
+      "license": "CC0-1.0",
+      "lang": [
+        "en",
+        "zh"
+      ],
+      "summary": {
+        "en": "An internet sleuth, a razed fantasy kingdom, and nine people who blinked out of existence",
+        "zh": "一个网络侦探、一座被洗劫的幻想王国，和九个凭空消失的人"
+      },
+      "url": "https://raw.githubusercontent.com/Ephemeral6/ai-galgame/main/community/packs/equalia.json",
+      "version": "1.1.0"
+    },
+    {
+      "id": "mauve",
+      "title": {
+        "en": "Little Mauve Riding Hood",
+        "zh": "小紫帽"
+      },
+      "author": "ai-galgame contributors",
+      "license": "CC-BY-SA-4.0",
+      "lang": [
+        "en",
+        "zh"
+      ],
+      "summary": {
+        "en": "Once upon a time, on Wilson Boulevard · four days, one wolf, zero patience",
+        "zh": "很久很久以前，在威尔逊大道 · 四天，一只狼，零耐心"
+      },
+      "url": "https://raw.githubusercontent.com/Ephemeral6/ai-galgame/main/community/packs/mauve.json",
+      "version": "1.1.0"
+    }
+  ]
+}

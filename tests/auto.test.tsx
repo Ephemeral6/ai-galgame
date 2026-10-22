@@ -48,6 +48,7 @@ function world(on: On, opts: { pilotSays?: (prompt: string) => string; writerSay
       w.pilotPrompts.push(text)
       return { value: { isAnswered: true as const, text: opts.pilotSays?.(text) ?? '{"pick":2,"why":"想看她会不会说出秘密"}', usage } }
     }
+    if (e.model === 'haiku' && !text.startsWith('Continuity')) return { value: { isAnswered: true as const, text: '夜里老街的馄饨摊收得很晚。', usage } }
     if (e.model === 'haiku') { w.checker++; return { value: { isAnswered: true as const, text: '{"ok":true}', usage } } }
     w.writer++
     return { value: { isAnswered: true as const, text: opts.writerSays ?? JSON.stringify(SCENE), usage } }
@@ -146,6 +147,7 @@ test('自动玩一幕：选地点 → 自动翻句 → 停顿后选选项，理�
   expect(await ui.find({ key: 'c0' })).toBeDefined()
   // 设置页：决策调用单独计数
   await ui.press({ key: 'kb-e' })
+  await ui.press({ key: 'sec3' }) // 设置 · 费用
   expect(await ui.find({ type: 'Text', text: /自动决策 2 次/ })).toBeDefined()
   await ui.unmount()
 })
@@ -154,6 +156,7 @@ test('连跑上限：到了 N 幕自动暂停并提示', async ($, on) => {
   const w = world(on, { pilotSays: () => '{"pick":1,"why":"去近的地方"}' })
   const ui = await open($, w)
   await ui.press({ key: 'menu-settings' })
+  await ui.press({ key: 'sec1' }) // 设置 · 自动
   await ui.press({ key: 'set-limit' }) // 6 → 3
   expect(await ui.find({ type: 'Text', text: /3 幕后暂停/ })).toBeDefined()
   await ui.press({ key: 'kb-b' })
@@ -173,9 +176,10 @@ test('按别的键就暂停自动模式；在设置里切换策略不打断', as
   await ui.press({ key: 'kb-o' })
   await w.clock.advance(500)
   await ui.press({ key: 'kb-e' }) // 设置：不打断
+  await ui.press({ key: 'sec1' })
   await ui.press({ key: 'set-strategy' })
   expect(await ui.find({ type: 'Text', text: /收集/ })).toBeDefined()
-  expect(await ui.find({ type: 'Text', text: /自动游玩（O 开关） · 自动中/ })).toBeDefined()
+  expect(await ui.find({ type: 'Text', text: /设置 · 自动中/ })).toBeDefined()
   await ui.press({ key: 'kb-b' })
   await ui.press({ key: 'kb-a' }) // 玩家自己翻句：暂停
   expect(await ui.find({ type: 'Text', text: /自动模式已暂停（你按了键）/ })).toBeDefined()
@@ -202,6 +206,7 @@ test('混乱策略：随机选，不调用决策模型', async ($, on) => {
   const w = world(on)
   const ui = await open($, w)
   await ui.press({ key: 'menu-settings' })
+  await ui.press({ key: 'sec1' }) // 设置 · 自动
   for (let i = 0; i < 2; i++) await ui.press({ key: 'set-strategy' }) // 随心 → 收集 → 混乱
   expect(await ui.find({ type: 'Text', text: /混乱/ })).toBeDefined()
   await ui.press({ key: 'kb-b' })
@@ -217,6 +222,7 @@ test('专一策略：没指定对象时先问 AI 想追谁（1 次），之后�
   const w = world(on, { pilotSays: p => (p.includes('Which character') ? '{"pick":3,"why":"想知道她的膝盖怎么了"}' : '{"pick":1,"why":"跟着她"}') })
   const ui = await open($, w)
   await ui.press({ key: 'menu-settings' })
+  await ui.press({ key: 'sec1' }) // 设置 · 自动
   for (let i = 0; i < 3; i++) await ui.press({ key: 'set-strategy' }) // 随心 → 收集 → 混乱 → 专一
   expect(await ui.find({ type: 'Text', text: /专一/ })).toBeDefined()
   await ui.press({ key: 'kb-b' })

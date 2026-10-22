@@ -1,59 +1,105 @@
-// AI 原生视觉小说引擎：面板、按键、存档、设置、剧本包导入。
-// 所有 $.state 读写都集中在这个文件（引擎 engine.ts 只有纯函数和模型调用）。
+// AI 原生视觉小说引擎：面板、按键、存档、设置、剧本包导入、自动游玩、边等边玩、陪伴、成就。
+// 所有 $.state 读写都集中在这个文件（engine.ts / fx.ts / pilot.ts / native.ts 只有纯函数和模型调用）。
 //
-// 性能：不跑逐字定时器，台词按键翻句；立绘动画 4 帧/秒，只用 $.ui.blit 重画立绘那块 Raster，
-// 只在剧情画面且开了动画时才有定时器；面板不在屏幕上时 blit 被拒，定时器自己停。
-// AI 成本：每幕 1 次写作 + 1 次检查（不过才重写 1 次）；设定集是提示的第一块并打缓存标记。
+// 规矩：
+// - 画面板（ui.render）时只读状态，绝不写；写状态只在按键回调、定时器回调、事件钩子、命令和会话开始里。
+// - 动画 ≤ 4 帧/秒（TICK_MS），只用 $.ui.blit 重画变了的那几块 Raster（立绘、氛围带、标题卡、地图、关系图）；
+//   面板不在屏幕上时 blit 被拒，定时器自己停；设置里关掉动画就没有定时器。
+// - AI 成本：默认每幕 1 次写作 + 1 次检查（不过才重写 1 次）；演出指令、氛围、镜头在同一次写作输出里；
+//   其余调用（自动决策、消息、八卦、日记、画像、顺其自然）都是 Haiku、按需、可单独关闭。
 
 import { atom, read, update } from 'claude-code'
 import type { EngineInterface, Register } from 'claude-code'
 
-import type { AutoSpeed, AutoState, AutoStrategy, Choice, Keepsake, Lang, Meta, Pack, PackEntry, PackMeta, GalSettings, Story, Usage, UiState, View } from '../types'
+import type {
+  AutoSpeed, AutoState, AutoStrategy, Choice, GalSettings, JobState, Keepsake, Lang, Meta, Pack, PackEntry, PackMeta, Story, Tone, Usage, UiState, View, WorkState,
+} from '../types'
+import { fetchIndex, fetchPack } from './browse'
+import type { CommunityEntry } from './browse'
+import { generatePack, packFromRepo, scanRepo } from './gen'
+import type { GenResult, GenStep } from './gen'
+import { exportFileName, exportRun, shareSummary } from './share'
+import type { ExportFormat } from './share'
 import { PORTRAIT_ROWS, STAGE_ROWS, STAGE_W, cells, keepsakeFrame, portraitFrame, stageFrame } from './art'
+import type { Px } from './art'
+import { BUDGETS, dateKey, usd } from './cost'
 import {
   addUsage, advanceTime, applyChoice, applyScene, drawKeepsake, forcedEvent, freshStory, incidentOf, needsMigration, normalizeStory, pickEnding, planOptions, proactive, sceneKey, writeEnding, writeScene,
 } from './engine'
-import { decide } from './pilot'
-import type { Decision } from './pilot'
 import type { PlanOption } from './engine'
+import { ACHIEVEMENTS, EMPTY_FEATS, achievementsOnFinish, achievementsOnScene, dailyChallenge, dailyShare, okFeats } from './feats'
+import type { AchievementId, Feats } from './feats'
+import { BAND_H, CARD_FRAMES, DEFAULT_THEME, atmoBand, cardFrame, fxOf, mapSize, relationGraph, stageDirections, themeOf, tint, townMap } from './fx'
+import type { CardSpec } from './fx'
 import { LANGS, helpLines, t } from './i18n'
 import type { UiKey } from './i18n'
+import { AWAY_MS, EXTRA_KEYS, awayLetter, diaryEntry, nightGossip, portraitOf, tendencies } from './native'
+import type { ExtraKey } from './native'
 import { castOf, chapterOf, dayText, meterOf, packText, personOf, tr, validatePack } from './pack'
+import { decide } from './pilot'
+import type { Decision } from './pilot'
+import { BREAK_GAP_MS, REST_AFTER_MS, canSpeak, classifyBash, commitKeepsake, companionLine } from './work'
+import type { CompanionCue, WorkEvent } from './work'
 import { BUILTIN } from '../packs/index'
 
 const PANE = 'ai-galgame'
 const TICK_MS = 250 // 4 帧/秒
 const SAVE_SLOTS = [1, 2, 3]
 
-const DEFAULT_SETTINGS: GalSettings = { lang: 'zh', anim: true, pageMode: 'line', pack: BUILTIN[0]!.id, autoStrategy: 'whim', autoSpeed: 'mid', autoLimit: 6, autoTarget: '' }
+const DEFAULT_SETTINGS: GalSettings = {
+  lang: 'zh', anim: true, pageMode: 'line', pack: BUILTIN[0]!.id,
+  autoStrategy: 'whim', autoSpeed: 'mid', autoLimit: 6, autoTarget: '',
+  map: true, extras: {}, watch: true, workEvents: false, writer: 'sonnet', budget: 0, short: false,
+  companion: '', voice: false, sfx: false, layout: 'auto', palette: 'default',
+}
 
 const story = atom<'ai-galgame', 'story'>({ plugin: 'ai-galgame', key: 'story' } as const, { ...freshStory(BUILTIN[0]!, 'zh'), phase: 'title' })
 const undo = atom<'ai-galgame', 'undo'>({ plugin: 'ai-galgame', key: 'undo' } as const, [])
 const ui = atom<'ai-galgame', 'ui'>({ plugin: 'ai-galgame', key: 'ui' } as const, { view: 'game', tab: 0, saveMode: 'save', back: 'game' })
 const settings = atom<'ai-galgame', 'settings'>({ plugin: 'ai-galgame', key: 'settings' } as const, DEFAULT_SETTINGS)
+const meta = atom<'ai-galgame', 'meta'>({ plugin: 'ai-galgame', key: 'meta' } as const, {})
+const packs = atom<'ai-galgame', 'packs'>({ plugin: 'ai-galgame', key: 'packs' } as const, [])
+const DEFAULT_AUTO: AutoState = { on: false, scenes: 0, startDay: 1, target: '', reason: '', note: '' }
+const auto = atom<'ai-galgame', 'auto'>({ plugin: 'ai-galgame', key: 'auto' } as const, DEFAULT_AUTO)
+const DEFAULT_WORK: WorkState = { busy: false, notice: '', since: 0, lastTurn: 0, said: [], line: '' }
+const work = atom<'ai-galgame', 'work'>({ plugin: 'ai-galgame', key: 'work' } as const, DEFAULT_WORK)
+const feats = atom<'ai-galgame', 'feats'>({ plugin: 'ai-galgame', key: 'feats' } as const, EMPTY_FEATS)
+const DEFAULT_JOB: JobState = { kind: '', step: '', attempt: 0, message: '', scan: null, entries: [] }
+const job = atom<'ai-galgame', 'job'>({ plugin: 'ai-galgame', key: 'job' } as const, DEFAULT_JOB)
 
-// 旧版本留下的会话状态格式不同（插件热重载后 $.state 还在），读到就重置，免得渲染时报错整块不画
+// 旧版本留下的会话状态格式不同（插件热重载后 $.state 还在），读到就降级，免得渲染时报错整块不画
 const DEFAULT_UI: UiState = { view: 'game', tab: 0, saveMode: 'save', back: 'game' }
 const TITLE_STORY: Story = { ...freshStory(BUILTIN[0]!, 'zh'), phase: 'title' }
+const VIEWS: View[] = ['game', 'album', 'saves', 'settings', 'help', 'packs', 'graph', 'feats']
 
 function okStory(x: unknown): boolean {
   const s = x as Partial<Story> | null
   return !!s && typeof s.pack === 'string' && !!s.heroines && typeof s.heroines === 'object'
     && Array.isArray(s.promises) && Array.isArray(s.album) && !!s.usage && typeof s.phase === 'string'
 }
-function okUi(x: unknown): boolean {
-  return !!x && typeof (x as Partial<UiState>).view === 'string'
+function okUi(x: unknown): x is UiState {
+  return !!x && VIEWS.includes((x as Partial<UiState>).view as View) && typeof (x as UiState).tab === 'number'
 }
 function okSettings(x: unknown): boolean {
   const st = x as Partial<GalSettings> | null
   return !!st && typeof st.lang === 'string' && typeof st.pack === 'string'
 }
+function okAuto(x: unknown): x is AutoState {
+  return !!x && typeof (x as AutoState).on === 'boolean' && typeof (x as AutoState).scenes === 'number'
+}
+function okJob(x: unknown): x is JobState {
+  return !!x && typeof (x as JobState).kind === 'string' && Array.isArray((x as JobState).entries)
+}
+function okWork(x: unknown): x is WorkState {
+  return !!x && typeof (x as WorkState).busy === 'boolean' && Array.isArray((x as WorkState).said)
+}
+const extraOn = (st: GalSettings, k: ExtraKey) => st.extras?.[k] !== false
 
 const packById = (id: string, extra: PackEntry[] = []): Pack | undefined => allPacks(extra).find(e => e.id === id)?.pack
 
 /**
  * 迁移：旧格式的会话状态、回退栈、存档补成当前格式。
- * 只在 command.run 和 session.start 里调用——画面板（ui.render）时不许写状态；画面板时只读，遇到认不出的格式降级显示。
+ * 只在 command.run 和 session.start 里调用——画面板时不许写状态；画面板时只读，遇到认不出的格式降级显示。
  */
 async function migrate($: EngineInterface): Promise<void> {
   const extra = await read($, packs)
@@ -74,6 +120,12 @@ async function migrate($: EngineInterface): Promise<void> {
   // 自动模式不跨会话、不跨热重载：定时器已经没了，状态也关掉
   const a0 = await read($, auto) as unknown
   if (!okAuto(a0) || (a0 as AutoState).on) await update($, auto, x => ({ ...DEFAULT_AUTO, note: okAuto(x) ? x.note : '' }))
+  if (!okWork(await read($, work))) await update($, work, () => DEFAULT_WORK)
+  if (!okFeats(await read($, feats))) await update($, feats, () => EMPTY_FEATS)
+  // 后台任务不跨热重载：取消控制器已经没了，正在跑的标成空闲（等确认的保留）
+  const j0 = await read($, job) as unknown
+  if (!okJob(j0)) await update($, job, () => DEFAULT_JOB)
+  else if (j0.kind !== '' && j0.kind !== 'confirm' && !genAbort) await update($, job, x => ({ ...x, kind: '' as const, step: '' }))
   // 存档：save:<pack>:<n>，旧格式补全后写回；认不出来的不动（读的时候降级显示）
   for (const key of await $.store.keys()) {
     if (!key.startsWith('save:')) continue
@@ -86,8 +138,6 @@ async function migrate($: EngineInterface): Promise<void> {
     if (n) await $.store.set(key, { ...(f as object), story: n })
   }
 }
-const meta = atom<'ai-galgame', 'meta'>({ plugin: 'ai-galgame', key: 'meta' } as const, {})
-const packs = atom<'ai-galgame', 'packs'>({ plugin: 'ai-galgame', key: 'packs' } as const, [])
 
 // ---------- 剧本包 ----------
 function allPacks(extra: PackEntry[]): PackEntry[] {
@@ -111,9 +161,10 @@ async function packDir($: EngineInterface): Promise<string> {
 async function loadExtraPacks($: EngineInterface): Promise<void> {
   const out: PackEntry[] = []
   const stored = await $.store.get('packs-imported')
+  const fromCommunity = new Set((await $.store.get('packs-community') as string[] | undefined) ?? [])
   if (stored && typeof stored === 'object') {
     for (const raw of Object.values(stored as Record<string, unknown>)) {
-      if (validatePack(raw).length === 0) out.push({ id: (raw as Pack).id, origin: 'imported', pack: raw as Pack })
+      if (validatePack(raw).length === 0) out.push({ id: (raw as Pack).id, origin: fromCommunity.has((raw as Pack).id) ? 'community' : 'imported', pack: raw as Pack })
     }
   }
   try {
@@ -183,6 +234,12 @@ async function setSettings($: EngineInterface, fn: (s: GalSettings) => GalSettin
   await $.store.set('settings', s)
 }
 
+async function setFeats($: EngineInterface, fn: (f: Feats) => Feats): Promise<Feats> {
+  const f = await update($, feats, x => fn(okFeats(x) ? x : EMPTY_FEATS))
+  await $.store.set('feats', f)
+  return f
+}
+
 type SaveFile = { story: Story; at: number }
 /** 读到的存档：正常、空、或者认不出的格式（降级显示，不报错） */
 type SaveRead = SaveFile | 'bad' | null
@@ -210,13 +267,57 @@ async function writeSave($: EngineInterface, n: number): Promise<void> {
   await $.store.set(saveKey(s.pack, n), { story: s, at: Date.now() } satisfies SaveFile)
 }
 
-// ---------- 动画：只在剧情画面、只重画立绘 ----------
-type Anim = { pack: Pack; cast: Story['scene'] extends infer S ? S extends { cast: infer C } ? C : never : never; distance: 'near' | 'far' } | null
-let anim: Anim = null
+// ---------- 时间 ----------
+/** 现在的时间（毫秒）：走引擎的时钟（测试里可以拨），拿不到就用本机时间 */
+async function nowMs($: EngineInterface): Promise<number> {
+  try { return await $.clock.now() } catch { return Date.now() }
+}
+
+// ---------- 花费与预算 ----------
+async function todaySpent($: EngineInterface): Promise<number> {
+  const f = await read($, feats)
+  const today = dateKey(await nowMs($))
+  return okFeats(f) && f.today.date === today ? f.today.usd : 0
+}
+
+/** 把一次（或一批）调用记到本局用量、今日花费和累计统计上 */
+async function charge($: EngineInterface, u: Usage): Promise<void> {
+  await update($, story, x => ({ ...x, usage: addUsage(x.usage, u) }))
+  const c = u.cost ?? 0
+  if (!c) return
+  const today = dateKey(await nowMs($))
+  await setFeats($, f => ({ ...f, today: { date: today, usd: (f.today.date === today ? f.today.usd : 0) + c }, stats: { ...f.stats, cost: f.stats.cost + c } }))
+}
+
+/** 每日预算：到了就不再调用模型；返回原因文字，没到返回 '' */
+async function overBudget($: EngineInterface): Promise<string> {
+  const st = await read($, settings)
+  const budget = st.budget ?? 0
+  if (!budget) return ''
+  const used = await todaySpent($)
+  return used >= budget ? t(st.lang, 'budgetHit', { used: usd(used), budget: usd(budget) }) : ''
+}
+
+// ---------- 音效与朗读 ----------
+function sfx($: EngineInterface, st: GalSettings, name: 'choice' | 'page' | 'ending' | 'notice'): void {
+  if (st.sfx) void $.audio.play({ asset: `assets/sfx/${name}.wav` }).catch(() => undefined)
+}
+function speak($: EngineInterface, st: GalSettings, text: string): void {
+  if (st.voice && text) void $.audio.speak(text).catch(() => undefined)
+}
+
+// ---------- 动画：只 blit 变了的那几块 ----------
+/** 一块会动的 Raster：key、尺寸和按帧画的函数 */
+type Layer = { key: string; cols: number; rows: number; draw: (t: number) => Px[][] }
+let layers: Layer[] = []
 let animTimer: { cancel: () => void } | null = null
 let frame = 0
 let misses = 0
-let lastCells = ''
+const lastCells: Record<string, string> = {}
+/** 标题卡第一次出现在哪一帧（过渡动画用；模块变量，不是状态） */
+const cardStart: Record<string, number> = {}
+let revealKey = ''
+let revealTick = 0
 
 function stopAnim(): void {
   animTimer?.cancel()
@@ -227,15 +328,22 @@ function ensureAnim($: EngineInterface): void {
   if (animTimer) return
   misses = 0
   animTimer = $.clock.every(TICK_MS, () => {
-    if (!anim) { stopAnim(); return }
+    if (!layers.length) { stopAnim(); return }
     frame++
-    const c = cells(stageFrame(anim.pack, anim.cast, anim.distance, frame))
-    if (c === lastCells) return
-    lastCells = c
-    void $.ui.blit({ requestId: PANE, key: 'stage', cells: c, columns: STAGE_W, rows: STAGE_ROWS }).then(r => {
-      if (r.deny) { if (++misses >= 4) stopAnim() } else misses = 0
-    }, () => stopAnim())
+    for (const l of layers) {
+      const c = cells(l.draw(frame))
+      if (c === lastCells[l.key]) continue
+      lastCells[l.key] = c
+      void $.ui.blit({ requestId: PANE, key: l.key, cells: c, columns: l.cols, rows: l.rows }).then(r => {
+        if (r.deny) { if (++misses >= 4 * layers.length) stopAnim() } else misses = 0
+      }, () => stopAnim())
+    }
   })
+}
+
+function startOf(id: string): number {
+  if (!(id in cardStart)) cardStart[id] = frame
+  return cardStart[id]!
 }
 
 // ---------- 游戏动作 ----------
@@ -253,17 +361,28 @@ async function rewind($: EngineInterface): Promise<void> {
   await update($, undo, x => x.slice(0, -1))
   if (!last) return
   const prev = last
-  // 回退恢复旧状态，但「回退过几次」记在当前这一局上（打破第四面墙的包会用到）
+  // 回退恢复旧状态，但「回退过几次」和用量记在当前这一局上
   await update($, story, () => ({ ...prev, error: '', rewinds: now.rewinds + 1, loads: now.loads, usage: now.usage }))
 }
 
-async function newGame($: EngineInterface, loop: number): Promise<void> {
+async function newGame($: EngineInterface, loop: number, opts: { seed?: number; daily?: string } = {}): Promise<void> {
   const st = await read($, settings)
   const p = await currentPack($)
-  await update($, story, () => freshStory(p, st.lang, loop, Math.floor(Math.random() * 0x7fffffff)))
+  const pm = packMeta(await read($, meta), p.id)
+  const fresh = freshStory(p, st.lang, loop, opts.seed ?? Math.floor(Math.random() * 0x7fffffff))
+  // 二周目起：上一局的相册摘要化作「回声」，角色会隐约觉得见过你（不额外调用）
+  const echoes = loop >= 2 && extraOn(st, 'echoes') ? pm.lastRun?.lines ?? [] : []
+  await update($, story, () => ({ ...fresh, echoes, daily: opts.daily ?? '' }))
   await update($, undo, () => [])
   await update($, ui, x => ({ ...x, view: 'game' as View }))
   await writeSave($, 0)
+}
+
+async function startDaily($: EngineInterface): Promise<void> {
+  const date = dateKey(await nowMs($))
+  const { pack, seed } = dailyChallenge(date, BUILTIN)
+  await setSettings($, x => ({ ...x, pack: pack.id }))
+  await newGame($, 1, { seed, daily: date })
 }
 
 async function continueGame($: EngineInterface): Promise<void> {
@@ -275,6 +394,11 @@ async function continueGame($: EngineInterface): Promise<void> {
   }
   if (okSave(await readSave($, st.pack, 0, await read($, packs))) && await loadSlot($, st.pack, 0)) return
   await newGame($, 1)
+}
+
+async function continueAndCheck($: EngineInterface): Promise<void> {
+  await continueGame($)
+  void maybeLetter($)
 }
 
 async function loadSlot($: EngineInterface, pack: string, n: number): Promise<boolean> {
@@ -289,27 +413,44 @@ async function loadSlot($: EngineInterface, pack: string, n: number): Promise<bo
   return true
 }
 
+async function touchSeen($: EngineInterface): Promise<void> {
+  await $.store.set('lastSeen', await nowMs($))
+}
+
 async function goTo($: EngineInterface, opt: PlanOption, who: string | null): Promise<void> {
   const s0 = await read($, story)
   if (s0.phase !== 'plan') return
   const st = await read($, settings)
+  const over = await overBudget($)
+  if (over) { await update($, story, x => ({ ...x, error: over })); return }
   const p = await currentPack($, s0.pack)
   await snapshot($)
   const T = packText(p, st.lang)
-  await update($, story, x => ({ ...x, phase: 'loading' as const, error: '', after: '', loadingText: T(p.loading[Math.floor(Math.random() * p.loading.length)]) }))
+  await update($, story, x => ({ ...x, phase: 'loading' as const, error: '', after: '', letter: null, loadingText: T(p.loading[Math.floor(Math.random() * p.loading.length)]) }))
   const s = await read($, story)
   const pm = packMeta(await read($, meta), p.id)
-  const r = await writeScene($, p, s, opt, who, st.lang, { endingsSeen: pm.endings, clears: pm.clears })
+  const r = await writeScene($, p, s, opt, who, st.lang, {
+    endingsSeen: pm.endings, clears: pm.clears, writer: st.writer === 'haiku' ? 'haiku' : undefined, short: !!st.short,
+    world: st.workEvents ? s.world : [],
+  })
+  await charge($, r.usage)
   if (!r.value) {
-    await update($, story, x => ({ ...x, phase: 'plan' as const, error: t(st.lang, 'sceneFail'), usage: addUsage(x.usage, r.usage) }))
+    await update($, story, x => ({ ...x, phase: 'plan' as const, error: t(st.lang, 'sceneFail') }))
     return
   }
   const sc = r.value
-  await update($, story, x => ({ ...applyScene(x, sc), usage: addUsage(x.usage, r.usage), reveal: st.pageMode === 'page' ? 999 : 0 }))
+  await update($, story, x => ({ ...applyScene(x, sc), reveal: st.pageMode === 'page' ? 999 : 0 }))
+  sfx($, st, 'page')
+  speak($, st, sc.narration)
+  await touchSeen($)
+  const f = await setFeats($, x => ({ ...x, stats: { ...x.stats, scenes: x.stats.scenes + 1 } }))
+  await unlock($, achievementsOnScene(f), st.lang)
 }
 
 async function nextLine($: EngineInterface): Promise<void> {
-  await update($, story, x => ({ ...x, reveal: x.reveal + 1 }))
+  const s = await update($, story, x => ({ ...x, reveal: x.reveal + 1 }))
+  const line = s.scene?.lines[s.reveal - 1]
+  if (line) speak($, await read($, settings), line.text)
 }
 
 async function revealAll($: EngineInterface): Promise<void> {
@@ -324,15 +465,38 @@ async function choose($: EngineInterface, c: Choice): Promise<void> {
   await snapshot($)
   const r = applyChoice(p, s, c, st.lang)
   await update($, story, () => r.story)
-  for (const id of r.keepsakeFor) void makeKeepsake($, p, id, st.lang)
+  sfx($, st, 'choice')
+  await touchSeen($)
+  if (!(await overBudget($))) for (const id of r.keepsakeFor) void makeKeepsake($, p, id, st.lang)
+}
+
+/** 「顺其自然」：按我的选择倾向，让 AI 替我选（1 次 Haiku） */
+async function letItBe($: EngineInterface): Promise<void> {
+  const s = await read($, story)
+  if (s.phase !== 'scene' || !s.scene) return
+  const st = await read($, settings)
+  const p = await currentPack($, s.pack)
+  const over = await overBudget($)
+  if (over) { $.ui.toast(over); return }
+  const choices = s.scene.choices
+  const d = await decide($, p, s, 'choice', choices.map(c => `[${c.kind}${c.tone ? `, ${c.tone}` : ''}] ${c.text}`), 'self', '', { endingsSeen: [] }, st.lang)
+  await charge($, d.usage)
+  if (d.error) { $.ui.toast(t(st.lang, 'autoError', { err: d.error })); return }
+  await update($, auto, x => ({ ...x, reason: reasonOf(st.lang, d), note: reasonOf(st.lang, d) }))
+  await choose($, choices[d.index]!)
 }
 
 async function makeKeepsake($: EngineInterface, p: Pack, id: string, lang: Lang): Promise<void> {
   const s = await read($, story)
-  const g = await drawKeepsake($, p, s, id, lang)
-  const k = g.value
-  await update($, story, x => ({ ...x, usage: addUsage(x.usage, g.usage), keepsakes: k && x.pack === p.id ? [...x.keepsakes, k] : x.keepsakes }))
+  const st = await read($, settings)
+  const g = await drawKeepsake($, p, s, id, lang, st.writer === 'haiku' ? 'haiku' : undefined)
+  await charge($, g.usage)
+  await giveKeepsake($, p, g.value, lang)
+}
+
+async function giveKeepsake($: EngineInterface, p: Pack, k: Keepsake | null, lang: Lang): Promise<void> {
   if (!k) return
+  await update($, story, x => ({ ...x, keepsakes: x.pack === p.id ? [...x.keepsakes, k] : x.keepsakes }))
   await setMeta($, p.id, pm => ({ ...pm, keepsakes: [...pm.keepsakes.filter(o => !(o.heroine === k.heroine && o.title === k.title)), k].slice(-24) }))
   $.ui.toast(t(lang, 'keepsakeGot', { title: k.title }))
 }
@@ -343,20 +507,90 @@ async function advance($: EngineInterface): Promise<void> {
   const st = await read($, settings)
   const p = await currentPack($, s.pack)
   const r = advanceTime(p, s, st.lang)
-  await update($, story, () => r.story)
+  await update($, story, () => ({ ...r.story, deltas: {} }))
   await writeSave($, 0)
+  // 一天过完：夜里的小镇（配角之间的八卦、幕后），1 次 Haiku，不等它
+  if (!r.finished && r.story.day !== s.day && extraOn(st, 'gossip') && !(await overBudget($))) void gossip($, p, s, s.day, st.lang)
   if (r.finished) await finish($, p, st.lang)
 }
 
+async function gossip($: EngineInterface, p: Pack, s: Story, day: number, lang: Lang): Promise<void> {
+  const g = await nightGossip($, p, s, day, lang)
+  await charge($, g.usage)
+  if (g.text) await update($, story, x => (x.pack === p.id ? { ...x, gossip: [...x.gossip, { day, text: g.text! }].slice(-20) } : x))
+}
+
 async function finish($: EngineInterface, p: Pack, lang: Lang): Promise<void> {
+  const st = await read($, settings)
   await update($, story, x => ({ ...x, phase: 'loading' as const, loadingText: packText(p, lang)(p.loading[0]) }))
   const s = await read($, story)
   const e = pickEnding(p, s)
-  const g = await writeEnding($, p, s, e, lang)
-  await update($, story, x => ({ ...x, phase: 'ending' as const, endingId: e.id, ending: g.value ?? t(lang, 'endingFail'), reveal: 0, usage: addUsage(x.usage, g.usage) }))
-  await setMeta($, p.id, pm => ({ ...pm, clears: pm.clears + 1, endings: pm.endings.includes(e.id) ? pm.endings : [...pm.endings, e.id] }))
+  const g = (await overBudget($)) ? { value: null, usage: { writer: 0, checker: 0, input: 0, output: 0, cacheRead: 0, cacheWrite: 0 } } : await writeEnding($, p, s, e, lang, st.writer === 'haiku' ? 'haiku' : undefined)
+  await charge($, g.usage)
+  await update($, story, x => ({ ...x, phase: 'ending' as const, endingId: e.id, ending: g.value ?? t(lang, 'endingFail'), reveal: 0 }))
+  await setMeta($, p.id, pm => ({
+    ...pm, clears: pm.clears + 1, endings: pm.endings.includes(e.id) ? pm.endings : [...pm.endings, e.id],
+    lastRun: { ending: e.id, lines: s.album.slice(-8).map(m => m.text) },
+  }))
   await writeSave($, 0)
+  sfx($, st, 'ending')
   $.ui.toast(t(lang, 'endingUnlocked', { title: tr(e.title, lang, p.defaultLang) }))
+  // 成就、统计、每日挑战
+  const a = await read($, auto)
+  const pm = packMeta(await read($, meta), p.id)
+  const f0 = await read($, feats)
+  const got = achievementsOnFinish(p, s, e, pm, okFeats(f0) ? f0 : EMPTY_FEATS, okAuto(a) && a.on)
+  await setFeats($, f => ({
+    ...f, stats: { ...f.stats, clears: f.stats.clears + 1 },
+    daily: s.daily && !f.daily[s.daily] ? { ...f.daily, [s.daily]: { pack: p.id, ending: e.id, kind: e.kind ?? (e.tier >= 4 ? 'true' : 'normal') } } : f.daily,
+  }))
+  await unlock($, got, lang)
+}
+
+async function unlock($: EngineInterface, ids: AchievementId[], lang: Lang): Promise<void> {
+  if (!ids.length) return
+  await setFeats($, f => ({ ...f, achievements: [...new Set([...f.achievements, ...ids])] }))
+  for (const id of ids) $.ui.toast(t(lang, 'achGot', { name: t(lang, `ach_${id}` as UiKey) }))
+}
+
+async function genDiary($: EngineInterface, id: string, day: number): Promise<void> {
+  const s = await read($, story)
+  const st = await read($, settings)
+  const over = await overBudget($)
+  if (over) { $.ui.toast(over); return }
+  const p = await currentPack($, s.pack)
+  const g = await diaryEntry($, p, s, id, day, st.lang)
+  await charge($, g.usage)
+  if (g.text) await update($, story, x => ({ ...x, diary: { ...x.diary, [`${id}:${day}`]: g.text! } }))
+}
+
+async function genPortrait($: EngineInterface, id: string): Promise<void> {
+  const s = await read($, story)
+  const st = await read($, settings)
+  const over = await overBudget($)
+  if (over) { $.ui.toast(over); return }
+  const p = await currentPack($, s.pack)
+  const g = await portraitOf($, p, s, id, st.lang)
+  await charge($, g.usage)
+  if (g.text) await update($, story, x => ({ ...x, portrait: { ...x.portrait, [id]: g.text! } }))
+}
+
+/**
+ * 你离开很久（真实时间）后回来：她发来一条消息（1 次 Haiku，不等它）。
+ * 回到一局里（打开面板时正在日程页，或者从标题继续 / 读档）才检查；「上次在玩」的时间只在真的玩了的时候更新。
+ */
+async function maybeLetter($: EngineInterface): Promise<void> {
+  const st = await read($, settings)
+  const s = await read($, story)
+  if (s.phase !== 'plan') return
+  const now = await nowMs($)
+  const last = Number(await $.store.get('lastSeen')) || 0
+  await $.store.set('lastSeen', now)
+  if (!extraOn(st, 'letters') || !last || now - last < AWAY_MS) return
+  if (s.letter || (await overBudget($))) return
+  const p = await currentPack($, s.pack)
+  const lt = await awayLetter($, p, s, (now - last) / 3600_000, st.lang)
+  if (lt) await update($, story, x => (x.pack === s.pack && x.phase === 'plan' ? { ...x, letter: lt } : x))
 }
 
 async function show($: EngineInterface, view: View, tab = 0): Promise<void> {
@@ -366,8 +600,6 @@ async function show($: EngineInterface, view: View, tab = 0): Promise<void> {
 // ---------- 自动游玩 ----------
 // 用 $.clock.after 一步一步排程（不用高频定时器）；定时器回调里写状态，ui.render 里只读。
 // 每一步先核对 autoGen：玩家按键、关掉自动或热重载后，排着的旧步骤自动作废。
-const DEFAULT_AUTO: AutoState = { on: false, scenes: 0, startDay: 1, target: '', reason: '', note: '' }
-const auto = atom<'ai-galgame', 'auto'>({ plugin: 'ai-galgame', key: 'auto' } as const, DEFAULT_AUTO)
 const SPEED_MS: Record<AutoSpeed, number> = { slow: 3000, mid: 1500, fast: 600 }
 const CHOICE_PAUSE_MS = 2000
 const AUTO_STRATEGIES: AutoStrategy[] = ['focus', 'whim', 'collect', 'chaos']
@@ -376,10 +608,6 @@ const AUTO_LIMITS = [6, 3, 12, 24, 0]
 let autoGen = 0
 let autoTimer: { cancel: () => void } | null = null
 let choicesShown = ''
-
-function okAuto(x: unknown): x is AutoState {
-  return !!x && typeof (x as AutoState).on === 'boolean' && typeof (x as AutoState).scenes === 'number'
-}
 
 function autoCfg(st: GalSettings): { strategy: AutoStrategy; speed: AutoSpeed; limit: number; target: string } {
   return {
@@ -395,12 +623,22 @@ function schedule($: EngineInterface, ms: number, gen: number): void {
   autoTimer = $.clock.after(ms, () => { if (gen === autoGen) void autoStep($, gen) })
 }
 
+/** 状态栏：后台生成的进度 + 自动模式 + 陪伴模式的一句话 */
+async function refreshStatus($: EngineInterface): Promise<void> {
+  const st = await read($, settings)
+  const a = await read($, auto)
+  const w = await read($, work)
+  const j = await read($, job)
+  const parts = [okJob(j) ? jobLine(st.lang, j) : '', okAuto(a) && a.on ? t(st.lang, 'autoStatus') : '', st.companion && okWork(w) ? w.line : ''].filter(Boolean)
+  $.ui.status(parts.length ? parts.join(' · ') : undefined)
+}
+
 async function startAuto($: EngineInterface): Promise<void> {
   autoGen++
   const gen = autoGen
   const s = await read($, story)
   await update($, auto, () => ({ ...DEFAULT_AUTO, on: true, startDay: s.day }))
-  $.ui.status(t((await read($, settings)).lang, 'autoStatus'))
+  await refreshStatus($)
   choicesShown = ''
   schedule($, 400, gen)
 }
@@ -412,17 +650,13 @@ async function stopAuto($: EngineInterface, key: UiKey, vars?: Record<string, st
   autoTimer = null
   const lang = (await read($, settings)).lang
   await update($, auto, x => ({ ...(okAuto(x) ? x : DEFAULT_AUTO), on: false, note: t(lang, key, vars) }))
-  $.ui.status(undefined)
+  await refreshStatus($)
 }
 
 async function toggleAuto($: EngineInterface): Promise<void> {
   const a = await read($, auto)
   if (okAuto(a) && a.on) await stopAuto($, 'autoStopped')
   else await startAuto($)
-}
-
-async function addPilot($: EngineInterface, u: Usage): Promise<void> {
-  if (u.pilot) await update($, story, x => ({ ...x, usage: addUsage(x.usage, u) }))
 }
 
 function reasonOf(lang: Lang, d: Decision): string {
@@ -445,6 +679,8 @@ async function autoStep($: EngineInterface, gen: number): Promise<void> {
     if (s.phase === 'title') { await continueGame($); return schedule($, 600, gen) }
     if (s.phase === 'loading') return schedule($, 800, gen)
     if (s.phase === 'ending') return await stopAuto($, 'autoEnded')
+    const over = await overBudget($)
+    if (over && (s.phase === 'plan' || (s.phase === 'scene' && cfg.strategy !== 'chaos'))) return await stopAuto($, 'autoError', { err: over })
     if (s.phase === 'plan') {
       if (s.error) return await stopAuto($, 'autoError', { err: s.error })
       if (cfg.limit > 0 && a.scenes >= cfg.limit) return await stopAuto($, 'autoLimitHit', { n: a.scenes })
@@ -454,7 +690,7 @@ async function autoStep($: EngineInterface, gen: number): Promise<void> {
         target = castOf(p, cfg.target) ? cfg.target : ''
         if (!target) {
           const d = await decide($, p, s, 'target', p.cast.map(c => `${c.id} ${T(c.name)}: ${T(c.tagline ?? c.look)}`), 'focus', '', seen, lang)
-          await addPilot($, d.usage)
+          await charge($, d.usage)
           if (d.error) return await stopAuto($, 'autoError', { err: d.error })
           target = p.cast[d.index]!.id
         }
@@ -469,7 +705,7 @@ async function autoStep($: EngineInterface, gen: number): Promise<void> {
       ]
       const labels = opts.map(o => (o.who ? `${o.who} came looking for me: go with her` : `${o.forced ?? o.place}${o.maybe.length ? ` (maybe: ${o.maybe.join(', ')})` : ''}`))
       const d = await decide($, p, s, 'place', labels, cfg.strategy, target, seen, lang)
-      await addPilot($, d.usage)
+      await charge($, d.usage)
       if (d.error) return await stopAuto($, 'autoError', { err: d.error })
       if (gen !== autoGen) return
       await update($, auto, x => ({ ...x, reason: opts.length > 1 ? reasonOf(lang, d) : '' }))
@@ -483,7 +719,7 @@ async function autoStep($: EngineInterface, gen: number): Promise<void> {
     }
     if (s.phase === 'scene' && s.scene) {
       const key = `${sceneKey(s)}:${s.scene.title}`
-      const items = 1 + s.scene.lines.length
+      const items = sceneItems(s.scene, '').length
       if (s.reveal + 1 < items) {
         await nextLine($)
         // 最后一句出来时选项也出来了：停顿约 2 秒再选，让人看得到
@@ -493,7 +729,7 @@ async function autoStep($: EngineInterface, gen: number): Promise<void> {
       if (choicesShown !== key) { choicesShown = key; return schedule($, CHOICE_PAUSE_MS, gen) }
       const choices = s.scene.choices
       const d = await decide($, p, s, 'choice', choices.map(c => `[${c.kind}] ${c.text}`), cfg.strategy, a.target, seen, lang)
-      await addPilot($, d.usage)
+      await charge($, d.usage)
       if (d.error) return await stopAuto($, 'autoError', { err: d.error })
       if (gen !== autoGen) return
       await update($, auto, x => ({ ...x, reason: reasonOf(lang, d) }))
@@ -507,6 +743,256 @@ async function autoStep($: EngineInterface, gen: number): Promise<void> {
   }
 }
 
+// ---------- 边等边玩与陪伴模式 ----------
+async function companionSay($: EngineInterface, cue: CompanionCue): Promise<void> {
+  const st = await read($, settings)
+  if (!st.companion) return
+  const p = await currentPack($)
+  const c = castOf(p, st.companion)
+  if (!c) return
+  const now = await nowMs($)
+  const w = await read($, work)
+  if (!okWork(w) || !canSpeak(w.said, now)) return
+  const line = companionLine(st.lang, cue, tr(c.short, st.lang, p.defaultLang), w.said.length + Math.floor(now / 1000))
+  await update($, work, x => ({ ...x, said: [...x.said.filter(y => now - y < 3600_000), now], line }))
+  await refreshStatus($)
+}
+
+async function onTurnStart($: EngineInterface): Promise<void> {
+  const st = await read($, settings)
+  const now = await nowMs($)
+  const w = await read($, work)
+  const prev = okWork(w) ? w : DEFAULT_WORK
+  const since = !prev.since || now - prev.lastTurn > BREAK_GAP_MS ? now : prev.since
+  await update($, work, x => ({ ...(okWork(x) ? x : DEFAULT_WORK), busy: true, since, lastTurn: now, notice: (st.watch !== false ? 'busy' : '') as WorkState['notice'] }))
+  if (st.companion && now - since >= REST_AFTER_MS) await companionSay($, 'rest')
+}
+
+/** Claude 写完或在等批准：暂停游戏（含自动模式），在面板上提示 */
+async function pauseForClaude($: EngineInterface, why: 'done' | 'permission'): Promise<void> {
+  const st = await read($, settings)
+  const now = await nowMs($)
+  await update($, work, x => ({ ...(okWork(x) ? x : DEFAULT_WORK), busy: why === 'permission', lastTurn: now, notice: (st.watch !== false ? why : '') as WorkState['notice'] }))
+  if (st.watch === false) return
+  const a = await read($, auto)
+  if (okAuto(a) && a.on) await stopAuto($, why === 'done' ? 'watchDone' : 'watchPermission')
+  const s = await read($, story)
+  if (s.phase !== 'title') {
+    $.ui.toast(t(st.lang, why === 'done' ? 'watchDone' : 'watchPermission'))
+    sfx($, st, 'notice')
+  }
+  await companionSay($, why)
+}
+
+/** 写代码的事件：只看命令种类和成败，不留命令、路径、输出 */
+async function onWorkEvent($: EngineInterface, ev: WorkEvent): Promise<void> {
+  const st = await read($, settings)
+  await companionSay($, ev)
+  if (!st.workEvents) return
+  const s = await read($, story)
+  if (s.phase === 'title' || s.phase === 'ending') return
+  await update($, story, x => ({ ...x, world: [...x.world, ev].slice(-4) }))
+  if (ev === 'commit') {
+    const p = await currentPack($, s.pack)
+    const best = p.cast.filter(c => (s.heroines[c.id]?.lastDay ?? 0) > 0).sort((a, b) => (s.heroines[b.id]?.affection ?? 0) - (s.heroines[a.id]?.affection ?? 0))[0]
+    if (best && s.keepsakes.filter(k => k.title.includes('#') || k.title.includes('提交')).length < 3) {
+      const n = s.keepsakes.filter(k => k.title.includes('#') || k.title.includes('提交')).length + 1
+      await giveKeepsake($, p, commitKeepsake(p.id, best.id, s.day, st.lang, n), st.lang)
+    }
+  }
+}
+
+// ---------- 生成剧本包、从项目生成、导出、社区 ----------
+// 这些是另一条线写的模块（gen.ts / share.ts / browse.ts）：纯逻辑加 $ 调用；这里负责状态、进度、取消、保存。
+let genAbort: AbortController | null = null
+/** 社区索引的完整条目（含下载地址）；面板只显示 job.entries 里的摘要。模块变量，不是状态 */
+let communityEntries: CommunityEntry[] = []
+
+function jobLine(lang: Lang, j: JobState): string {
+  if (j.kind !== 'gen' && j.kind !== 'repo') return j.kind === 'browse' ? t(lang, 'communityLoading') : ''
+  const step = j.step === 'expand' ? t(lang, 'genExpand') : j.step === 'repair' ? t(lang, 'genRepair', { n: j.attempt }) : t(lang, 'genOutline')
+  return t(lang, 'genRunning', { step })
+}
+
+async function setJob($: EngineInterface, fn: (j: JobState) => JobState): Promise<void> {
+  await update($, job, x => fn(okJob(x) ? x : DEFAULT_JOB))
+  await refreshStatus($)
+}
+
+/** 换一个不冲突的 id：内置包、已导入的包都不能撞 */
+async function freeId($: EngineInterface, id: string): Promise<string> {
+  const taken = new Set([...allPacks(await read($, packs)).map(e => e.id), ...Object.keys(((await $.store.get('packs-imported')) ?? {}) as object)])
+  if (!taken.has(id)) return id
+  for (let n = 2; ; n++) if (!taken.has(`${id}-${n}`)) return `${id}-${n}`
+}
+
+/** 保存一个校验过的包：存进导入表（下次启动还在），并尽量在剧本目录里留一份 JSON 方便手改 */
+async function savePack($: EngineInterface, pack: Pack, origin: 'imported' | 'community', replace = false): Promise<Pack> {
+  const id = replace ? pack.id : await freeId($, pack.id)
+  const p = { ...pack, id }
+  const stored = ((await $.store.get('packs-imported')) ?? {}) as Record<string, unknown>
+  await $.store.set('packs-imported', { ...stored, [id]: p })
+  if (origin === 'community') {
+    const ids = ((await $.store.get('packs-community')) as string[] | undefined) ?? []
+    await $.store.set('packs-community', [...new Set([...ids, id])])
+  }
+  try { await $.fs.write(`${await packDir($)}/${id}.json`, JSON.stringify(p, null, 2)) } catch { /* 目录写不了也没关系：导入表里已经有了 */ }
+  await loadExtraPacks($)
+  return p
+}
+
+async function draftPath($: EngineInterface, id: string): Promise<string> {
+  const home = (await $.env.get('USERPROFILE')) ?? (await $.env.get('HOME')) ?? '.'
+  return `${home.replace(/\\/g, '/')}/.claude/galgame-drafts/${id || 'draft'}.draft.json`
+}
+
+async function handleGenResult($: EngineInterface, r: GenResult, lang: Lang): Promise<string> {
+  await charge($, r.usage)
+  if (r.refused) { $.ui.toast(r.refused); return r.refused }
+  if (r.pack) {
+    const p = await savePack($, r.pack, 'imported')
+    const msg = `${t(lang, 'genDone', { title: tr(p.title, lang, p.defaultLang) })}${r.homage ? ` ${r.homage}` : ''}`
+    $.ui.toast(msg)
+    return msg
+  }
+  if (genAbort?.signal.aborted) return t(lang, 'genCancelled')
+  let path = ''
+  try {
+    const id = String((JSON.parse(r.json || '{}') as { id?: unknown }).id ?? 'draft')
+    path = await draftPath($, id.replace(/[^a-z0-9_-]/gi, '') || 'draft')
+    await $.fs.write(path, r.json)
+  } catch { path = '-' }
+  const errors = r.errors.filter(e => !e.startsWith('privacy:')).slice(0, 4).join('; ') || r.errors.slice(0, 1).map(() => 'privacy').join('')
+  const msg = t(lang, 'genFailed', { errors, path })
+  $.ui.toast(msg)
+  return msg
+}
+
+/** 一句话生成（几分钟，后台跑，状态栏显示进度，可取消） */
+async function runGenerate($: EngineInterface, idea: string, days?: number, cast?: number): Promise<void> {
+  const st = await read($, settings)
+  genAbort = new AbortController()
+  const signal = genAbort.signal
+  await setJob($, j => ({ ...j, kind: 'gen', step: 'outline', attempt: 0, message: t(st.lang, 'genStart', { idea }) }))
+  try {
+    const r = await generatePack($, idea, { lang: st.lang, days, castSize: cast, signal, onStep: (step: GenStep, attempt: number) => { if (step !== 'done') void setJob($, j => ({ ...j, step, attempt })) } })
+    const msg = signal.aborted ? t(st.lang, 'genCancelled') : await handleGenResult($, r, st.lang)
+    await setJob($, j => ({ ...j, kind: '', step: '', message: msg }))
+  } catch (err) {
+    await setJob($, j => ({ ...j, kind: '', step: '', message: String((err as Error)?.message ?? err).slice(0, 120) }))
+  } finally {
+    genAbort = null
+  }
+}
+
+/** 从当前项目生成：先列出要读的文件，等玩家确认 */
+async function askRepo($: EngineInterface, root: string, idea: string): Promise<string> {
+  const st = await read($, settings)
+  const d = await scanRepo($, root)
+  const files = d.read.length ? d.read : ['(none)']
+  await setJob($, j => ({ ...j, kind: 'confirm', scan: { root, idea, files, bytes: d.bytes }, message: '' }))
+  return t(st.lang, 'repoConfirm', { files: files.join('、'), n: d.read.length, kb: Math.max(1, Math.round(d.bytes / 1024)) })
+}
+
+async function runRepo($: EngineInterface): Promise<void> {
+  const j0 = await read($, job)
+  if (!okJob(j0) || j0.kind !== 'confirm' || !j0.scan) return
+  const { root, idea } = j0.scan
+  const st = await read($, settings)
+  genAbort = new AbortController()
+  const signal = genAbort.signal
+  await setJob($, j => ({ ...j, kind: 'repo', step: 'outline', attempt: 0, scan: null }))
+  try {
+    const r = await packFromRepo($, root, idea || undefined, { lang: st.lang, signal, onStep: (step: GenStep, attempt: number) => { if (step !== 'done') void setJob($, j => ({ ...j, step, attempt })) } })
+    const msg = signal.aborted ? t(st.lang, 'genCancelled') : await handleGenResult($, r, st.lang)
+    await setJob($, j => ({ ...j, kind: '', step: '', message: msg }))
+  } catch (err) {
+    await setJob($, j => ({ ...j, kind: '', step: '', message: String((err as Error)?.message ?? err).slice(0, 120) }))
+  } finally {
+    genAbort = null
+  }
+}
+
+async function cancelJob($: EngineInterface): Promise<void> {
+  const st = await read($, settings)
+  genAbort?.abort()
+  await setJob($, j => ({ ...j, kind: '', step: '', scan: null, message: t(st.lang, 'genCancelled') }))
+}
+
+/** 导出这一局（不调用模型）：写到会话根目录 */
+async function doExport($: EngineInterface, format: ExportFormat): Promise<string> {
+  const st = await read($, settings)
+  const s = await read($, story)
+  const p = await currentPack($, s.pack)
+  try {
+    const root = await $.session.root()
+    const path = `${root.replace(/\\/g, '/')}/${exportFileName(s, p, format)}`
+    await $.fs.write(path, exportRun(s, p, st.lang, format, { quotes: s.quotes }))
+    const msg = t(st.lang, 'exported', { path })
+    $.ui.toast(msg)
+    return msg
+  } catch (err) {
+    const msg = t(st.lang, 'exportFail', { err: String((err as Error)?.message ?? err).slice(0, 80) })
+    $.ui.toast(msg)
+    return msg
+  }
+}
+
+async function shareText($: EngineInterface): Promise<string> {
+  const st = await read($, settings)
+  const s = await read($, story)
+  return shareSummary(s, await currentPack($, s.pack), st.lang)
+}
+
+/** 社区索引（不调用模型）；被许可白名单挡下的条目不显示，只写调试日志 */
+async function browse($: EngineInterface): Promise<void> {
+  const st = await read($, settings)
+  await setJob($, j => ({ ...j, kind: 'browse', message: '' }))
+  const r = await fetchIndex($)
+  for (const x of r.rejected) $.ui.log(`galgame community: ${x.id}: ${x.reason}`, { to: 'debug' })
+  communityEntries = r.entries
+  const T = (x: Parameters<typeof tr>[0]) => tr(x, st.lang, 'en')
+  await setJob($, j => ({
+    ...j, kind: '', message: r.error ? t(st.lang, 'communityFail', { err: r.error }) : r.entries.length ? '' : t(st.lang, 'communityEmpty'),
+    entries: r.entries.map(e => ({ id: e.id, title: T(e.title), author: e.author, license: e.license, lang: e.lang.join('/'), summary: T(e.summary) })),
+  }))
+}
+
+async function install($: EngineInterface, id: string): Promise<void> {
+  const st = await read($, settings)
+  const e = communityEntries.find(x => x.id === id)
+  if (!e) return
+  const title = tr(e.title, st.lang, 'en')
+  await setJob($, j => ({ ...j, kind: 'download', message: t(st.lang, 'downloading', { title }) }))
+  const r = await fetchPack($, e)
+  if (!r.pack) {
+    await setJob($, j => ({ ...j, kind: '', message: t(st.lang, 'installFail', { err: r.errors[0] ?? '?' }) }))
+    return
+  }
+  if (BUILTIN.some(b => b.id === r.pack!.id)) {
+    await setJob($, j => ({ ...j, kind: '', message: t(st.lang, 'installFail', { err: `"${r.pack!.id}" is built in` }) }))
+    return
+  }
+  await savePack($, r.pack, 'community', true)
+  const msg = t(st.lang, 'installed', { title })
+  $.ui.toast(msg)
+  await setJob($, j => ({ ...j, kind: '', message: msg }))
+}
+
+// ---------- 剧情画面的条目（旁白、特写、台词、留白） ----------
+type Item = { who: string; text: string; line: number; kind: 'narration' | 'focus' | 'line' | 'pause' }
+
+/** 一幕的条目：旁白（0），镜头特写跟在旁白后，留白插在第 pause 句之后；line 是原来的句号（演出指令按它算） */
+function sceneItems(sc: NonNullable<Story['scene']>, focusText: string): Item[] {
+  const out: Item[] = [{ who: '', text: sc.narration, line: 0, kind: 'narration' }]
+  if (sc.camera?.focus) out.push({ who: '', text: focusText || sc.camera.focus, line: 0, kind: 'focus' })
+  sc.lines.forEach((l, i) => {
+    out.push({ who: l.who, text: l.text, line: i + 1, kind: 'line' })
+    if (sc.camera?.pause === i + 1 && i + 1 < sc.lines.length) out.push({ who: '', text: '……', line: i + 1, kind: 'pause' })
+  })
+  return out
+}
+
 // ---------- 小部件 ----------
 /** 关系值：五格，图标来自角色的 meter（恋爱角色默认 ♥ ♡，非恋爱角色如「看穿 ◆◇」「信任 ●○」） */
 function hearts(n: number, max: number, on = '♥', off = '♡'): string {
@@ -514,17 +1000,26 @@ function hearts(n: number, max: number, on = '♥', off = '♡'): string {
   return on.repeat(full) + off.repeat(5 - full)
 }
 
-const KIND_COLOR: Record<string, string> = { reply: '#7fd1c7', observe: '#9aa0a6', promise: '#f2c14e' }
+const PALETTES = {
+  default: { reply: '#7fd1c7', observe: '#9aa0a6', promise: '#f2c14e', kept: '#81c784', broken: '#e57373', event: '#e57373', info: '#9fc5e8' },
+  // Okabe–Ito：色盲也分得开；同时都带不同图标
+  cb: { reply: '#56b4e9', observe: '#cc79a7', promise: '#f0e442', kept: '#009e73', broken: '#d55e00', event: '#e69f00', info: '#56b4e9' },
+} as const
+const KIND_ICON: Record<string, string> = { reply: '❝', observe: '◎', promise: '✦' }
 const ACCENT = '#f2c14e'
 const DIM = '#8a8f98'
+const INK = '#1e1a1a'
+const TONE_ORDER: Tone[] = ['honest', 'evasive', 'joking', 'committed', 'caring', 'bold']
 
 export const register: Register = on => {
   on('session.start', async ($, e, next) => {
-    await $.command.register({ name: 'gal', description: 'AI 视觉小说 / AI visual novel', argumentHint: '[import | validate <path.json>]' })
+    await $.command.register({ name: 'gal', description: 'AI 视觉小说 / AI visual novel', argumentHint: '[new <idea> | repo [path] | export [html|md] | share | browse | cancel | import | validate <path.json>]' })
     const st = await $.store.get('settings')
     if (st && typeof st === 'object') await update($, settings, () => ({ ...DEFAULT_SETTINGS, ...(st as Partial<GalSettings>) }))
     const m = await $.store.get('meta')
     if (m && typeof m === 'object') await update($, meta, () => m as Meta)
+    const f = await $.store.get('feats')
+    if (okFeats(f)) await update($, feats, () => f)
     await loadExtraPacks($)
     await migrate($)
     return next(e)
@@ -532,10 +1027,41 @@ export const register: Register = on => {
 
   on('session.end', async ($, e, next) => {
     stopAnim()
+    layers = []
     autoGen++
     autoTimer?.cancel()
     autoTimer = null
     return next(e)
+  })
+
+  // 边等边玩：Claude 开始干活时提示「趁现在玩一幕」；干完或等批准时暂停游戏（只看主循环，不看子代理）
+  on('turn.start', async ($, e, next) => {
+    const r = await next(e)
+    if (!e.agentId) await onTurnStart($)
+    return r
+  })
+  on('turn.complete', async ($, e, next) => {
+    const r = await next(e)
+    if (!e.agentId) await pauseForClaude($, 'done')
+    return r
+  })
+  on('classic.PermissionRequest', async ($, e, next) => {
+    await pauseForClaude($, 'permission')
+    return next(e)
+  })
+
+  // 写代码的事件：Bash 里的测试、构建、git commit，只取种类和成败
+  on('tool.call', { tool: 'Bash' }, async ($, e, next) => {
+    const r = await next(e)
+    try {
+      const command = String(e.command ?? '')
+      const failed = 'deny' in r && !!r.deny ? true : !!(r as { isError?: boolean }).isError
+      const ev = classifyBash(command, failed)
+      if (ev) await onWorkEvent($, ev)
+    } catch {
+      // 游戏的事不能影响工具调用
+    }
+    return r
   })
 
   on('command.run', { command: 'gal' }, async ($, e) => {
@@ -551,48 +1077,124 @@ export const register: Register = on => {
       if (!path) return { text: t(st.lang, 'importHint', { dir: await packDir($) }) }
       return { text: await importPack($, path, st.lang) }
     }
+    const busy = () => { const j = genAbort; return !!j }
+    if (args === 'new' || args.startsWith('new ')) {
+      let idea = args.slice(3).trim()
+      const num = (k: string) => { const m = new RegExp(`--${k}\\s+(\\d+)`).exec(idea); idea = idea.replace(new RegExp(`--${k}\\s+\\d+`), '').trim(); return m ? Number(m[1]) : undefined }
+      const days = num('days')
+      const cast = num('cast')
+      if (!idea) return { text: t(st.lang, 'genHint') }
+      if (busy()) return { text: t(st.lang, 'genBusy') }
+      void runGenerate($, idea, days, cast)
+      return { text: t(st.lang, 'genStart', { idea }) }
+    }
+    if (args === 'repo' || args.startsWith('repo ')) {
+      const rest = args.slice(4).trim()
+      if (rest === '--yes') { if (busy()) return { text: t(st.lang, 'genBusy') }; void runRepo($); return { text: t(st.lang, 'genStart', { idea: 'repo' }) } }
+      if (busy()) return { text: t(st.lang, 'genBusy') }
+      const [first, ...more] = rest.split(/\s+/).filter(Boolean)
+      const looksPath = !!first && /[\\/]|^\.$|^~/.test(first)
+      const root = looksPath ? first! : await $.session.root()
+      const idea = (looksPath ? more : rest.split(/\s+/).filter(Boolean)).join(' ')
+      const text = await askRepo($, root, idea)
+      await $.ui.open({ id: PANE, title: 'ai-galgame', focus: true })
+      return { text: `${text}\n${t(st.lang, 'repoAsk')}` }
+    }
+    if (args === 'cancel') { await cancelJob($); return { text: t(st.lang, 'genCancelled') } }
+    if (args === 'export' || args.startsWith('export ')) return { text: await doExport($, args.includes('md') ? 'md' : 'html') }
+    if (args === 'share') return { text: await shareText($) }
+    if (args === 'browse') {
+      await update($, ui, x => ({ ...x, view: 'packs' as View, tab: 1 }))
+      await $.ui.open({ id: PANE, title: 'ai-galgame', focus: true })
+      void browse($)
+      return { text: t(st.lang, 'communityLoading') }
+    }
     await loadExtraPacks($)
     const s = await read($, story)
     if (s.phase === 'loading') await update($, story, x => ({ ...x, phase: 'plan' as const }))
     await update($, ui, x => ({ ...x, view: 'game' as View }))
     if (s.phase === 'title' || s.pack !== st.pack) await update($, story, x => ({ ...x, phase: 'title' as const }))
     await $.ui.open({ id: PANE, title: 'ai-galgame', focus: true })
+    void maybeLetter($)
     return { text: t(st.lang, 'opened') }
   })
 
   on('ui.render', { component: 'Pane', requestId: PANE }, async ($, e) => {
+    // ====== 这里只读状态，不写 ======
     const el = $.ui.resolve(e)
     const { Box, Text, Button } = el
-    const Raster = 'Raster' in el ? el.Raster : null
-    const st = okSettings(await read($, settings)) ? await read($, settings) : DEFAULT_SETTINGS
-    const view = okUi(await read($, ui)) ? await read($, ui) : DEFAULT_UI
+    const RasterEl = 'Raster' in el ? el.Raster : null
+    const rawSt = await read($, settings)
+    const st: GalSettings = okSettings(rawSt) ? { ...DEFAULT_SETTINGS, ...rawSt } : DEFAULT_SETTINGS
+    const rawUi = await read($, ui) as unknown
+    const view: UiState = okUi(rawUi) ? rawUi : DEFAULT_UI
     const extra = await read($, packs)
-    // 只读：旧格式的状态在这里补成能显示的样子，不写回（写回在 migrate 里）
+    // 旧格式的状态在这里补成能显示的样子，不写回（写回在 migrate 里）
     const rawStory = await read($, story) as unknown
     const s = (okStory(rawStory) ? normalizeStory(rawStory, packById((rawStory as Story).pack, extra)) : null) ?? TITLE_STORY
     const m = await read($, meta)
     const canUndo = (await read($, undo)).length > 0
     const rawAuto = await read($, auto) as unknown
     const ao: AutoState = okAuto(rawAuto) ? rawAuto : DEFAULT_AUTO
+    const rawWork = await read($, work) as unknown
+    const wk: WorkState = okWork(rawWork) ? rawWork : DEFAULT_WORK
+    const rawJob = await read($, job) as unknown
+    const jb: JobState = okJob(rawJob) ? rawJob : DEFAULT_JOB
+    const rawFeats = await read($, feats) as unknown
+    const fe: Feats = okFeats(rawFeats) ? rawFeats : EMPTY_FEATS
     const cfg = autoCfg(st)
     // 玩家按了自动以外的键：先暂停自动模式，再做这件事（写状态发生在按键回调里，不在画面板时）
     const hit = (fn: () => void) => () => { if (ao.on) void stopAuto($, 'autoKeyPause'); fn() }
     const lang = st.lang
-    const L = (k: Parameters<typeof t>[1], v?: Record<string, string | number>) => t(lang, k, v)
+    const L = (k: UiKey, v?: Record<string, string | number>) => t(lang, k, v)
     const list = allPacks(extra)
     const p = (list.find(x => x.id === (view.view === 'packs' ? st.pack : s.phase === 'title' ? st.pack : s.pack)) ?? list[0]!).pack
     const T = packText(p, lang)
     const pm = packMeta(m, p.id)
-    // 只数本包里还存在的结局（包更新后旧 id 不算）
     const seenCount = p.endings.filter(x => pm.endings.includes(x.id)).length
     const cols = e.props.bodyColumns ?? 80
-    const colorOf = (id: string) => personOf(p, id)?.color ?? '#cccccc'
+    const compact = st.layout === 'compact' || (st.layout !== 'full' && cols < 80)
+    const anim = st.anim !== false
+    const Raster = RasterEl
+    const C = PALETTES[st.palette === 'cb' ? 'cb' : 'default']
+    const stageW = Math.min(STAGE_W, cols - 4)
+    const canStage = !!Raster && stageW >= 60
+    const nextLayers: Layer[] = []
+    const today = dateKey(Date.now())
+    const spentToday = fe.today.date === today ? fe.today.usd : 0
+
+    const inScene = view.view === 'game' && (s.phase === 'scene' || s.phase === 'after') && !!s.scene
+    const theme = inScene ? themeOf(s.scene?.atmo) : DEFAULT_THEME
+    const colorOf = (id: string) => (id === 'me' ? '#7fd1c7' : personOf(p, id)?.color ?? '#cccccc')
+    const tinted = (id: string) => tint(colorOf(id), theme, inScene ? 0.22 : 0)
     const nameOf = (id: string) => (id === 'me' ? T(p.me) : T(personOf(p, id)?.name) || id)
     const shortOf = (id: string) => T(personOf(p, id)?.short) || id
-    const inScene = view.view === 'game' && (s.phase === 'scene' || s.phase === 'after')
-    if (!inScene) anim = null
 
-    const keyBar = (items: (false | null | { k: string; label: string; on: () => void; dim?: boolean; keep?: boolean })[]) => (
+    /** 一块（可能会动的）像素画：画初始帧，并登记给动画定时器 */
+    const raster = (key: string, w: number, rowsPx: number, draw: (t: number) => Px[][], moving = true) => {
+      if (!Raster) return null
+      const rows = Math.ceil(rowsPx / 2)
+      const c = cells(draw(frame))
+      lastCells[key] = c
+      if (moving && anim) nextLayers.push({ key, cols: w, rows, draw })
+      return <Raster key={key} columns={w} rows={rows} cells={c} />
+    }
+    /** 标题卡：开场、章名、结局。动画开着时 6 帧淡入或擦入，之后静止 */
+    const card = (id: string, spec: CardSpec, w: number) => {
+      if (!Raster || compact) return null
+      const t0 = startOf(id)
+      const h = cardFrame(spec, w, CARD_FRAMES, 0).length
+      return raster(`card-${id}`.slice(0, 60), w, h, tt => cardFrame(spec, w, anim ? tt - t0 : CARD_FRAMES, tt))
+    }
+    const finishRender = <X,>(x: X): X => {
+      // 模块变量（不是状态）：告诉动画定时器这一帧有哪些会动的块
+      layers = nextLayers
+      if (layers.length) ensureAnim($)
+      else stopAnim()
+      return x
+    }
+
+    const keyBar = (items: (false | null | undefined | { k: string; label: string; on: () => void; dim?: boolean; keep?: boolean })[]) => (
       <Box flexDirection="row" gap={1} flexWrap="wrap" marginTop={1}>
         {items.filter(x => !!x).map(x => (
           <Button key={`kb-${x!.k}`} hotkey={x!.k} plain dimColor={x!.dim ?? true} onPress={x!.keep ? x!.on : hit(x!.on)}>{x!.label}</Button>
@@ -606,39 +1208,63 @@ export const register: Register = on => {
         {!ao.on && ao.note ? <Text color={ACCENT} wrap="wrap">{ao.note}</Text> : null}
       </Box>
     )
+    // 后台任务的横幅：等确认要读哪些文件（Y / N）、生成中（K 取消）、上一条结果
+    const jobBanner = jb.kind === 'confirm' && jb.scan ? (
+      <Box key="job" flexDirection="column" borderStyle="round" borderColor={ACCENT} paddingX={1}>
+        <Text wrap="wrap">{L('repoConfirm', { files: jb.scan.files.join('、'), n: jb.scan.files.length, kb: Math.max(1, Math.round(jb.scan.bytes / 1024)) })}</Text>
+        <Box flexDirection="row" gap={2}>
+          <Button key="job-yes" hotkey="y" plain onPress={() => void runRepo($)}><Text color={ACCENT} bold>{L('repoYes')}</Text></Button>
+          <Button key="job-no" hotkey="n" plain onPress={() => void cancelJob($)}>{L('repoNo')}</Button>
+        </Box>
+      </Box>
+    ) : jb.kind === 'gen' || jb.kind === 'repo' ? (
+      <Box key="job" flexDirection="row" gap={2} flexWrap="wrap">
+        <Text color={C.info}>⟳ {jobLine(lang, jb)}</Text>
+        <Button key="job-cancel" hotkey="k" plain onPress={() => void cancelJob($)}>K {L('repoNo').replace(/^N /, '')}</Button>
+      </Box>
+    ) : jb.message && view.view === 'packs' ? <Text key="job" color={DIM} wrap="wrap">{jb.message}</Text> : null
+    const watchInfo = st.watch !== false && wk.notice && s.phase !== 'title'
+      ? <Text color={wk.notice === 'busy' ? C.info : C.event} bold={wk.notice !== 'busy'} wrap="wrap">{wk.notice === 'busy' ? '◷ ' : '⏸ '}{L(wk.notice === 'busy' ? 'watchBusy' : wk.notice === 'done' ? 'watchDone' : 'watchPermission')}</Text>
+      : null
 
     const calendar = () => {
       const chars: { ch: string; color: string }[] = []
       for (let d = 1; d <= p.days; d++) {
         const ev = p.events.some(x => x.day === d) || p.fixed.some(x => x.day === d)
-        chars.push(d < s.day ? { ch: '▪', color: DIM } : d === s.day ? { ch: '◉', color: ACCENT } : ev ? { ch: '◆', color: '#e57373' } : { ch: '·', color: DIM })
+        chars.push(d < s.day ? { ch: '▪', color: DIM } : d === s.day ? { ch: '◉', color: theme } : ev ? { ch: '◆', color: C.event } : { ch: '·', color: DIM })
       }
       return <Text>{chars.map((c, i) => <Text key={`cal${i}`} color={c.color}>{c.ch}</Text>)}</Text>
     }
 
     const maxAff = p.gates[4]?.affection ?? 12
+    const costText = L('costLine', { run: usd(s.usage.cost ?? 0), today: usd(spentToday) })
     const header = (
-      <Box flexDirection="column" borderStyle="round" borderColor={ACCENT} paddingX={1}>
-        <Box flexDirection="row" justifyContent="space-between">
-          <Text bold color={ACCENT}>{T(p.title)}</Text>
-          <Text color={DIM}>{ao.on ? <Text color={ACCENT} bold>{L('autoBadge')} · </Text> : null}{chapterOf(p, lang, s.day)}{s.loop > 1 ? ` · ${L('runN', { n: s.loop })}` : ''}{p.features?.timeLoop ? ` · ${L('loopNotice', { n: s.cycle })}` : ''}</Text>
+      <Box flexDirection="column" borderStyle="round" borderColor={theme} paddingX={1}>
+        <Box flexDirection="row" justifyContent="space-between" flexWrap="wrap">
+          <Text bold color={theme}>{T(p.title)}</Text>
+          <Text color={DIM}>{ao.on ? <Text color={ACCENT} bold>{L('autoBadge')} · </Text> : null}{chapterOf(p, lang, s.day)}{s.loop > 1 ? ` · ${L('runN', { n: s.loop })}` : ''}{p.features?.timeLoop ? ` · ${L('loopNotice', { n: s.cycle })}` : ''}{s.daily ? ` · ${L('dailyMenu')}` : ''}</Text>
         </Box>
-        <Text>
-          <Text bold>{dayText(p, lang, s.day)} · {T(p.slots[s.slot])}</Text>
-          <Text>  </Text>
-          {calendar()}
-        </Text>
+        <Box flexDirection="row" justifyContent="space-between" flexWrap="wrap">
+          <Text>
+            <Text bold>{dayText(p, lang, s.day)} · {T(p.slots[s.slot])}</Text>
+            {compact ? null : <Text>  </Text>}
+            {compact ? null : calendar()}
+          </Text>
+          <Text color={DIM}>{costText}</Text>
+        </Box>
         <Box flexDirection="row" columnGap={2} flexWrap="wrap">
           {p.cast.map(c => {
             const hs = s.heroines[c.id]
             if (!hs) return null
             const mt = meterOf(c)
+            const d = s.deltas[c.id] ?? 0
             return (
               <Text key={`hs-${c.id}`}>
-                <Text color={c.color} bold>{T(c.short)} </Text>
+                <Text color={tinted(c.id)} bold>{T(c.short)} </Text>
                 {mt.label ? <Text color={DIM}>{T(mt.label)} </Text> : null}
-                <Text color={c.color}>{hearts(hs.affection, maxAff, mt.full, mt.empty)}</Text>
-                <Text color={DIM}> {T(p.stages[hs.stage])}</Text>
+                <Text color={tinted(c.id)}>{hearts(hs.affection, maxAff, mt.full, mt.empty)}</Text>
+                {d ? <Text color={d > 0 ? C.kept : C.broken} bold>{d > 0 ? ` +${d}` : ` ${d}`}</Text> : null}
+                {compact ? null : <Text color={DIM}> {T(p.stages[hs.stage])}</Text>}
               </Text>
             )
           })}
@@ -651,79 +1277,197 @@ export const register: Register = on => {
       canUndo && s.phase !== 'loading' && { k: 'u', label: `U ${L('undo')}`, on: () => void rewind($) },
       { k: 's', label: `S ${L('saves')}`, on: () => void update($, ui, x => ({ ...x, view: 'saves' as View, saveMode: 'save' as const, back: 'game' as View })) },
       { k: 'p', label: `P ${L('album')}`, on: () => void update($, ui, x => ({ ...x, view: 'album' as View, tab: 0, back: 'game' as View })) },
+      { k: 'r', label: `R ${L('graphKey')}`, on: () => void update($, ui, x => ({ ...x, view: 'graph' as View, back: 'game' as View })) },
       { k: 'h', label: `H ${L('help')}`, on: () => void update($, ui, x => ({ ...x, view: 'help' as View, back: 'game' as View })) },
       { k: 't', label: `T ${L('toTitle')}`, on: () => void update($, story, x => ({ ...x, phase: x.phase === 'loading' ? x.phase : ('title' as const) })) },
       autoKey,
-      { k: 'e', label: `E ${L('settings')}`, keep: true, on: () => void update($, ui, x => ({ ...x, view: 'settings' as View, back: 'game' as View })) },
+      { k: 'e', label: `E ${L('settings')}`, keep: true, on: () => void update($, ui, x => ({ ...x, view: 'settings' as View, tab: 0, back: 'game' as View })) },
     ])
     const backKey = keyBar([{ k: 'b', label: `B ${L('back')}`, dim: false, on: () => void update($, ui, x => ({ ...x, view: x.back === x.view ? 'game' : x.back })) }])
 
-    // ---------- 设置 ----------
+    // ---------- 设置（分页；这里的按钮都不打断自动模式） ----------
     if (view.view === 'settings') {
       const u = s.usage
-      return (
-        <Box flexDirection="column">
-          <Text bold color={ACCENT}>{L('settings')}</Text>
-          <Box flexDirection="column" marginTop={1}>
-            <Button key="set-lang" hotkey="1" plain onPress={() => void setSettings($, x => ({ ...x, lang: LANGS[(LANGS.findIndex(l => l.id === x.lang) + 1) % LANGS.length]!.id }))}>
-              {L('lang')}  <Text color={ACCENT}>{LANGS.find(l => l.id === lang)!.label}</Text>
-            </Button>
-            <Button key="set-anim" hotkey="2" plain onPress={() => void setSettings($, x => ({ ...x, anim: !x.anim }))}>
-              {L('anim')}  <Text color={ACCENT}>{st.anim ? L('on') : L('off')}</Text>
-            </Button>
-            <Button key="set-page" hotkey="3" plain onPress={() => void setSettings($, x => ({ ...x, pageMode: x.pageMode === 'line' ? 'page' : 'line' }))}>
-              {L('pageMode')}  <Text color={ACCENT}>{st.pageMode === 'line' ? L('page_line') : L('page_page')}</Text>
-            </Button>
-          </Box>
-          <Box flexDirection="column" marginTop={1}>
-            <Text color={DIM}>{L('autoSection')}{ao.on ? ` · ${L('autoBadge')}` : ''}</Text>
-            <Button key="set-strategy" hotkey="4" plain onPress={() => void setSettings($, x => ({ ...x, autoStrategy: AUTO_STRATEGIES[(AUTO_STRATEGIES.indexOf(autoCfg(x).strategy) + 1) % AUTO_STRATEGIES.length]! })).then(() => update($, auto, x => ({ ...x, target: '' })))}>
-              {L('autoStrategy')}  <Text color={ACCENT}>{L(`strategy_${cfg.strategy}` as UiKey)}</Text><Text color={DIM}>  {L(`strategyHint_${cfg.strategy}` as UiKey)}</Text>
-            </Button>
-            {cfg.strategy === 'focus' ? (
-              <Button key="set-target" hotkey="5" plain onPress={() => void setSettings($, x => {
-                const ids = ['', ...p.cast.map(c => c.id)]
-                return { ...x, autoTarget: ids[(ids.indexOf(autoCfg(x).target) + 1) % ids.length]! }
-              }).then(() => update($, auto, x => ({ ...x, target: '' })))}>
-                {L('autoTarget')}  <Text color={ACCENT}>{castOf(p, cfg.target) ? T(castOf(p, cfg.target)!.name) : L('autoTargetAsk')}</Text>{ao.on && ao.target ? <Text color={DIM}>  ({T(castOf(p, ao.target)?.short)})</Text> : null}
-              </Button>
-            ) : null}
-            <Button key="set-speed" hotkey="6" plain onPress={() => void setSettings($, x => ({ ...x, autoSpeed: AUTO_SPEEDS[(AUTO_SPEEDS.indexOf(autoCfg(x).speed) + 1) % AUTO_SPEEDS.length]! }))}>
-              {L('autoSpeed')}  <Text color={ACCENT}>{L(`speed_${cfg.speed}` as UiKey)}</Text>
-            </Button>
-            <Button key="set-limit" hotkey="7" plain onPress={() => void setSettings($, x => ({ ...x, autoLimit: AUTO_LIMITS[(AUTO_LIMITS.indexOf(autoCfg(x).limit) + 1) % AUTO_LIMITS.length]! }))}>
-              {L('autoLimit')}  <Text color={ACCENT}>{cfg.limit > 0 ? L('autoLimitN', { n: cfg.limit }) : L('autoLimitDay')}</Text>
-            </Button>
-          </Box>
-          <Box flexDirection="column" marginTop={1}>
+      const sec = Math.max(0, Math.min(4, view.tab))
+      const SECS: UiKey[] = ['secDisplay', 'secAuto', 'secAI', 'secCost', 'secWork']
+      const SEC_KEYS = ['z', 'x', 'c', 'v', 'n']
+      const row = (key: string, hk: string, label: string, value: string, act: () => void, hint?: string) => (
+        <Button key={key} hotkey={hk} plain onPress={act}>
+          {label}  <Text color={ACCENT}>{value}</Text>{hint ? <Text color={DIM}>  {hint}</Text> : null}
+        </Button>
+      )
+      const onOff = (b: boolean | undefined) => (b ? L('on') : L('off'))
+      const cyc = <V,>(xs: readonly V[], cur: V) => xs[(xs.indexOf(cur) + 1) % xs.length]!
+      let body
+      if (sec === 0) {
+        body = [
+          row('set-lang', '1', L('lang'), LANGS.find(l => l.id === lang)!.label, () => void setSettings($, x => ({ ...x, lang: LANGS[(LANGS.findIndex(l => l.id === x.lang) + 1) % LANGS.length]!.id }))),
+          row('set-anim', '2', L('anim'), onOff(st.anim), () => void setSettings($, x => ({ ...x, anim: !x.anim }))),
+          row('set-page', '3', L('pageMode'), st.pageMode === 'line' ? L('page_line') : L('page_page'), () => void setSettings($, x => ({ ...x, pageMode: x.pageMode === 'line' ? 'page' : 'line' }))),
+          row('set-map', '4', L('mapSet'), onOff(st.map !== false), () => void setSettings($, x => ({ ...x, map: x.map === false }))),
+          row('set-layout', '5', L('layout'), L(`layout_${st.layout ?? 'auto'}` as UiKey), () => void setSettings($, x => ({ ...x, layout: cyc(['auto', 'compact', 'full'] as const, x.layout ?? 'auto') }))),
+          row('set-palette', '6', L('palette'), L(`palette_${st.palette ?? 'default'}` as UiKey), () => void setSettings($, x => ({ ...x, palette: x.palette === 'cb' ? 'default' : 'cb' }))),
+          row('set-voice', '7', L('voice'), onOff(st.voice), () => void setSettings($, x => ({ ...x, voice: !x.voice }))),
+          row('set-sfx', '8', L('sfx'), onOff(st.sfx), () => void setSettings($, x => ({ ...x, sfx: !x.sfx }))),
+          row('set-short', '9', L('short'), onOff(st.short), () => void setSettings($, x => ({ ...x, short: !x.short }))),
+        ]
+      } else if (sec === 1) {
+        body = [
+          row('set-strategy', '1', L('autoStrategy'), L(`strategy_${cfg.strategy}` as UiKey), () => void setSettings($, x => ({ ...x, autoStrategy: cyc(AUTO_STRATEGIES, autoCfg(x).strategy) })).then(() => update($, auto, x => ({ ...x, target: '' }))), L(`strategyHint_${cfg.strategy}` as UiKey)),
+          cfg.strategy === 'focus' ? row('set-target', '2', L('autoTarget'), castOf(p, cfg.target) ? T(castOf(p, cfg.target)!.name) : L('autoTargetAsk'), () => void setSettings($, x => ({ ...x, autoTarget: cyc(['', ...p.cast.map(c => c.id)], autoCfg(x).target) })).then(() => update($, auto, x => ({ ...x, target: '' }))), ao.on && ao.target ? `(${T(castOf(p, ao.target)?.short)})` : undefined) : null,
+          row('set-speed', '3', L('autoSpeed'), L(`speed_${cfg.speed}` as UiKey), () => void setSettings($, x => ({ ...x, autoSpeed: cyc(AUTO_SPEEDS, autoCfg(x).speed) }))),
+          row('set-limit', '4', L('autoLimit'), cfg.limit > 0 ? L('autoLimitN', { n: cfg.limit }) : L('autoLimitDay'), () => void setSettings($, x => ({ ...x, autoLimit: cyc(AUTO_LIMITS, autoCfg(x).limit) }))),
+        ]
+      } else if (sec === 2) {
+        body = EXTRA_KEYS.map((k, i) => row(`set-x-${k}`, String(i + 1), L(`extra_${k}` as UiKey), onOff(extraOn(st, k)), () => void setSettings($, x => ({ ...x, extras: { ...x.extras, [k]: !(x.extras?.[k] !== false) } }))))
+      } else if (sec === 3) {
+        body = [
+          row('set-writer', '1', L('writer'), L(st.writer === 'haiku' ? 'writer_haiku' : 'writer_sonnet'), () => void setSettings($, x => ({ ...x, writer: x.writer === 'haiku' ? 'sonnet' : 'haiku' }))),
+          row('set-budget', '2', L('budget'), st.budget ? usd(st.budget) : L('budgetNone'), () => void setSettings($, x => ({ ...x, budget: cyc(BUDGETS, x.budget ?? 0) }))),
+          <Box key="usage" flexDirection="column" marginTop={1}>
             <Text color={DIM}>{L('usage')}</Text>
             <Text color={DIM}>{L('usageLine', { w: u.writer, c: u.checker, i: u.input, r: u.cacheRead, o: u.output })}</Text>
             <Text color={DIM}>{L('usagePilot', { n: u.pilot ?? 0, i: u.pilotIn ?? 0, o: u.pilotOut ?? 0 })}</Text>
-            <Text color={DIM} wrap="wrap">{L('importHint', { dir: '~/.claude/galgame-packs' })}</Text>
+            <Text color={DIM}>{L('usageExtra', { n: u.extra ?? 0, i: u.extraIn ?? 0, o: u.extraOut ?? 0 })}</Text>
+            <Text color={DIM}>{L('usageCost', { run: usd(u.cost ?? 0), today: usd(spentToday) })}</Text>
+          </Box>,
+        ]
+      } else {
+        body = [
+          row('set-watch', '1', L('watch'), onOff(st.watch !== false), () => void setSettings($, x => ({ ...x, watch: x.watch === false }))),
+          row('set-work', '2', L('workEvents'), onOff(st.workEvents), () => void setSettings($, x => ({ ...x, workEvents: !x.workEvents }))),
+          row('set-companion', '3', L('companion'), castOf(p, st.companion ?? '') ? T(castOf(p, st.companion!)!.name) : L('companionOff'), () => void setSettings($, x => ({ ...x, companion: cyc(['', ...p.cast.map(c => c.id)], x.companion ?? '') })).then(() => refreshStatus($))),
+        ]
+      }
+      return finishRender(
+        <Box flexDirection="column">
+          <Text bold color={ACCENT}>{L('settings')}{ao.on ? <Text color={DIM}> · {L('autoBadge')}</Text> : null}</Text>
+          <Box flexDirection="row" gap={2} flexWrap="wrap">
+            {SECS.map((k, i) => (
+              <Button key={`sec${i}`} hotkey={SEC_KEYS[i]} plain dimColor={sec !== i} onPress={() => void update($, ui, x => ({ ...x, tab: i }))}>{sec === i ? '▶ ' : ''}{SEC_KEYS[i]!.toUpperCase()} {L(k)}</Button>
+            ))}
           </Box>
-          {keyBar([{ k: 'b', label: `B ${L('back')}`, dim: false, keep: true, on: () => void update($, ui, x => ({ ...x, view: x.back === x.view ? 'game' : x.back })) }])}
-        </Box>
+          <Box flexDirection="column" marginTop={1}>{body}</Box>
+          {sec === 0 ? <Text color={DIM} wrap="wrap">{L('importHint', { dir: '~/.claude/galgame-packs' })}</Text> : null}
+          {keyBar([{ k: 'b', label: `B ${L('back')}`, dim: false, keep: true, on: () => void update($, ui, x => ({ ...x, view: x.back === x.view ? 'game' : x.back, tab: 0 })) }])}
+        </Box>,
       )
     }
 
     // ---------- 操作说明 ----------
     if (view.view === 'help') {
-      return (
+      return finishRender(
         <Box flexDirection="column">
           <Text bold color={ACCENT}>{L('help')}</Text>
           <Box flexDirection="column" marginTop={1} gap={1}>
             {helpLines(lang).map((x, i) => <Text key={`help${i}`} wrap="wrap">{x}</Text>)}
           </Box>
           {backKey}
-        </Box>
+        </Box>,
+      )
+    }
+
+    // ---------- 关系图 ----------
+    if (view.view === 'graph') {
+      const gw = Math.max(40, Math.min(76, cols - 4))
+      const gh = 34
+      const graph = relationGraph(p, s, s.deltas, gw, gh, frame)
+      const revealed = (p.relations ?? []).filter(r => r.hiddenUntil === undefined || [r.a, r.b].some(x => castOf(p, x) && (s.heroines[x]?.stage ?? 0) >= r.hiddenUntil!))
+      return finishRender(
+        <Box flexDirection="column">
+          <Text bold color={ACCENT}>{L('graph')}</Text>
+          {Raster && !compact ? raster('graph', gw, gh, tt => relationGraph(p, s, s.deltas, gw, gh, tt).px, Object.keys(s.deltas).length > 0) : null}
+          <Box flexDirection="row" columnGap={2} flexWrap="wrap">
+            {graph.nodes.filter(n => castOf(p, n.id)).map(n => {
+              const c = castOf(p, n.id)!
+              const hs = s.heroines[n.id]
+              const mt = meterOf(c)
+              return <Text key={`gn-${n.id}`}><Text color={c.color}>■ {T(c.short)} </Text><Text color={c.color}>{hearts(hs?.affection ?? 0, maxAff, mt.full, mt.empty)}</Text><Text color={DIM}> {T(p.stages[hs?.stage ?? 0])}</Text></Text>
+            })}
+          </Box>
+          <Box flexDirection="column" marginTop={1}>
+            {revealed.map((r, i) => (
+              <Text key={`rel${i}`} color={DIM} wrap="wrap">
+                <Text color={r.a === 'me' ? '#7fd1c7' : colorOf(r.a)}>{r.a === 'me' ? T(p.me) : shortOf(r.a)}</Text> — <Text color={r.b === 'me' ? '#7fd1c7' : colorOf(r.b)}>{r.b === 'me' ? T(p.me) : shortOf(r.b)}</Text>  {T(r.kind)}
+              </Text>
+            ))}
+          </Box>
+          <Text color={DIM} wrap="wrap">{L('graphHint')}</Text>
+          {backKey}
+        </Box>,
+      )
+    }
+
+    // ---------- 成就与每日挑战 ----------
+    if (view.view === 'feats') {
+      const dc = dailyChallenge(today, BUILTIN)
+      const res = fe.daily[today]
+      const resPack = res ? BUILTIN.find(b => b.id === res.pack) : undefined
+      const resEnd = resPack?.endings.find(x => x.id === res?.ending)
+      return finishRender(
+        <Box flexDirection="column">
+          <Text bold color={ACCENT}>{L('feats')}</Text>
+          <Text color={DIM}>{L('statsLine', { c: fe.stats.clears, s: fe.stats.scenes, cost: usd(fe.stats.cost) })}</Text>
+          <Box flexDirection="column" marginTop={1}>
+            {ACHIEVEMENTS.map(id => {
+              const got = fe.achievements.includes(id)
+              return <Text key={`ach-${id}`} color={got ? ACCENT : DIM}>{got ? '★' : '☆'} {L(`ach_${id}` as UiKey)}<Text color={DIM}>  {L(`achd_${id}` as UiKey)}</Text></Text>
+            })}
+          </Box>
+          <Box flexDirection="column" marginTop={1} borderStyle="round" borderColor={DIM} paddingX={1}>
+            <Text bold>{L('dailyTitle')} · {today}</Text>
+            <Text color={DIM} wrap="wrap">{L('dailyHint')}</Text>
+            {res && resPack && resEnd ? (
+              <>
+                <Text>{L('dailyDone', { ending: tr(resEnd.title, lang, resPack.defaultLang) })}</Text>
+                <Text color={DIM}>{L('dailyShare')} {dailyShare(today, tr(resPack.title, 'en', resPack.defaultLang), tr(resEnd.title, 'en', resPack.defaultLang), res.kind)}</Text>
+              </>
+            ) : (
+              <Button key="daily-start" hotkey="1" plain onPress={hit(() => void startDaily($))}>{L('dailyStart', { title: tr(dc.pack.title, lang, dc.pack.defaultLang) })}</Button>
+            )}
+          </Box>
+          {keyBar([{ k: 'b', label: `B ${L('back')}`, dim: false, on: () => void update($, ui, x => ({ ...x, view: 'game' as View })) }])}
+        </Box>,
       )
     }
 
     // ---------- 剧本选择 ----------
-    if (view.view === 'packs') {
-      return (
+    if (view.view === 'packs' && view.tab === 1) {
+      const installed = new Set(list.map(x => x.id))
+      return finishRender(
         <Box flexDirection="column">
-          <Text bold color={ACCENT}>{L('packs')}</Text>
+          <Box flexDirection="row" gap={2}>
+            <Button key="pk-tab0" hotkey="l" plain dimColor onPress={hit(() => void update($, ui, x => ({ ...x, tab: 0 })))}>L {L('packs')}</Button>
+            <Text bold color={ACCENT}>▶ {L('community')}</Text>
+          </Box>
+          {jobBanner}
+          {jb.kind === 'browse' ? <Text color={C.info}>⟳ {L('communityLoading')}</Text> : null}
+          <Box flexDirection="column" marginTop={1}>
+            {jb.entries.map((en, i) => (
+              <Button key={`cm-${en.id}`} hotkey={i < 9 ? String(i + 1) : undefined} plain onPress={hit(() => void install($, en.id))}>
+                <Text bold>{en.title}</Text>
+                <Text color={DIM}>  {en.author} · {en.license} · {en.lang}  </Text>
+                <Text color={ACCENT}>{installed.has(en.id) ? L('update') : L('install')}</Text>
+                {compact ? null : <Text color={DIM}>  {en.summary}</Text>}
+              </Button>
+            ))}
+          </Box>
+          {keyBar([
+            { k: 'g', label: `G ${L('communityLoading').replace(/[….]+$/, '')}`, on: () => void browse($) },
+            { k: 'b', label: `B ${L('back')}`, dim: false, on: () => void update($, ui, x => ({ ...x, view: 'game' as View, tab: 0 })) },
+          ])}
+        </Box>,
+      )
+    }
+
+    if (view.view === 'packs') {
+      return finishRender(
+        <Box flexDirection="column">
+          <Box flexDirection="row" gap={2}>
+            <Text bold color={ACCENT}>▶ {L('packs')}</Text>
+            <Button key="pk-tab1" hotkey="c" plain dimColor onPress={hit(() => { void update($, ui, x => ({ ...x, tab: 1 })); if (!jb.entries.length) void browse($) })}>C {L('community')}</Button>
+          </Box>
+          {jobBanner}
           <Box flexDirection="column" marginTop={1}>
             {list.map((en, i) => {
               const q = en.pack
@@ -732,7 +1476,7 @@ export const register: Register = on => {
               return (
                 <Button key={`pk-${en.id}`} hotkey={i < 9 ? String(i + 1) : undefined} plain onPress={hit(() => void setSettings($, x => ({ ...x, pack: q.id })).then(() => update($, story, x => ({ ...x, phase: 'title' as const }))))}>
                   <Text bold color={cur ? ACCENT : undefined}>{cur ? '▶ ' : '  '}{Q(q.title)}</Text>
-                  <Text color={DIM}>  {Q(q.subtitle)} · {L('castN', { n: q.cast.length })}{q.npcs?.length ? ` · ${L('npcs', { n: q.npcs.length })}` : ''} · {q.days}d · {L(`packOrigin_${en.origin}` as Parameters<typeof t>[1])}{q.langs.includes(lang) ? '' : ` · ${q.defaultLang}`}</Text>
+                  <Text color={DIM}>  {Q(q.subtitle)} · {L('castN', { n: q.cast.length })}{q.npcs?.length ? ` · ${L('npcs', { n: q.npcs.length })}` : ''} · {q.days}d · {L(`packOrigin_${en.origin}` as UiKey)}{q.langs.includes(lang) ? '' : ` · ${q.defaultLang}`}</Text>
                 </Button>
               )
             })}
@@ -746,8 +1490,12 @@ export const register: Register = on => {
             {p.source !== 'original' ? <Text wrap="wrap" color={DIM}>{T(p.source.adaptation)}</Text> : null}
           </Box>
           <Text color={DIM} wrap="wrap">{L('importHint', { dir: '~/.claude/galgame-packs' })}</Text>
-          {keyBar([{ k: 'b', label: `B ${L('back')}`, dim: false, on: () => void update($, ui, x => ({ ...x, view: 'game' as View })) }])}
-        </Box>
+          <Text color={DIM} wrap="wrap">{L('genHint')}</Text>
+          {keyBar([
+            { k: 'f', label: `F ${L('repoKey')}`, on: () => void $.session.root().then(root => askRepo($, root, '')) },
+            { k: 'b', label: `B ${L('back')}`, dim: false, on: () => void update($, ui, x => ({ ...x, view: 'game' as View })) },
+          ])}
+        </Box>,
       )
     }
 
@@ -764,7 +1512,7 @@ export const register: Register = on => {
         const when = `${d.getMonth() + 1}/${d.getDate()} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
         return `${dayText(q, lang, f.story.day)} ${tr(q.slots[f.story.slot], lang, q.defaultLang)} · ${chapterOf(q, lang, f.story.day)} · ${when}`
       }
-      return (
+      return finishRender(
         <Box flexDirection="column">
           <Box flexDirection="row" gap={2}>
             <Button key="mode-save" hotkey="w" plain dimColor={view.saveMode !== 'save'} onPress={hit(() => void update($, ui, x => ({ ...x, saveMode: 'save' as const })))}>{view.saveMode === 'save' ? '▶ ' : ''}{L('modeSave')}</Button>
@@ -787,26 +1535,31 @@ export const register: Register = on => {
             })}
           </Box>
           {backKey}
-        </Box>
+        </Box>,
       )
     }
 
-    // ---------- 相册：回忆 / 信物图鉴 / 结局 / 约定 ----------
+    // ---------- 相册：回忆 / 信物 / 结局 / 约定 / 她的日记 / 你在她眼里 ----------
     if (view.view === 'album') {
-      const tabs = [L('tabMemories'), L('tabKeepsakes'), L('tabEndings'), L('tabPromises')]
+      const tabs: UiKey[] = ['tabMemories', 'tabKeepsakes', 'tabEndings', 'tabPromises', 'tabDiary', 'tabPortrait']
       const mine = s.pack === p.id
       const perRow = Math.max(1, Math.floor((cols - 2) / 28))
+      const tab = Math.max(0, Math.min(tabs.length - 1, view.tab))
       let body
-      if (view.tab === 0) {
+      if (tab === 0) {
         const mem = mine ? s.album.slice(-16) : []
-        body = mem.length ? mem.map((x, i) => (
-          <Text key={`mem${i}`} wrap="wrap">
-            <Text color={DIM}>{dayText(p, lang, x.day)} {T(p.slots[x.slot])}  </Text>
-            <Text color={x.heroine ? colorOf(x.heroine) : DIM}>{x.heroine ? `${shortOf(x.heroine)}  ` : ''}</Text>
-            <Text>{x.text}</Text>
-          </Text>
-        )) : <Text color={DIM}>{L('noMemories')}</Text>
-      } else if (view.tab === 1) {
+        const nights = mine ? s.gossip.slice(-4) : []
+        body = mem.length ? [
+          ...mem.map((x, i) => (
+            <Text key={`mem${i}`} wrap="wrap">
+              <Text color={DIM}>{dayText(p, lang, x.day)} {T(p.slots[x.slot])}  </Text>
+              <Text color={x.heroine ? colorOf(x.heroine) : DIM}>{x.heroine ? `${shortOf(x.heroine)}  ` : ''}</Text>
+              <Text>{x.text}</Text>
+            </Text>
+          )),
+          ...nights.map((g, i) => <Text key={`gos${i}`} color={DIM} italic wrap="wrap">☾ {dayText(p, lang, g.day)}  {g.text}</Text>),
+        ] : <Text color={DIM}>{L('noMemories')}</Text>
+      } else if (tab === 1) {
         const ks: Keepsake[] = pm.keepsakes
         body = ks.length ? (
           <Box flexDirection="row" flexWrap="wrap" gap={2}>
@@ -819,7 +1572,7 @@ export const register: Register = on => {
             ))}
           </Box>
         ) : <Text color={DIM} wrap="wrap">{L('noKeepsakes')}</Text>
-      } else if (view.tab === 2) {
+      } else if (tab === 2) {
         body = (
           <Box flexDirection="column">
             <Text color={DIM}>{L('endingsSeen', { a: seenCount, b: p.endings.length })} · {L('clears', { n: pm.clears })}</Text>
@@ -828,55 +1581,106 @@ export const register: Register = on => {
               return (
                 <Text key={`end-${x.id}`} wrap="wrap">
                   <Text color={seen ? (x.who ? colorOf(x.who) : ACCENT) : DIM}>{seen ? '★' : '☆'} {seen ? T(x.title) : L('locked')}</Text>
-                  <Text color={DIM}>{x.who ? `  ${shortOf(x.who)}` : ''}{x.who && meterOf(castOf(p, x.who)).label ? ` · ${T(meterOf(castOf(p, x.who)).label)}` : ''}{x.kind ? ` · ${L(`end_${x.kind}` as Parameters<typeof t>[1])}` : ''}</Text>
+                  <Text color={DIM}>{x.who ? `  ${shortOf(x.who)}` : ''}{x.who && meterOf(castOf(p, x.who)).label ? ` · ${T(meterOf(castOf(p, x.who)).label)}` : ''}{x.kind ? ` · ${L(`end_${x.kind}` as UiKey)}` : ''}</Text>
                 </Text>
               )
             })}
           </Box>
         )
-      } else {
+      } else if (tab === 3) {
         const ps = mine ? s.promises : []
         body = ps.length ? ps.map((x, i) => (
-          <Text key={`pr${i}`} color={x.status === 'kept' ? '#81c784' : x.status === 'broken' ? '#e57373' : undefined} wrap="wrap">
+          <Text key={`pr${i}`} color={x.status === 'kept' ? C.kept : x.status === 'broken' ? C.broken : undefined} wrap="wrap">
             {x.status === 'kept' ? '✓' : x.status === 'broken' ? '✗' : '○'} {x.key ? '★' : ''}<Text color={colorOf(x.heroine)}>{shortOf(x.heroine)}</Text>：{x.text}（{dayText(p, lang, x.due)}）
           </Text>
         )) : <Text color={DIM}>—</Text>
+      } else if (tab === 4) {
+        // 她的日记：关系到「心事」解锁；打开某一天时才生成（1 次 Haiku），之后缓存在存档里
+        const open = p.cast.filter(c => (s.heroines[c.id]?.stage ?? 0) >= 2)
+        const pick = open.find(c => c.id === view.pick) ?? open[0]
+        const days = pick ? [...new Set(s.album.filter(a => a.heroine === pick.id).map(a => a.day))].slice(-3) : []
+        body = !extraOn(st, 'diary') ? <Text color={DIM}>{L('off')}</Text> : !mine || !open.length ? <Text color={DIM} wrap="wrap">{L('diaryLocked')}</Text> : (
+          <Box flexDirection="column">
+            <Box flexDirection="row" gap={2} flexWrap="wrap">
+              <Text color={DIM}>{L('diaryPick')}</Text>
+              {open.map((c, i) => <Button key={`dp-${c.id}`} hotkey={String.fromCharCode(97 + i)} plain dimColor={pick?.id !== c.id} onPress={hit(() => void update($, ui, x => ({ ...x, pick: c.id })))}><Text color={c.color}>{String.fromCharCode(65 + i)} {T(c.short)}</Text></Button>)}
+            </Box>
+            {days.map(d => {
+              const cached = s.diary[`${pick!.id}:${d}`]
+              return (
+                <Box key={`dy-${d}`} flexDirection="column" marginTop={1}>
+                  <Text color={pick!.color} bold>{dayText(p, lang, d)}</Text>
+                  {cached ? <Text italic wrap="wrap">{cached}</Text> : <Button key={`dr-${d}`} plain onPress={hit(() => void genDiary($, pick!.id, d))}><Text color={DIM}>✎ {L('diaryRead')}</Text></Button>}
+                </Box>
+              )
+            })}
+          </Box>
+        )
+      } else {
+        // 你在她眼里：选择倾向（本地统计，不调用模型）+ 她的话（打开时生成，缓存）
+        const tend = tendencies(s)
+        const met = p.cast.filter(c => (s.heroines[c.id]?.stage ?? 0) >= 1)
+        body = !extraOn(st, 'portrait') ? <Text color={DIM}>{L('off')}</Text> : (
+          <Box flexDirection="column">
+            <Text color={DIM}>{L('portraitBars')}</Text>
+            {tend.length < 1 || tend.reduce((a, b) => a + b.n, 0) < 3 ? <Text color={DIM}>{L('portraitFew')}</Text> : TONE_ORDER.filter(tn => tend.some(x => x.tone === tn)).map(tn => {
+              const x = tend.find(y => y.tone === tn)!
+              return <Text key={`tn-${tn}`}><Text>{L(`tone_${tn}` as UiKey).padEnd(lang === 'zh' ? 3 : 10, '　')} </Text><Text color={ACCENT}>{'█'.repeat(Math.max(1, Math.round(x.share * 20)))}</Text><Text color={DIM}> {x.n}</Text></Text>
+            })}
+            {mine ? met.map((c, i) => (
+              <Box key={`pt-${c.id}`} flexDirection="column" marginTop={1}>
+                <Text color={c.color} bold>{T(c.name)}</Text>
+                {s.portrait[c.id] ? <Text italic wrap="wrap">「{s.portrait[c.id]}」</Text> : <Button key={`pg-${c.id}`} hotkey={String.fromCharCode(97 + i)} plain onPress={hit(() => void genPortrait($, c.id))}><Text color={DIM}>{String.fromCharCode(65 + i)} {L('portraitGen', { name: T(c.short) })}</Text></Button>}
+              </Box>
+            )) : null}
+          </Box>
+        )
       }
-      return (
+      return finishRender(
         <Box flexDirection="column">
-          <Box flexDirection="row" gap={2}>
+          <Box flexDirection="row" gap={2} flexWrap="wrap">
             {tabs.map((x, i) => (
-              <Button key={`tab${i}`} hotkey={String(i + 1)} plain dimColor={view.tab !== i} onPress={hit(() => void update($, ui, y => ({ ...y, tab: i })))}>{view.tab === i ? `▶ ${x}` : x}</Button>
+              <Button key={`tab${i}`} hotkey={String(i + 1)} plain dimColor={tab !== i} onPress={hit(() => void update($, ui, y => ({ ...y, tab: i })))}>{tab === i ? `▶ ${L(x)}` : L(x)}</Button>
             ))}
           </Box>
           <Box flexDirection="column" marginTop={1} borderStyle="round" borderColor={DIM} paddingX={1}>{body}</Box>
-          {backKey}
-        </Box>
+          {keyBar([
+            mine && s.album.length > 0 && { k: 'x', label: `X ${L('exportHtml')}`, on: () => void doExport($, 'html') },
+            mine && s.album.length > 0 && { k: 'm', label: `M ${L('exportMd')}`, on: () => void doExport($, 'md') },
+            mine && s.album.length > 0 && { k: 'c', label: `C ${L('shareText')}`, on: () => void shareText($).then(x => $.ui.toast(x)) },
+            { k: 'b', label: `B ${L('back')}`, dim: false, on: () => void update($, ui, x => ({ ...x, view: x.back === x.view ? 'game' : x.back })) },
+          ])}
+        </Box>,
       )
     }
 
     // ---------- 标题 ----------
     if (s.phase === 'title') {
-      const auto = await readSave($, p.id, 0, extra)
-      const hasCont = okSave(auto) && auto.story.phase !== 'ending'
+      const autoSave = await readSave($, p.id, 0, extra)
+      const hasCont = okSave(autoSave) && autoSave.story.phase !== 'ending'
       const items: { id: string; label: string; on: () => void; primary?: boolean }[] = [
-        ...(hasCont ? [{ id: 'continue', label: L('continue'), on: () => void continueGame($), primary: true }] : []),
+        ...(hasCont ? [{ id: 'continue', label: L('continue'), on: () => void continueAndCheck($), primary: true }] : []),
         { id: 'new', label: L('newGame'), on: () => void newGame($, 1), primary: !hasCont },
         ...(pm.clears > 0 ? [{ id: 'plus', label: L('newGamePlus', { n: pm.clears + 1 }), on: () => void newGame($, pm.clears + 1) }] : []),
         { id: 'load', label: L('loadGame'), on: () => void update($, ui, x => ({ ...x, view: 'saves' as View, saveMode: 'load' as const, back: 'game' as View })) },
         { id: 'packs', label: L('packs'), on: () => void show($, 'packs') },
         { id: 'album', label: L('album'), on: () => void update($, ui, x => ({ ...x, view: 'album' as View, tab: 1, back: 'game' as View })) },
-        { id: 'settings', label: L('settings'), on: () => void update($, ui, x => ({ ...x, view: 'settings' as View, back: 'game' as View })) },
+        { id: 'feats', label: L('featsMenu'), on: () => void update($, ui, x => ({ ...x, view: 'feats' as View, back: 'game' as View })) },
+        { id: 'settings', label: L('settings'), on: () => void update($, ui, x => ({ ...x, view: 'settings' as View, tab: 0, back: 'game' as View })) },
         { id: 'help', label: L('help'), on: () => void update($, ui, x => ({ ...x, view: 'help' as View, back: 'game' as View })) },
       ]
       const menu = items.map((x, i) => ({ ...x, k: String(i + 1) }))
-      return (
+      const cw = Math.max(40, Math.min(96, cols - 4))
+      const titleCard = card(`title-${p.id}`, { big: tr(p.title, 'en', p.defaultLang), small: 'AI GALGAME', color: ACCENT, accent: '#f8bbd0', style: 'fade' }, cw)
+      return finishRender(
         <Box flexDirection="column" alignItems="center">
-          <Box flexDirection="column" alignItems="center" borderStyle="double" borderColor={ACCENT} paddingX={3} marginTop={1}>
+          {jobBanner}
+          {titleCard}
+          <Box flexDirection="column" alignItems="center" borderStyle="double" borderColor={ACCENT} paddingX={3} marginTop={titleCard ? 0 : 1}>
             <Text bold color={ACCENT}>{T(p.title)}</Text>
             <Text color={DIM}>{T(p.subtitle)}</Text>
           </Box>
-          {Raster ? (
+          {Raster && !compact ? (
             <Box flexDirection="row" gap={2} marginTop={1} flexWrap="wrap" justifyContent="center">
               {p.cast.slice(0, 6).map((c, i) => (
                 <Box key={`pt-${c.id}`} flexDirection="column" alignItems="center">
@@ -902,18 +1706,19 @@ export const register: Register = on => {
             {p.source === 'original' ? `${L('original')} · ${p.author}` : L('sourceBy', { work: T(p.source.work), author: T(p.source.author), license: T(p.source.license) })}
             {pm.clears > 0 ? ` · ${L('clears', { n: pm.clears })} · ${L('endingsSeen', { a: seenCount, b: p.endings.length })}` : ''}
           </Text>
-        </Box>
+        </Box>,
       )
     }
 
     // ---------- 生成中 ----------
     if (s.phase === 'loading') {
-      return (
+      return finishRender(
         <Box flexDirection="column">
           {header}
           <Box marginY={1} paddingX={2}><Text color={DIM} italic>{s.loadingText}</Text></Box>
           {autoInfo}
-        </Box>
+          {watchInfo}
+        </Box>,
       )
     }
 
@@ -923,15 +1728,35 @@ export const register: Register = on => {
       const lonely = forced ? null : proactive(p, s)
       const opts = forced ? [forced] : planOptions(p, s, lang)
       const open = s.promises.filter(x => x.status === 'open')
-      const today = p.events.filter(x => x.day === s.day).map(x => T(x.text)).join(' · ')
+      const todayEv = p.events.filter(x => x.day === s.day).map(x => T(x.text)).join(' · ')
       const inc = incidentOf(p, s.incident)
-      return (
+      const night = s.gossip.find(g => g.day === s.day - 1)
+      // 每天第一个时段：像素「DAY n」卡（逢新章节再带英文章名），擦入
+      const act = (p.acts ?? []).find(a => a.from === s.day) ?? (p.chapters ?? []).find(c => c.from === s.day)
+      const cw = Math.max(40, Math.min(76, cols - 4))
+      const dayCard = s.slot === 0 ? card(`day-${p.id}-${s.cycle}-${s.day}`, { big: `DAY ${s.day}`, small: act ? tr(act.title, 'en', p.defaultLang) : undefined, color: '#f4f4f4', accent: ACCENT, style: 'wipe' }, cw) : null
+      // 像素小镇地图：开放的地点亮着，标着按键数字，下面是可能遇见的人
+      const labels: Record<string, string> = {}
+      const maybe: Record<string, string[]> = {}
+      opts.forEach((o, i) => { if (o.id) { labels[o.id] = String(i + 1); maybe[o.id] = o.maybe.map(colorOf) } })
+      const mw = Math.max(40, Math.min(76, cols - 4))
+      const showMap = !!Raster && !compact && st.map !== false && !forced
+      return finishRender(
         <Box flexDirection="column">
           {header}
-          {today ? <Text color="#e57373">◆ {L('today', { text: today })}</Text> : null}
-          {inc && !inc.places ? <Text color="#9fc5e8" wrap="wrap">◇ {L('happening', { text: T(inc.text) })}</Text> : null}
+          {dayCard}
+          {todayEv ? <Text color={C.event}>◆ {L('today', { text: todayEv })}</Text> : null}
+          {inc && !inc.places ? <Text color={C.info} wrap="wrap">◇ {L('happening', { text: T(inc.text) })}</Text> : null}
+          {night && extraOn(st, 'gossip') ? <Text color={DIM} italic wrap="wrap">☾ {L('gossipNight', { text: night.text })}</Text> : null}
+          {s.letter ? (
+            <Box flexDirection="column" borderStyle="round" borderColor={colorOf(s.letter.from)} paddingX={1}>
+              <Text color={colorOf(s.letter.from)} bold>{L('letterFrom', { name: shortOf(s.letter.from) })}</Text>
+              <Text wrap="wrap">{s.letter.text}</Text>
+            </Box>
+          ) : null}
           {s.after ? <Text color={ACCENT} wrap="wrap">{s.after}</Text> : null}
           {open.map((x, i) => <Text key={`op${i}`} color={colorOf(x.heroine)} wrap="wrap">{x.key ? '★' : '○'} {L('promised', { name: shortOf(x.heroine), text: x.text, due: dayText(p, lang, x.due) })}</Text>)}
+          {showMap ? raster('map', mw, mapSize(p.places.length, mw).h, tt => townMap(p.places, new Set(opts.map(o => o.id ?? '')), labels, maybe, mw, tt)) : null}
           <Box flexDirection="column" marginTop={1}>
             <Text bold>{forced ? L('mustGo') : L('where', { slot: T(p.slots[s.slot]) })}</Text>
             {lonely ? (
@@ -941,16 +1766,18 @@ export const register: Register = on => {
             ) : null}
             {opts.map((o, i) => (
               <Button key={`go-${i}`} hotkey={String(i + 1)} plain onPress={hit(() => void goTo($, o, null))}>
+                <Text color={DIM}>{i + 1} </Text>
                 <Text bold>{o.forced ? `★ ${o.forced}` : o.place}</Text>
-                <Text color={DIM}>  {o.mood}</Text>
+                {compact ? null : <Text color={DIM}>  {o.mood}</Text>}
                 {o.maybe.length ? <Text>  {o.maybe.map((id, j) => <Text key={`mb${j}`} color={colorOf(id)} dimColor={!!personOf(p, id)?.npc}>{j ? '/' : ''}{shortOf(id)}</Text>)}<Text color={DIM}>?</Text></Text> : null}
               </Button>
             ))}
           </Box>
-          {s.error ? <Text color="#e57373">{s.error}</Text> : null}
+          {s.error ? <Text color={C.broken} wrap="wrap">{s.error}</Text> : null}
           {autoInfo}
-          {gameKeys()}
-        </Box>
+          {watchInfo}
+          {gameKeys(s.letter ? [{ k: 'l', label: `L ${L('letterDismiss')}`, on: () => void update($, story, x => ({ ...x, letter: null })) }] : [])}
+        </Box>,
       )
     }
 
@@ -958,8 +1785,11 @@ export const register: Register = on => {
     if (s.phase === 'ending') {
       const end = p.endings.find(x => x.id === s.endingId)
       const c = end?.who ? colorOf(end.who) : ACCENT
-      return (
+      const big = end?.kind === 'true' ? 'TRUE END' : end?.kind === 'good' ? 'GOOD END' : end?.kind === 'bad' ? 'BAD END' : end?.kind === 'normal' ? 'NORMAL END' : 'THE END'
+      const cw = Math.max(40, Math.min(76, cols - 4))
+      return finishRender(
         <Box flexDirection="column">
+          {card(`end-${p.id}-${s.endingId}-${s.loop}`, { big, small: end ? tr(end.title, 'en', p.defaultLang) : '', color: c, accent: ACCENT, style: 'fade' }, cw)}
           <Box flexDirection="column" alignItems="center" borderStyle="double" borderColor={c} paddingX={2}>
             <Text color={DIM}>{L('endingHead')}</Text>
             <Text bold color={c}>{end ? T(end.title) : ''}</Text>
@@ -969,49 +1799,60 @@ export const register: Register = on => {
           {keyBar([
             { k: '1', label: `1 ${L('newGamePlus', { n: s.loop + 1 })}`, dim: false, on: () => void newGame($, s.loop + 1) },
             { k: 'p', label: `P ${L('album')}`, on: () => void update($, ui, x => ({ ...x, view: 'album' as View, tab: 2, back: 'game' as View })) },
+            { k: 'x', label: `X ${L('exportHtml')}`, on: () => void doExport($, 'html') },
+            { k: 'm', label: `M ${L('exportMd')}`, on: () => void doExport($, 'md') },
+            { k: 'c', label: `C ${L('shareText')}`, on: () => void shareText($).then(x => $.ui.toast(x)) },
             { k: 't', label: `T ${L('toTitle')}`, on: () => void update($, story, x => ({ ...x, phase: 'title' as const })) },
           ])}
           {autoInfo}
-        </Box>
+        </Box>,
       )
     }
 
     // ---------- 剧情 / 余波 ----------
     const sc = s.scene
     if (!sc) {
-      return <Box flexDirection="column">{header}{gameKeys()}</Box>
+      return finishRender(<Box flexDirection="column">{header}{gameKeys()}</Box>)
     }
-    const items = [{ who: '', text: sc.narration }, ...sc.lines]
+    const items = sceneItems(sc, sc.camera?.focus ? L('closeUp', { text: sc.camera.focus }) : '')
     const shown = s.phase === 'after' ? items.length : Math.min(items.length, s.reveal + 1)
     const done = shown >= items.length
     const lead = sc.cast.find(a => castOf(p, a.id))?.id ?? sc.cast[0]?.id
     const castShown = sc.cast.filter(a => !!personOf(p, a.id)?.sprite)
-    if (Raster && castShown.length && st.anim) {
-      anim = { pack: p, cast: castShown, distance: sc.distance, }
-      ensureAnim($)
-    } else anim = null
-    lastCells = ''
-    return (
+    // 演出：当前这一句出现后过了几帧（模块变量，不是状态）
+    const rk = `${sceneKey(s)}:${sc.title}:${shown}`
+    if (rk !== revealKey) { revealKey = rk; revealTick = frame }
+    const curLine = items[shown - 1]?.line ?? 0
+    const since0 = revealTick
+    const fx = fxOf(sc.atmo)
+    const band = canStage && !compact && fx !== 'none' ? raster('atmo', stageW, BAND_H, tt => atmoBand(fx, theme, stageW, tt)) : null
+    const stage = canStage && castShown.length
+      ? raster('stage', stageW, STAGE_ROWS * 2, tt => stageFrame(p, castShown, sc.distance, tt, stageDirections(sc, s.phase === 'after' ? 999 : curLine, anim ? tt - since0 : 99), stageW))
+      : null
+    const showLetItBe = done && s.phase === 'scene' && extraOn(st, 'letItBe')
+    return finishRender(
       <Box flexDirection="column">
         {header}
         <Text>
-          <Text bold>{sc.title}</Text>
-          <Text color={DIM}>  @{sc.place}{sc.proactive ? ` · ${L('cameToYou')}` : ''}</Text>
+          <Text bold color={theme}>{sc.title}</Text>
+          <Text color={DIM}>  @{sc.place}{sc.proactive ? ` · ${L('cameToYou')}` : ''}{sc.atmo?.mood ? ` · ${sc.atmo.mood}` : ''}</Text>
         </Text>
-        {Raster && castShown.length ? (
-          <Raster key="stage" columns={STAGE_W} rows={STAGE_ROWS} cells={cells(stageFrame(p, castShown, sc.distance, frame))} />
-        ) : null}
-        <Box flexDirection="column" borderStyle="round" borderColor={lead ? colorOf(lead) : DIM} paddingX={1}>
-          {items.slice(0, shown).map((l, i) =>
-            l.who === '' ? (
-              <Text key={`n${i}`} italic color={DIM} wrap="wrap">{l.text}</Text>
-            ) : (
+        {band}
+        {stage}
+        <Box flexDirection="column" borderStyle="round" borderColor={lead ? tinted(lead) : theme} paddingX={1}>
+          {items.slice(0, shown).map((l, i) => {
+            const newest = i === shown - 1 && s.phase === 'scene'
+            if (l.kind === 'narration') return <Text key={`n${i}`} italic color={DIM} wrap="wrap">{l.text}</Text>
+            if (l.kind === 'focus') return <Text key={`f${i}`} color={theme} wrap="wrap">◈ {l.text}</Text>
+            if (l.kind === 'pause') return <Text key={`z${i}`} color={DIM}>{'　'.repeat(4)}……</Text>
+            return (
               <Text key={`l${i}`} wrap="wrap">
-                <Text bold color={l.who === 'me' ? '#7fd1c7' : colorOf(l.who)}>{nameOf(l.who)}  </Text>
-                <Text>{lang === 'zh' ? `「${l.text}」` : `"${l.text}"`}</Text>
+                <Text backgroundColor={tinted(l.who)} color={INK} bold> {nameOf(l.who)} </Text>
+                <Text> </Text>
+                <Text bold={newest} dimColor={!newest && !done}>{lang === 'zh' ? `「${l.text}」` : `"${l.text}"`}</Text>
               </Text>
-            ),
-          )}
+            )
+          })}
           {s.phase === 'after' ? <Box marginTop={1}><Text wrap="wrap" color={ACCENT}>{s.after}</Text></Box> : null}
         </Box>
         {s.phase === 'after' ? (
@@ -1023,17 +1864,28 @@ export const register: Register = on => {
           ])
         ) : (
           <Box flexDirection="column" marginTop={1}>
-            {sc.choices.map((c, i) => (
-              <Button key={`c${i}`} hotkey={String(i + 1)} plain onPress={hit(() => void choose($, c))}>
-                <Text color={KIND_COLOR[c.kind]}>[{L(`kind_${c.kind}` as Parameters<typeof t>[1])}] </Text>
-                <Text>{c.text}</Text>
+            {sc.choices.map((c, i) => {
+              const color = C[c.kind]
+              const inner = (
+                <Button key={`c${i}`} hotkey={String(i + 1)} plain onPress={hit(() => void choose($, c))}>
+                  <Text color={color}>{compact ? '' : '▌'}{KIND_ICON[c.kind]} {i + 1} </Text>
+                  <Text color={color} bold>{L(`kind_${c.kind}` as UiKey)}</Text>
+                  <Text>  {c.text}</Text>
+                </Button>
+              )
+              return compact ? inner : <Box key={`cc${i}`} borderStyle="round" borderColor={color} paddingX={1}>{inner}</Box>
+            })}
+            {showLetItBe ? (
+              <Button key="c-let" hotkey={String(sc.choices.length + 1)} plain onPress={hit(() => void letItBe($))}>
+                <Text color={DIM}>{compact ? '' : ' '}☁ {sc.choices.length + 1} {L('letItBe')}</Text><Text color={DIM}>  {L('letItBeHint')}</Text>
               </Button>
-            ))}
+            ) : null}
           </Box>
         )}
         {autoInfo}
+        {watchInfo}
         {gameKeys()}
-      </Box>
+      </Box>,
     )
   })
 }

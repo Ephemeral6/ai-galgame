@@ -400,7 +400,7 @@ describe('旧存档迁移', () => {
   test('补上新字段和新角色，原有进度不丢', () => {
     expect(needsMigration(OLD, P)).toBe(true)
     const s = normalizeStory(OLD, P)!
-    expect([s.v, s.flags, s.incident, typeof s.seed]).toEqual([2, [], '', 'number'])
+    expect([s.v, s.flags, s.incident, typeof s.seed, s.gossip, s.world]).toEqual([3, [], '', 'number', [], []])
     expect(s.heroines.xiaoman).toEqual(OLD.heroines.xiaoman)
     expect(s.heroines.wenli).toEqual({ affection: 0, stage: 0, scenes: 0, mood: '', lastDay: 0 })
     expect([s.day, s.slot, s.facts, s.usage.writer, s.promises.length]).toEqual([3, 1, ['天文社在旧器材室'], 4, 1])
