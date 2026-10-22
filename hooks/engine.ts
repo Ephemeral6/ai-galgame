@@ -165,7 +165,9 @@ export type PlanOption = { place: string; mood: string; maybe: string[]; forced?
 export function forcedEvent(p: Pack, s: Story, lang: Lang): PlanOption | null {
   const T = packText(p, lang)
   const f = p.fixed.find(x => x.day === s.day && x.slot === s.slot)
-  if (f) return { place: T(f.place), mood: T(f.mood), maybe: [...f.cast], forced: T(f.title) }
+  // 固定事件的地点名和某个地点同名时带上它的 id：限地点的关键事件、预写场景、随机事件才认得出这里
+  const fid = f ? p.places.find(x => T(x.name) === T(f.place))?.id : undefined
+  if (f) return { ...(fid ? { id: fid } : {}), place: T(f.place), mood: T(f.mood), maybe: [...f.cast], forced: T(f.title) }
   // 限地点的关键事件到了最后机会：日程把玩家带到它的地点
   const b = allBeats(p).find(x => !!x.places?.length && !s.flags.includes(`beat:${x.id}`) && x.day <= s.day && lastChance(p, s, x))
   const pl = b ? p.places.find(x => b.places!.includes(x.id) && x.slots.includes(s.slot)) : undefined
@@ -228,7 +230,7 @@ export function dueBeat(p: Pack, s: Story, present: string[], place?: string): B
   const beats = allBeats(p).filter(b => b.day <= s.day && !s.flags.includes(`beat:${b.id}`)).sort((a, b) => a.day - b.day)
   const here = beats.filter(b => beatFits(s, b, place) && (!b.who?.length || b.who.some(id => present.includes(id))))
   // 先写还在期限内、此时此地合适的；过期的留给 alsoBeat 顺带补上，不再挤占后面的时段
-  return here.find(b => !overdue(p, s, b)) ?? here[0] ?? beats.find(b => overdue(p, s, b)) ?? null
+  return here.find(b => s.day <= byOf(p, b)) ?? here[0] ?? beats.find(b => overdue(p, s, b)) ?? null
 }
 
 /** 另一个已经过期的关键事件：这一幕顺带补上（每幕最多一个），免得它挤占后面的时段或在终局时丢掉 */
