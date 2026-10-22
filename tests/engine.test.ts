@@ -6,10 +6,10 @@ import { describe, expect, test } from 'claude-code/testing'
 import type { Choice, Pack, Scene, Story } from '../types'
 import { stageFrame, validKeepsake } from '../hooks/art'
 import {
-  advanceTime, applyChoice, applyScene, dueBeat, focusMode, forcedEvent, freshStory, incidentHere, needsMigration, normalizeStory, parseScene,
-  pickEnding, planOptions, proactive, rollIncident, sceneContext, sceneDynamic, staticBlock,
+  advanceTime, alsoBeat, applyChoice, applyScene, dueBeat, focusMode, forcedEvent, freshStory, incidentHere, keepable, needsMigration, normalizeStory, parseScene,
+  pickEnding, planOptions, proactive, rollIncident, sceneContext, sceneDynamic, staticBlock, withKeep,
 } from '../hooks/engine'
-import { chapterOf, personOf, tr, validatePack } from '../hooks/pack'
+import { allBeats, chapterOf, personOf, tr, validatePack } from '../hooks/pack'
 import { BUILTIN } from '../packs/index'
 import { CICADA } from '../packs/cicada/pack'
 import { LOOP } from '../packs/loop/pack'
@@ -81,18 +81,33 @@ describe('约定', () => {
     expect(s.promises[0]).toEqual(expect.objectContaining({ heroine: 'zhiyao', due: 12, status: 'open' }))
   })
 
-  test('到期前再见到她就算兑现', () => {
+  test('只见到她不算兑现；到期前她在场、我选了「兑现」才算', () => {
     let s = applyScene(at(freshStory(P, 'zh'), 3, 0), scene(['zhiyao']))
     s = applyChoice(P, s, choice({ kind: 'promise' }), 'zh').story
     s = applyScene(at(s, 4, 1), scene(['zhiyao']))
+    expect(s.promises[0]!.status).toBe('open')
+    s = applyChoice(P, s, choice({ kind: 'keep', keeps: 'zhiyao' }), 'zh').story
     expect(s.promises[0]!.status).toBe('kept')
   })
 
-  test('同一幕里不会立刻算兑现', () => {
+  test('同一幕里不能兑现刚许下的约定；没有可兑现的约定时不给「兑现」选项', () => {
     let s = applyScene(at(freshStory(P, 'zh'), 3, 0), scene(['zhiyao']))
     s = applyChoice(P, s, choice({ kind: 'promise' }), 'zh').story
-    s = applyScene(s, scene(['zhiyao']))
-    expect(s.promises[0]!.status).toBe('open')
+    expect(keepable(s, ['zhiyao'])).toEqual([])
+    const sc = scene(['zhiyao'], { choices: [choice({}), choice({ kind: 'keep' })] })
+    expect(withKeep(P, s, sc, sc.choices[1], 'zh').map(c => c.kind)).toEqual(['reply'])
+  })
+
+  test('她在场又有可兑现的约定：AI 没写「兑现」就由程序补一个；对别人的约定不能借她兑现', () => {
+    let s = applyScene(at(freshStory(P, 'zh'), 3, 0), scene(['zhiyao']))
+    s = applyChoice(P, s, choice({ kind: 'promise', promise: '陪她晨跑' }), 'zh').story
+    s = applyScene(at(s, 5, 0), scene(['zhiyao', 'xiaoman']))
+    const sc = scene(['zhiyao', 'xiaoman'], { choices: [choice({}), choice({ kind: 'observe' }), choice({ kind: 'promise' })] })
+    const cs = withKeep(P, s, sc, undefined, 'zh')
+    expect(cs.length).toBe(4)
+    expect(cs[3]).toEqual(expect.objectContaining({ kind: 'keep', keeps: 'zhiyao', text: '兑现约定：陪她晨跑' }))
+    expect(applyChoice(P, s, choice({ kind: 'keep', keeps: 'xiaoman' }), 'zh').story.promises[0]!.status).toBe('open')
+    expect(withKeep(P, s, { ...sc, cast: [{ id: 'xiaoman', expression: 'normal' }] }, undefined, 'zh').some(c => c.kind === 'keep')).toBe(false)
   })
 
   test('过期没兑现：失约、好感 -2', () => {
@@ -165,7 +180,8 @@ describe('配角出场', () => {
 
 describe('关系写进提示（只放这一幕相关的人）', () => {
   test('在场主角色的关系与相关配角写进这一幕；不在场的人只在固定块里留一行摘要', () => {
-    const s = at(freshStory(P, 'zh'), 4, 0)
+    // 前面的关键事件都已发生（否则到期的事件会把涉及的人带进这一幕）
+    const s = { ...at(freshStory(P, 'zh'), 4, 0), flags: allBeats(P).filter(b => b.day <= 4).map(b => `beat:${b.id}`) }
     const o = opt(s, 'astro')
     const ctx = sceneContext(P, s, o, null)
     expect(ctx.focus).toEqual(expect.arrayContaining(['xiaoman', 'fang']))
@@ -239,6 +255,41 @@ describe('章节关键事件', () => {
     let t = applyScene(at(freshStory(P, 'zh'), 9, 2), scene(['zhiyao', 'qingyi'], { beat: 'river' }))
     t = applyChoice(P, t, choice({ kind: 'promise' }), 'zh').story
     expect(t.promises[0]).toEqual(expect.objectContaining({ key: 'river', heroine: 'qingyi' })) // 领头的知遥不在 beat.who 里
+  })
+
+  test('关键约定：几个人共用的关键事件，约定记在在场的人里好感最高的那位名下', () => {
+    let s = at(freshStory(P, 'zh'), 10, 1)
+    s.heroines.wenli = { ...s.heroines.wenli!, affection: 7 }
+    s = applyScene(s, scene(['yinuo', 'wenli'], { beat: 'vote' })) // 领头的是一诺，但玩家在追温璃
+    s = applyChoice(P, s, choice({ kind: 'promise' }), 'zh').story
+    expect(s.promises[0]).toEqual(expect.objectContaining({ key: 'vote', heroine: 'wenli' }))
+  })
+
+  test('过期的关键事件不再挤占后面的时段：先写此时此地该写的，过期的那个顺带补上', () => {
+    const mauve = BUILTIN.find(p => p.id === 'mauve')!
+    // 第 3 天没去见狼：request 过期；第 4 天下午的固定事件（狼扮外婆）仍写 cucumbers
+    const s = { ...at(freshStory(mauve, 'zh'), 4, 0), flags: ['beat:basket', 'beat:hello', 'beat:salesman', 'beat:warn-granny'] }
+    const ctx = sceneContext(mauve, s, forcedEvent(mauve, s, 'zh')!, null)
+    expect([ctx.beat?.id, ctx.also?.id]).toEqual(['cucumbers', 'request'])
+    const after = applyScene(s, scene(['wolf'], { beat: 'cucumbers', also: 'request' }))
+    expect(after.flags).toEqual(expect.arrayContaining(['beat:cucumbers', 'beat:request']))
+    expect(alsoBeat(mauve, after, null)).toBe(null)
+  })
+
+  test('关键事件可以限定时段和地点；到了最后机会，日程把玩家带到那里', () => {
+    const p = JSON.parse(JSON.stringify(P)) as Pack
+    const b = p.acts![0]!.beats.find(x => x.id === 'recruit')!
+    b.slots = [2]; b.places = ['roof']
+    expect(validatePack(p)).toEqual([])
+    const s = freshStory(p, 'zh')
+    expect(dueBeat(p, s, ['xiaoman'], 'roof')).toBe(null) // 第 0 时段不合
+    expect(dueBeat(p, at(s, 1, 2), ['xiaoman'], 'oldstreet')).toBe(null) // 地点不合
+    expect(dueBeat(p, at(s, 1, 2), ['xiaoman'], 'roof')?.id).toBe('recruit')
+    const f = forcedEvent(p, at(s, 2, 2), 'zh') // by 那天的最后一个允许时段
+    expect([f?.id, f?.maybe]).toEqual(['roof', ['xiaoman']])
+    expect(forcedEvent(p, { ...at(s, 2, 2), flags: ['beat:recruit'] }, 'zh')).toBe(null)
+    b.places = ['library']
+    expect(validatePack(p).some(e => e.includes('beats[0].places'))).toBe(true) // 图书馆第 2 时段不开
   })
 
   test('跨幕时给出悬念钩子和下一幕的标题', () => {
@@ -338,6 +389,17 @@ describe('多结局', () => {
     const s = freshStory(P, 'zh')
     for (const c of P.cast) ready(s, c.id, 2, 6)
     expect(pickEnding(P, s).id).toBe('five-on-the-roof')
+  })
+
+  test('群像结局同 tier 平局时优先；约定条件按所有人合计', () => {
+    const s = freshStory(P, 'zh')
+    for (const c of P.cast) ready(s, c.id, 2, 6)
+    ready(s, 'xiaoman', 3, 9) // 小满的「近」结局也是 tier 2
+    expect(pickEnding(P, s).id).toBe('five-on-the-roof')
+    const p = JSON.parse(JSON.stringify(P)) as Pack
+    p.endings.find(e => e.id === 'five-on-the-roof')!.maxBroken = 0
+    s.promises = [{ text: 'x', heroine: 'qingyi', day: 1, due: 2, status: 'broken' }]
+    expect(pickEnding(p, s).id).toBe('xiaoman-near')
   })
 
   test('每个主角色都有真、好、普通、坏四种结局', () => {

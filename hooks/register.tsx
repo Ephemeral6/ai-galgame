@@ -1012,7 +1012,7 @@ const PALETTES = {
   // Okabe–Ito：色盲也分得开；同时都带不同图标
   cb: { reply: '#56b4e9', observe: '#cc79a7', promise: '#f0e442', kept: '#009e73', broken: '#d55e00', event: '#e69f00', info: '#56b4e9' },
 } as const
-const KIND_ICON: Record<string, string> = { reply: '❝', observe: '◎', promise: '✦' }
+const KIND_ICON: Record<string, string> = { reply: '❝', observe: '◎', promise: '✦', keep: '✔' }
 const ACCENT = '#f2c14e'
 const DIM = '#8a8f98'
 const INK = '#1e1a1a'
@@ -1878,7 +1878,7 @@ export const register: Register = on => {
         ) : (
           <Box flexDirection="column" marginTop={1}>
             {sc.choices.map((c, i) => {
-              const color = C[c.kind]
+              const color = C[c.kind === 'keep' ? 'kept' : c.kind]
               const inner = (
                 <Button key={`c${i}`} hotkey={String(i + 1)} plain onPress={hit(() => void choose($, c))}>
                   <Text color={color}>{compact ? '' : '▌'}{KIND_ICON[c.kind]} {i + 1} </Text>
