@@ -1,0 +1,14 @@
+{
+  "name": "ai-galgame",
+  "owner": {
+    "name": "ai-galgame contributors"
+  },
+  "plugins": [
+    {
+      "name": "ai-galgame",
+      "source": "./",
+      "description": "AI-native visual novel engine with bilingual story packs / AI 原生视觉小说引擎"
+    }
+  ],
+  "description": "AI-native visual novels for Claude Code: an engine plus bilingual story packs / Claude Code 里的 AI 原生视觉小说"
+}
