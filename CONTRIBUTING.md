@@ -61,6 +61,7 @@
 - 状态（`$.state`）的读写集中在 `hooks/register.tsx`；剧情逻辑写成 `hooks/engine.ts` 里的纯函数，并配测试。
 - 画面板（`ui.render`）时不许写状态，只能读；按钮的回调里可以写。状态或存档格式变了，要在 `engine.ts` 的 `normalizeStory` 里补默认值，迁移只在 `command.run` 和 `session.start` 里做（`register.tsx` 的 `migrate`）；读到认不出的格式要降级显示，不能报错。
 - 性能约束：不用定时器重绘整个面板；动画只用 `$.ui.blit` 重画立绘那块 Raster，≤ 5 帧/秒；不做逐字打字机。
+- 自动游玩（`hooks/pilot.ts` 决策，`register.tsx` 的 `autoStep` 排程）：用 `$.clock.after` 一步一步排程，不用高频定时器；定时器回调里写状态，画面板时只读；每一步先核对 `autoGen`，按键、关闭、热重载都会让排着的步骤作废。决策提示只放状态摘要，不打缓存标记，用量单独记在 `usage.pilot*`。新增按钮时用 `hit()` 包住，让玩家按键能暂停自动模式。
 - 成本约束：每幕最多 1 次写作调用 + 1 次检查调用（不过才重写 1 次）；固定内容放在提示第一块并打缓存标记；人多时每幕只放相关的人。改动调用次数或提示长度请同步更新 README 的估算。
 
 ## 四、校验与测试
@@ -108,6 +109,6 @@ claude plugin test .            # 全部测试；其中会校验所有内置包�
 
 **License checklist**: accept only original work or works under CC0, CC BY, CC BY-SA or another license that clearly allows derivatives and covers the script text. No NC, no ND, no fan works, no commercial copyrighted works. Link the license text and the date you checked it in the PR. Use the text and characters only — never the original art, music, sound or fonts. Fill `source` completely (and `notice` when attribution is required). CC BY-SA adaptations stay CC BY-SA in their own folder with the full license.
 
-**Engine**: keep `$.state` access in `hooks/register.tsx` and game logic as pure, tested functions in `hooks/engine.ts`. Never write state while drawing the pane (`ui.render`); migrate state and saves only in `command.run` and `session.start` (via `normalizeStory`), and show an unknown save format as unreadable instead of failing. Keep the performance limits (blit-only sprite animation ≤ 5 fps, no typewriter timers) and the cost limits (≤ 1 writer + 1 checker call per scene, one rewrite at most, cached fixed prompt block).
+**Engine**: keep `$.state` access in `hooks/register.tsx` and game logic as pure, tested functions in `hooks/engine.ts`. Never write state while drawing the pane (`ui.render`); migrate state and saves only in `command.run` and `session.start` (via `normalizeStory`), and show an unknown save format as unreadable instead of failing. Autoplay (`hooks/pilot.ts` for decisions, `autoStep` in `register.tsx` for scheduling) advances one step at a time with `$.clock.after`, writes state only in timer callbacks, and checks `autoGen` so a key press, toggle or reload cancels pending steps; decision prompts are short state summaries, uncached, counted in `usage.pilot*`. Wrap new buttons with `hit()` so a key press pauses autoplay. Keep the performance limits (blit-only sprite animation ≤ 5 fps, no typewriter timers) and the cost limits (≤ 1 writer + 1 checker call per scene, one rewrite at most, cached fixed prompt block).
 
 **Checks**: `claude plugin validate .` and `claude plugin test .` must pass.

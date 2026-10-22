@@ -45,6 +45,8 @@ claude plugin install ai-galgame --marketplace Ephemeral6/ai-galgame
 | `S` | 存档 · 读档 |
 | `P` | 相册（回忆、信物、结局、约定） |
 | `H` | 操作说明 |
+| `O` | 自动游玩：让 AI 替你玩，再按一次停止 |
+| `E` | 设置（自动游玩时进设置不会打断） |
 | `T` | 回到标题 · `B` 返回 |
 
 先点一下面板（或 `ctrl+x` 再按 `tab`）让它获得焦点，按键才会生效。
@@ -59,6 +61,7 @@ claude plugin install ai-galgame --marketplace Ephemeral6/ai-galgame
 - **她记得你做过什么。** 选择和观察记进伏笔簿，后面的剧情会提起；答应过的事有期限，做到了加分，没做到会伤人。在关键事件里许下的是「关键约定」（★），兑现与否决定能不能走到真结局。
 - **关系分五个阶段**（陌生 → 熟悉 → 心事 → 秘密 → 抉择，名字由剧本包定），好感和相处次数都够了才会推进。到后两个阶段时，AI 会画一件 8×8 像素的信物收进图鉴。
 - **多结局。** 每个人有真、好、普通、坏几种结局；真结局要兑现关键约定、集齐信物或二周目。AI 写一段回收你们真实经历的终章。解锁的结局和通关次数跨周目保存。
+- **自动游玩（`O`）**：标题页和游戏中都能开关。AI 替你选地点、选主动来找的人、选选项，每次的理由用暗色显示（如「→ 选 2：想看她会不会说出秘密」），台词按慢 / 中 / 快自动翻句，选项出现后停顿约 2 秒再选。策略可选：专一（锁定一个人，自己指定或问 AI）、随心（按 AI 对剧情的兴趣）、收集（优先没见过的人、地点和未解锁的结局）、混乱（随机，不调用模型）。为了不在无人看管时一直花额度，默认连跑 6 幕就暂停（可改成 3 / 12 / 24 幕或「跑到当天结束」），到结局、出错时停下并显示原因；按别的键就暂停。自动玩过的选择照样记进相册和伏笔簿，可以回退，结局正常解锁。
 - **完整的游戏外壳**：标题画面、继续 / 读档、3 个存档位加自动存档、回退、相册、设置（语言、立绘动画、逐句 / 整段显示）、操作说明。旧版本的存档会自动迁移；认不出来的存档显示为「无法识别」，不会报错。
 - **中英双语**：标题页切换语言，界面和 AI 写的剧情都会跟着换。
 
@@ -105,6 +108,7 @@ claude plugin install ai-galgame --marketplace Ephemeral6/ai-galgame
 - **提示缓存**：前提、文风、所有人的一行摘要、分幕走向和输出格式放在提示第一块并开启缓存，每一幕复用。
 - **只放相关的人**：人物（主角色 + 配角）超过 3 个时，每一幕只附上在场、可能出场的人和相关配角的完整设定与关系，其余人只留一行摘要；人少的包（如《停播前》）全部设定照旧放在缓存块里。
 - **其他**：信物每人最多 2 个，结局 1 次。
+- **自动游玩（可选）**：每个决策约 1 次 Haiku 调用，提示只用状态摘要、不带设定集，单独计数显示在设置页。按幕算约多 2–3 次（选地点、选选项，专一策略开局再问一次想追谁），每幕多不到 0.001 美元；「混乱」策略不调用模型。
 
 | 剧本包 | 幕数 | 大约调用次数 | 大约费用 |
 | --- | --- | --- | --- |
@@ -157,7 +161,9 @@ Answer `y` to *Add marketplace?* and keep the default user scope. Or from a shel
 - **Every scene is written live** from the story pack, the current relationship stage and your past choices. Choices are *reply*, *observe* (a detail that pays off later) or *promise* (a commitment with a deadline). A promise made during a key event is a *key promise* (★); keeping it can unlock a true ending.
 - **Characters remember**, five relationship stages, AI-drawn 8×8 pixel keepsakes, true / good / normal / bad endings per character (true endings may need a key promise kept, keepsakes collected or a second playthrough), New Game+, three save slots plus autosave, undo, an album, settings, and Chinese/English UI. Saves from the previous version are migrated automatically; a save in an unknown format is shown as unreadable instead of breaking the pane.
 
-Keys: `1–9` choose · `J` next · `A` show all · `U` undo · `S` save/load · `P` album · `H` help · `T` title · `B` back. Click the pane (or `ctrl+x`, `tab`) to focus it first.
+Keys: `1–9` choose · `J` next · `A` show all · `U` undo · `S` save/load · `P` album · `H` help · `O` autoplay · `E` settings · `T` title · `B` back.
+
+**Autoplay (`O`)**: on the title screen or in game, the AI plays for you — it picks places, who to go with, and choices, showing its reason dimmed ("→ Picked 2: I want to see whether she'll tell her secret"). Lines advance automatically (slow / medium / fast) and it pauses about 2 s on the choices so you can see them. Strategies: Devoted (pursue one character, chosen by you or the AI), Whim (the AI's own curiosity), Collector (new people, places and unlocked endings first, steering toward unseen endings on replays) and Chaos (random, no model calls). To avoid spending unattended, it pauses after 6 scenes by default (3 / 12 / 24 or "end of the day" in settings), stops at an ending or on an error with the reason shown, and any other key pauses it. Autoplayed choices go into the album and notebook as usual, can be undone, and unlock endings normally. Click the pane (or `ctrl+x`, `tab`) to focus it first.
 
 ### Bundled packs
 
@@ -169,7 +175,7 @@ Copy `packs/_template/`, fill in characters (voice, sample lines, secret, five-s
 
 ### AI cost
 
-Each scene is one Sonnet call (choices carry their own reactions) plus one Haiku consistency check, with at most one rewrite, however many characters a pack has. The fixed part (premise, style, a one-line summary of everyone, the act outline, the output format) is prompt-cached; when a pack has more than three characters, each scene carries full notes and relations only for the people present or likely to appear and their related supporting characters. A full 42-scene run of *Cicadas & Evening Study* is about 95–110 calls, roughly US$0.7–0.8 at public list prices (Sonnet $2 / $10 per million input / output tokens, cache reads $0.20; Haiku $0.10 / $0.50); the 8-scene short pack is about 20 calls, about US$0.15. Call counts are unchanged from the previous version; the flagship now has 11 characters instead of 3, so each scene sends about 2,000 more uncached input tokens and a run costs about 30% more, still dominated by output. The settings page shows actual calls and tokens. The sprite animation runs at 4 fps and repaints only the sprite area, and drawing the pane never writes state, so it won't slow Claude Code down.
+Each scene is one Sonnet call (choices carry their own reactions) plus one Haiku consistency check, with at most one rewrite, however many characters a pack has. The fixed part (premise, style, a one-line summary of everyone, the act outline, the output format) is prompt-cached; when a pack has more than three characters, each scene carries full notes and relations only for the people present or likely to appear and their related supporting characters. A full 42-scene run of *Cicadas & Evening Study* is about 95–110 calls, roughly US$0.7–0.8 at public list prices (Sonnet $2 / $10 per million input / output tokens, cache reads $0.20; Haiku $0.10 / $0.50); the 8-scene short pack is about 20 calls, about US$0.15. Call counts are unchanged from the previous version; the flagship now has 11 characters instead of 3, so each scene sends about 2,000 more uncached input tokens and a run costs about 30% more, still dominated by output. Autoplay adds about one Haiku call per decision (2–3 per scene, under US$0.001 a scene; none with Chaos), counted separately on the settings page. The settings page shows actual calls and tokens. The sprite animation runs at 4 fps and repaints only the sprite area, and drawing the pane never writes state, so it won't slow Claude Code down.
 
 ### License
 

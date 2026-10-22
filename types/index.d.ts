@@ -279,7 +279,11 @@ export type Note = { day: number; heroine: string; text: string; used: boolean }
 export type Keepsake = { pack: string; day: number; heroine: string; title: string; desc: string; art: string[]; palette: Record<string, number> }
 export type Moment = { day: number; slot: number; heroine: string; text: string }
 export type Phase = 'title' | 'plan' | 'loading' | 'scene' | 'after' | 'ending'
-export type Usage = { writer: number; checker: number; input: number; output: number; cacheRead: number; cacheWrite: number }
+export type Usage = {
+  writer: number; checker: number; input: number; output: number; cacheRead: number; cacheWrite: number
+  /** 自动游玩的决策调用（Haiku，不走设定集缓存块），单独计数 */
+  pilot?: number; pilotIn?: number; pilotOut?: number
+}
 export type Story = {
   pack: string
   lang: Lang
@@ -319,7 +323,32 @@ export type Story = {
 
 export type View = 'game' | 'album' | 'saves' | 'settings' | 'help' | 'packs'
 export type UiState = { view: View; tab: number; saveMode: 'save' | 'load'; back: View }
-export type GalSettings = { lang: Lang; anim: boolean; pageMode: 'line' | 'page'; pack: string }
+/** 自动游玩的策略：专一 / 随心 / 收集 / 混乱（随机、不调用模型） */
+export type AutoStrategy = 'focus' | 'whim' | 'collect' | 'chaos'
+export type AutoSpeed = 'slow' | 'mid' | 'fast'
+export type GalSettings = {
+  lang: Lang; anim: boolean; pageMode: 'line' | 'page'; pack: string
+  autoStrategy?: AutoStrategy
+  autoSpeed?: AutoSpeed
+  /** 自动模式连跑几幕后暂停；0 表示跑到当天结束 */
+  autoLimit?: number
+  /** 专一策略锁定的角色 id；'' 表示开局时问 AI 想追谁 */
+  autoTarget?: string
+}
+/** 自动游玩的运行状态（会话内） */
+export type AutoState = {
+  on: boolean
+  /** 本次开启后跑了几幕 */
+  scenes: number
+  /** 开启时是第几天（「跑到当天结束」用） */
+  startDay: number
+  /** 专一策略这次追的人 */
+  target: string
+  /** 最近一次决策：「→ 选 2：理由」 */
+  reason: string
+  /** 暂停或停下的原因 */
+  note: string
+}
 export type PackMeta = { endings: string[]; clears: number; keepsakes: Keepsake[] }
 export type Meta = Record<string, PackMeta>
 /** 标题页可选的剧本包：内置、目录里的、导入的 */
@@ -327,6 +356,6 @@ export type PackEntry = { id: string; origin: 'builtin' | 'folder' | 'imported';
 
 declare module 'claude-code' {
   interface PluginState {
-    'ai-galgame': { story: Story; undo: string[]; ui: UiState; settings: GalSettings; meta: Meta; packs: PackEntry[] }
+    'ai-galgame': { story: Story; undo: string[]; ui: UiState; settings: GalSettings; meta: Meta; packs: PackEntry[]; auto: AutoState }
   }
 }

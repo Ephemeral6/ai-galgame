@@ -8,13 +8,16 @@
 import { atom, read, update } from 'claude-code'
 import type { EngineInterface, Register } from 'claude-code'
 
-import type { Choice, Keepsake, Lang, Meta, Pack, PackEntry, PackMeta, GalSettings, Story, UiState, View } from '../types'
+import type { AutoSpeed, AutoState, AutoStrategy, Choice, Keepsake, Lang, Meta, Pack, PackEntry, PackMeta, GalSettings, Story, Usage, UiState, View } from '../types'
 import { PORTRAIT_ROWS, STAGE_ROWS, STAGE_W, cells, keepsakeFrame, portraitFrame, stageFrame } from './art'
 import {
-  addUsage, advanceTime, applyChoice, applyScene, drawKeepsake, forcedEvent, freshStory, incidentOf, needsMigration, normalizeStory, pickEnding, planOptions, proactive, writeEnding, writeScene,
+  addUsage, advanceTime, applyChoice, applyScene, drawKeepsake, forcedEvent, freshStory, incidentOf, needsMigration, normalizeStory, pickEnding, planOptions, proactive, sceneKey, writeEnding, writeScene,
 } from './engine'
+import { decide } from './pilot'
+import type { Decision } from './pilot'
 import type { PlanOption } from './engine'
 import { LANGS, helpLines, t } from './i18n'
+import type { UiKey } from './i18n'
 import { castOf, chapterOf, dayText, meterOf, packText, personOf, tr, validatePack } from './pack'
 import { BUILTIN } from '../packs/index'
 
@@ -22,7 +25,7 @@ const PANE = 'ai-galgame'
 const TICK_MS = 250 // 4 帧/秒
 const SAVE_SLOTS = [1, 2, 3]
 
-const DEFAULT_SETTINGS: GalSettings = { lang: 'zh', anim: true, pageMode: 'line', pack: BUILTIN[0]!.id }
+const DEFAULT_SETTINGS: GalSettings = { lang: 'zh', anim: true, pageMode: 'line', pack: BUILTIN[0]!.id, autoStrategy: 'whim', autoSpeed: 'mid', autoLimit: 6, autoTarget: '' }
 
 const story = atom<'ai-galgame', 'story'>({ plugin: 'ai-galgame', key: 'story' } as const, { ...freshStory(BUILTIN[0]!, 'zh'), phase: 'title' })
 const undo = atom<'ai-galgame', 'undo'>({ plugin: 'ai-galgame', key: 'undo' } as const, [])
@@ -68,6 +71,9 @@ async function migrate($: EngineInterface): Promise<void> {
   }
   if (!okUi(await read($, ui))) await update($, ui, () => DEFAULT_UI)
   if (!okSettings(await read($, settings))) await update($, settings, () => DEFAULT_SETTINGS)
+  // 自动模式不跨会话、不跨热重载：定时器已经没了，状态也关掉
+  const a0 = await read($, auto) as unknown
+  if (!okAuto(a0) || (a0 as AutoState).on) await update($, auto, x => ({ ...DEFAULT_AUTO, note: okAuto(x) ? x.note : '' }))
   // 存档：save:<pack>:<n>，旧格式补全后写回；认不出来的不动（读的时候降级显示）
   for (const key of await $.store.keys()) {
     if (!key.startsWith('save:')) continue
@@ -357,6 +363,150 @@ async function show($: EngineInterface, view: View, tab = 0): Promise<void> {
   await update($, ui, x => ({ ...x, view, tab, back: view === 'game' || x.view === view ? x.back : x.view }))
 }
 
+// ---------- 自动游玩 ----------
+// 用 $.clock.after 一步一步排程（不用高频定时器）；定时器回调里写状态，ui.render 里只读。
+// 每一步先核对 autoGen：玩家按键、关掉自动或热重载后，排着的旧步骤自动作废。
+const DEFAULT_AUTO: AutoState = { on: false, scenes: 0, startDay: 1, target: '', reason: '', note: '' }
+const auto = atom<'ai-galgame', 'auto'>({ plugin: 'ai-galgame', key: 'auto' } as const, DEFAULT_AUTO)
+const SPEED_MS: Record<AutoSpeed, number> = { slow: 3000, mid: 1500, fast: 600 }
+const CHOICE_PAUSE_MS = 2000
+const AUTO_STRATEGIES: AutoStrategy[] = ['focus', 'whim', 'collect', 'chaos']
+const AUTO_SPEEDS: AutoSpeed[] = ['slow', 'mid', 'fast']
+const AUTO_LIMITS = [6, 3, 12, 24, 0]
+let autoGen = 0
+let autoTimer: { cancel: () => void } | null = null
+let choicesShown = ''
+
+function okAuto(x: unknown): x is AutoState {
+  return !!x && typeof (x as AutoState).on === 'boolean' && typeof (x as AutoState).scenes === 'number'
+}
+
+function autoCfg(st: GalSettings): { strategy: AutoStrategy; speed: AutoSpeed; limit: number; target: string } {
+  return {
+    strategy: AUTO_STRATEGIES.includes(st.autoStrategy as AutoStrategy) ? st.autoStrategy! : 'whim',
+    speed: AUTO_SPEEDS.includes(st.autoSpeed as AutoSpeed) ? st.autoSpeed! : 'mid',
+    limit: typeof st.autoLimit === 'number' && st.autoLimit >= 0 ? st.autoLimit : 6,
+    target: typeof st.autoTarget === 'string' ? st.autoTarget : '',
+  }
+}
+
+function schedule($: EngineInterface, ms: number, gen: number): void {
+  autoTimer?.cancel()
+  autoTimer = $.clock.after(ms, () => { if (gen === autoGen) void autoStep($, gen) })
+}
+
+async function startAuto($: EngineInterface): Promise<void> {
+  autoGen++
+  const gen = autoGen
+  const s = await read($, story)
+  await update($, auto, () => ({ ...DEFAULT_AUTO, on: true, startDay: s.day }))
+  $.ui.status(t((await read($, settings)).lang, 'autoStatus'))
+  choicesShown = ''
+  schedule($, 400, gen)
+}
+
+/** 停下或暂停：先让排着的步骤作废，再写原因 */
+async function stopAuto($: EngineInterface, key: UiKey, vars?: Record<string, string | number>): Promise<void> {
+  autoGen++
+  autoTimer?.cancel()
+  autoTimer = null
+  const lang = (await read($, settings)).lang
+  await update($, auto, x => ({ ...(okAuto(x) ? x : DEFAULT_AUTO), on: false, note: t(lang, key, vars) }))
+  $.ui.status(undefined)
+}
+
+async function toggleAuto($: EngineInterface): Promise<void> {
+  const a = await read($, auto)
+  if (okAuto(a) && a.on) await stopAuto($, 'autoStopped')
+  else await startAuto($)
+}
+
+async function addPilot($: EngineInterface, u: Usage): Promise<void> {
+  if (u.pilot) await update($, story, x => ({ ...x, usage: addUsage(x.usage, u) }))
+}
+
+function reasonOf(lang: Lang, d: Decision): string {
+  return d.why ? t(lang, 'autoReason', { n: d.index + 1, why: d.why }) : t(lang, 'autoReasonBare', { n: d.index + 1 })
+}
+
+/** 自动游玩的一步：看当前阶段做一件事，再排下一步 */
+async function autoStep($: EngineInterface, gen: number): Promise<void> {
+  try {
+    const a = await read($, auto)
+    if (!okAuto(a) || !a.on || gen !== autoGen) return
+    const st = await read($, settings)
+    const lang = st.lang
+    const cfg = autoCfg(st)
+    const s = await read($, story)
+    const p = await currentPack($, s.phase === 'title' ? st.pack : s.pack)
+    const T = packText(p, lang)
+    const wait = SPEED_MS[cfg.speed]
+    const seen = { endingsSeen: packMeta(await read($, meta), p.id).endings }
+    if (s.phase === 'title') { await continueGame($); return schedule($, 600, gen) }
+    if (s.phase === 'loading') return schedule($, 800, gen)
+    if (s.phase === 'ending') return await stopAuto($, 'autoEnded')
+    if (s.phase === 'plan') {
+      if (s.error) return await stopAuto($, 'autoError', { err: s.error })
+      if (cfg.limit > 0 && a.scenes >= cfg.limit) return await stopAuto($, 'autoLimitHit', { n: a.scenes })
+      if (cfg.limit === 0 && s.day !== a.startDay) return await stopAuto($, 'autoDayEnd')
+      let target = a.target
+      if (cfg.strategy === 'focus' && !castOf(p, target)) {
+        target = castOf(p, cfg.target) ? cfg.target : ''
+        if (!target) {
+          const d = await decide($, p, s, 'target', p.cast.map(c => `${c.id} ${T(c.name)}: ${T(c.tagline ?? c.look)}`), 'focus', '', seen, lang)
+          await addPilot($, d.usage)
+          if (d.error) return await stopAuto($, 'autoError', { err: d.error })
+          target = p.cast[d.index]!.id
+        }
+        if (gen !== autoGen) return
+        await update($, auto, x => ({ ...x, target }))
+      }
+      const forced = forcedEvent(p, s, lang)
+      const lonely = forced ? null : proactive(p, s)
+      const opts = [
+        ...(lonely ? [{ place: T(p.places[0]!.name), mood: '', maybe: [lonely], who: lonely }] : []),
+        ...(forced ? [forced] : planOptions(p, s, lang)),
+      ]
+      const labels = opts.map(o => (o.who ? `${o.who} came looking for me: go with her` : `${o.forced ?? o.place}${o.maybe.length ? ` (maybe: ${o.maybe.join(', ')})` : ''}`))
+      const d = await decide($, p, s, 'place', labels, cfg.strategy, target, seen, lang)
+      await addPilot($, d.usage)
+      if (d.error) return await stopAuto($, 'autoError', { err: d.error })
+      if (gen !== autoGen) return
+      await update($, auto, x => ({ ...x, reason: opts.length > 1 ? reasonOf(lang, d) : '' }))
+      const o = opts[d.index]!
+      await goTo($, o, o.who ?? null)
+      if (gen !== autoGen) return
+      const s2 = await read($, story)
+      if (s2.phase === 'plan' && s2.error) return await stopAuto($, 'autoError', { err: s2.error })
+      await update($, auto, x => ({ ...x, scenes: x.scenes + 1 }))
+      return schedule($, wait, gen)
+    }
+    if (s.phase === 'scene' && s.scene) {
+      const key = `${sceneKey(s)}:${s.scene.title}`
+      const items = 1 + s.scene.lines.length
+      if (s.reveal + 1 < items) {
+        await nextLine($)
+        // 最后一句出来时选项也出来了：停顿约 2 秒再选，让人看得到
+        if (s.reveal + 2 >= items) { choicesShown = key; return schedule($, CHOICE_PAUSE_MS, gen) }
+        return schedule($, wait, gen)
+      }
+      if (choicesShown !== key) { choicesShown = key; return schedule($, CHOICE_PAUSE_MS, gen) }
+      const choices = s.scene.choices
+      const d = await decide($, p, s, 'choice', choices.map(c => `[${c.kind}] ${c.text}`), cfg.strategy, a.target, seen, lang)
+      await addPilot($, d.usage)
+      if (d.error) return await stopAuto($, 'autoError', { err: d.error })
+      if (gen !== autoGen) return
+      await update($, auto, x => ({ ...x, reason: reasonOf(lang, d) }))
+      await choose($, choices[d.index]!)
+      return schedule($, wait, gen)
+    }
+    if (s.phase === 'after') { await advance($); return schedule($, wait, gen) }
+    return schedule($, wait, gen)
+  } catch (err) {
+    await stopAuto($, 'autoError', { err: String((err as Error)?.message ?? err).slice(0, 80) })
+  }
+}
+
 // ---------- 小部件 ----------
 /** 关系值：五格，图标来自角色的 meter（恋爱角色默认 ♥ ♡，非恋爱角色如「看穿 ◆◇」「信任 ●○」） */
 function hearts(n: number, max: number, on = '♥', off = '♡'): string {
@@ -382,6 +532,9 @@ export const register: Register = on => {
 
   on('session.end', async ($, e, next) => {
     stopAnim()
+    autoGen++
+    autoTimer?.cancel()
+    autoTimer = null
     return next(e)
   })
 
@@ -419,6 +572,11 @@ export const register: Register = on => {
     const s = (okStory(rawStory) ? normalizeStory(rawStory, packById((rawStory as Story).pack, extra)) : null) ?? TITLE_STORY
     const m = await read($, meta)
     const canUndo = (await read($, undo)).length > 0
+    const rawAuto = await read($, auto) as unknown
+    const ao: AutoState = okAuto(rawAuto) ? rawAuto : DEFAULT_AUTO
+    const cfg = autoCfg(st)
+    // 玩家按了自动以外的键：先暂停自动模式，再做这件事（写状态发生在按键回调里，不在画面板时）
+    const hit = (fn: () => void) => () => { if (ao.on) void stopAuto($, 'autoKeyPause'); fn() }
     const lang = st.lang
     const L = (k: Parameters<typeof t>[1], v?: Record<string, string | number>) => t(lang, k, v)
     const list = allPacks(extra)
@@ -434,11 +592,18 @@ export const register: Register = on => {
     const inScene = view.view === 'game' && (s.phase === 'scene' || s.phase === 'after')
     if (!inScene) anim = null
 
-    const keyBar = (items: (false | null | { k: string; label: string; on: () => void; dim?: boolean })[]) => (
+    const keyBar = (items: (false | null | { k: string; label: string; on: () => void; dim?: boolean; keep?: boolean })[]) => (
       <Box flexDirection="row" gap={1} flexWrap="wrap" marginTop={1}>
         {items.filter(x => !!x).map(x => (
-          <Button key={`kb-${x!.k}`} hotkey={x!.k} plain dimColor={x!.dim ?? true} onPress={x!.on}>{x!.label}</Button>
+          <Button key={`kb-${x!.k}`} hotkey={x!.k} plain dimColor={x!.dim ?? true} onPress={x!.keep ? x!.on : hit(x!.on)}>{x!.label}</Button>
         ))}
+      </Box>
+    )
+    const autoKey = { k: 'o', label: ao.on ? `O ${L('autoStop')}` : `O ${L('autoStart')}`, keep: true, dim: !ao.on, on: () => void toggleAuto($) }
+    const autoInfo = (
+      <Box flexDirection="column">
+        {ao.on && ao.reason ? <Text color={DIM} italic wrap="wrap">{ao.reason}</Text> : null}
+        {!ao.on && ao.note ? <Text color={ACCENT} wrap="wrap">{ao.note}</Text> : null}
       </Box>
     )
 
@@ -456,7 +621,7 @@ export const register: Register = on => {
       <Box flexDirection="column" borderStyle="round" borderColor={ACCENT} paddingX={1}>
         <Box flexDirection="row" justifyContent="space-between">
           <Text bold color={ACCENT}>{T(p.title)}</Text>
-          <Text color={DIM}>{chapterOf(p, lang, s.day)}{s.loop > 1 ? ` · ${L('runN', { n: s.loop })}` : ''}{p.features?.timeLoop ? ` · ${L('loopNotice', { n: s.cycle })}` : ''}</Text>
+          <Text color={DIM}>{ao.on ? <Text color={ACCENT} bold>{L('autoBadge')} · </Text> : null}{chapterOf(p, lang, s.day)}{s.loop > 1 ? ` · ${L('runN', { n: s.loop })}` : ''}{p.features?.timeLoop ? ` · ${L('loopNotice', { n: s.cycle })}` : ''}</Text>
         </Box>
         <Text>
           <Text bold>{dayText(p, lang, s.day)} · {T(p.slots[s.slot])}</Text>
@@ -488,6 +653,8 @@ export const register: Register = on => {
       { k: 'p', label: `P ${L('album')}`, on: () => void update($, ui, x => ({ ...x, view: 'album' as View, tab: 0, back: 'game' as View })) },
       { k: 'h', label: `H ${L('help')}`, on: () => void update($, ui, x => ({ ...x, view: 'help' as View, back: 'game' as View })) },
       { k: 't', label: `T ${L('toTitle')}`, on: () => void update($, story, x => ({ ...x, phase: x.phase === 'loading' ? x.phase : ('title' as const) })) },
+      autoKey,
+      { k: 'e', label: `E ${L('settings')}`, keep: true, on: () => void update($, ui, x => ({ ...x, view: 'settings' as View, back: 'game' as View })) },
     ])
     const backKey = keyBar([{ k: 'b', label: `B ${L('back')}`, dim: false, on: () => void update($, ui, x => ({ ...x, view: x.back === x.view ? 'game' : x.back })) }])
 
@@ -509,11 +676,32 @@ export const register: Register = on => {
             </Button>
           </Box>
           <Box flexDirection="column" marginTop={1}>
+            <Text color={DIM}>{L('autoSection')}{ao.on ? ` · ${L('autoBadge')}` : ''}</Text>
+            <Button key="set-strategy" hotkey="4" plain onPress={() => void setSettings($, x => ({ ...x, autoStrategy: AUTO_STRATEGIES[(AUTO_STRATEGIES.indexOf(autoCfg(x).strategy) + 1) % AUTO_STRATEGIES.length]! })).then(() => update($, auto, x => ({ ...x, target: '' })))}>
+              {L('autoStrategy')}  <Text color={ACCENT}>{L(`strategy_${cfg.strategy}` as UiKey)}</Text><Text color={DIM}>  {L(`strategyHint_${cfg.strategy}` as UiKey)}</Text>
+            </Button>
+            {cfg.strategy === 'focus' ? (
+              <Button key="set-target" hotkey="5" plain onPress={() => void setSettings($, x => {
+                const ids = ['', ...p.cast.map(c => c.id)]
+                return { ...x, autoTarget: ids[(ids.indexOf(autoCfg(x).target) + 1) % ids.length]! }
+              }).then(() => update($, auto, x => ({ ...x, target: '' })))}>
+                {L('autoTarget')}  <Text color={ACCENT}>{castOf(p, cfg.target) ? T(castOf(p, cfg.target)!.name) : L('autoTargetAsk')}</Text>{ao.on && ao.target ? <Text color={DIM}>  ({T(castOf(p, ao.target)?.short)})</Text> : null}
+              </Button>
+            ) : null}
+            <Button key="set-speed" hotkey="6" plain onPress={() => void setSettings($, x => ({ ...x, autoSpeed: AUTO_SPEEDS[(AUTO_SPEEDS.indexOf(autoCfg(x).speed) + 1) % AUTO_SPEEDS.length]! }))}>
+              {L('autoSpeed')}  <Text color={ACCENT}>{L(`speed_${cfg.speed}` as UiKey)}</Text>
+            </Button>
+            <Button key="set-limit" hotkey="7" plain onPress={() => void setSettings($, x => ({ ...x, autoLimit: AUTO_LIMITS[(AUTO_LIMITS.indexOf(autoCfg(x).limit) + 1) % AUTO_LIMITS.length]! }))}>
+              {L('autoLimit')}  <Text color={ACCENT}>{cfg.limit > 0 ? L('autoLimitN', { n: cfg.limit }) : L('autoLimitDay')}</Text>
+            </Button>
+          </Box>
+          <Box flexDirection="column" marginTop={1}>
             <Text color={DIM}>{L('usage')}</Text>
             <Text color={DIM}>{L('usageLine', { w: u.writer, c: u.checker, i: u.input, r: u.cacheRead, o: u.output })}</Text>
+            <Text color={DIM}>{L('usagePilot', { n: u.pilot ?? 0, i: u.pilotIn ?? 0, o: u.pilotOut ?? 0 })}</Text>
             <Text color={DIM} wrap="wrap">{L('importHint', { dir: '~/.claude/galgame-packs' })}</Text>
           </Box>
-          {backKey}
+          {keyBar([{ k: 'b', label: `B ${L('back')}`, dim: false, keep: true, on: () => void update($, ui, x => ({ ...x, view: x.back === x.view ? 'game' : x.back })) }])}
         </Box>
       )
     }
@@ -542,7 +730,7 @@ export const register: Register = on => {
               const Q = packText(q, lang)
               const cur = q.id === st.pack
               return (
-                <Button key={`pk-${en.id}`} hotkey={i < 9 ? String(i + 1) : undefined} plain onPress={() => void setSettings($, x => ({ ...x, pack: q.id })).then(() => update($, story, x => ({ ...x, phase: 'title' as const })))}>
+                <Button key={`pk-${en.id}`} hotkey={i < 9 ? String(i + 1) : undefined} plain onPress={hit(() => void setSettings($, x => ({ ...x, pack: q.id })).then(() => update($, story, x => ({ ...x, phase: 'title' as const }))))}>
                   <Text bold color={cur ? ACCENT : undefined}>{cur ? '▶ ' : '  '}{Q(q.title)}</Text>
                   <Text color={DIM}>  {Q(q.subtitle)} · {L('castN', { n: q.cast.length })}{q.npcs?.length ? ` · ${L('npcs', { n: q.npcs.length })}` : ''} · {q.days}d · {L(`packOrigin_${en.origin}` as Parameters<typeof t>[1])}{q.langs.includes(lang) ? '' : ` · ${q.defaultLang}`}</Text>
                 </Button>
@@ -579,8 +767,8 @@ export const register: Register = on => {
       return (
         <Box flexDirection="column">
           <Box flexDirection="row" gap={2}>
-            <Button key="mode-save" hotkey="w" plain dimColor={view.saveMode !== 'save'} onPress={() => void update($, ui, x => ({ ...x, saveMode: 'save' as const }))}>{view.saveMode === 'save' ? '▶ ' : ''}{L('modeSave')}</Button>
-            <Button key="mode-load" hotkey="r" plain dimColor={view.saveMode !== 'load'} onPress={() => void update($, ui, x => ({ ...x, saveMode: 'load' as const }))}>{view.saveMode === 'load' ? '▶ ' : ''}{L('modeLoad')}</Button>
+            <Button key="mode-save" hotkey="w" plain dimColor={view.saveMode !== 'save'} onPress={hit(() => void update($, ui, x => ({ ...x, saveMode: 'save' as const })))}>{view.saveMode === 'save' ? '▶ ' : ''}{L('modeSave')}</Button>
+            <Button key="mode-load" hotkey="r" plain dimColor={view.saveMode !== 'load'} onPress={hit(() => void update($, ui, x => ({ ...x, saveMode: 'load' as const })))}>{view.saveMode === 'load' ? '▶ ' : ''}{L('modeLoad')}</Button>
           </Box>
           <Box flexDirection="column" marginTop={1} borderStyle="round" borderColor={DIM} paddingX={1}>
             {[0, ...SAVE_SLOTS].map((n, i) => {
@@ -590,7 +778,7 @@ export const register: Register = on => {
                 ? (n === 0 || !canSave ? null : () => void writeSave($, n).then(() => { $.ui.toast(L('saved', { n })); return update($, ui, x => ({ ...x })) }))
                 : (okSave(f) ? () => void loadSlot($, pack, n) : null)
               return act ? (
-                <Button key={`slot${n}`} hotkey={String(n)} plain onPress={act}>
+                <Button key={`slot${n}`} hotkey={String(n)} plain onPress={hit(act)}>
                   <Text bold>{label}</Text><Text color={DIM}>  {info(f)}</Text>
                 </Button>
               ) : (
@@ -658,7 +846,7 @@ export const register: Register = on => {
         <Box flexDirection="column">
           <Box flexDirection="row" gap={2}>
             {tabs.map((x, i) => (
-              <Button key={`tab${i}`} hotkey={String(i + 1)} plain dimColor={view.tab !== i} onPress={() => void update($, ui, y => ({ ...y, tab: i }))}>{view.tab === i ? `▶ ${x}` : x}</Button>
+              <Button key={`tab${i}`} hotkey={String(i + 1)} plain dimColor={view.tab !== i} onPress={hit(() => void update($, ui, y => ({ ...y, tab: i })))}>{view.tab === i ? `▶ ${x}` : x}</Button>
             ))}
           </Box>
           <Box flexDirection="column" marginTop={1} borderStyle="round" borderColor={DIM} paddingX={1}>{body}</Box>
@@ -700,12 +888,14 @@ export const register: Register = on => {
           ) : null}
           <Box flexDirection="column" marginTop={1}>
             {menu.map(x => (
-              <Button key={`menu-${x.id}`} hotkey={x.k} variant={x.primary ? 'primary' : undefined} plain={x.primary ? undefined : true} onPress={x.on}>{x.label}</Button>
+              <Button key={`menu-${x.id}`} hotkey={x.k} variant={x.primary ? 'primary' : undefined} plain={x.primary ? undefined : true} onPress={hit(x.on)}>{x.label}</Button>
             ))}
           </Box>
+          {keyBar([autoKey])}
+          {autoInfo}
           <Box flexDirection="row" gap={1} marginTop={1}>
             {LANGS.map(l => (
-              <Button key={`lang-${l.id}`} plain dimColor={l.id !== lang} onPress={() => void setSettings($, x => ({ ...x, lang: l.id }))}>{l.id === lang ? `[${l.label}]` : l.label}</Button>
+              <Button key={`lang-${l.id}`} plain dimColor={l.id !== lang} onPress={hit(() => void setSettings($, x => ({ ...x, lang: l.id })))}>{l.id === lang ? `[${l.label}]` : l.label}</Button>
             ))}
           </Box>
           <Text color={DIM}>
@@ -722,6 +912,7 @@ export const register: Register = on => {
         <Box flexDirection="column">
           {header}
           <Box marginY={1} paddingX={2}><Text color={DIM} italic>{s.loadingText}</Text></Box>
+          {autoInfo}
         </Box>
       )
     }
@@ -744,12 +935,12 @@ export const register: Register = on => {
           <Box flexDirection="column" marginTop={1}>
             <Text bold>{forced ? L('mustGo') : L('where', { slot: T(p.slots[s.slot]) })}</Text>
             {lonely ? (
-              <Button key="lonely" hotkey="0" plain onPress={() => void goTo($, { place: T(p.places[0]!.name), mood: '', maybe: [lonely], who: lonely }, lonely)}>
+              <Button key="lonely" hotkey="0" plain onPress={hit(() => void goTo($, { place: T(p.places[0]!.name), mood: '', maybe: [lonely], who: lonely }, lonely))}>
                 <Text color={colorOf(lonely)} bold>✉ {L('seeksYou', { name: shortOf(lonely) })}</Text>
               </Button>
             ) : null}
             {opts.map((o, i) => (
-              <Button key={`go-${i}`} hotkey={String(i + 1)} plain onPress={() => void goTo($, o, null)}>
+              <Button key={`go-${i}`} hotkey={String(i + 1)} plain onPress={hit(() => void goTo($, o, null))}>
                 <Text bold>{o.forced ? `★ ${o.forced}` : o.place}</Text>
                 <Text color={DIM}>  {o.mood}</Text>
                 {o.maybe.length ? <Text>  {o.maybe.map((id, j) => <Text key={`mb${j}`} color={colorOf(id)} dimColor={!!personOf(p, id)?.npc}>{j ? '/' : ''}{shortOf(id)}</Text>)}<Text color={DIM}>?</Text></Text> : null}
@@ -757,6 +948,7 @@ export const register: Register = on => {
             ))}
           </Box>
           {s.error ? <Text color="#e57373">{s.error}</Text> : null}
+          {autoInfo}
           {gameKeys()}
         </Box>
       )
@@ -779,6 +971,7 @@ export const register: Register = on => {
             { k: 'p', label: `P ${L('album')}`, on: () => void update($, ui, x => ({ ...x, view: 'album' as View, tab: 2, back: 'game' as View })) },
             { k: 't', label: `T ${L('toTitle')}`, on: () => void update($, story, x => ({ ...x, phase: 'title' as const })) },
           ])}
+          {autoInfo}
         </Box>
       )
     }
@@ -831,13 +1024,14 @@ export const register: Register = on => {
         ) : (
           <Box flexDirection="column" marginTop={1}>
             {sc.choices.map((c, i) => (
-              <Button key={`c${i}`} hotkey={String(i + 1)} plain onPress={() => void choose($, c)}>
+              <Button key={`c${i}`} hotkey={String(i + 1)} plain onPress={hit(() => void choose($, c))}>
                 <Text color={KIND_COLOR[c.kind]}>[{L(`kind_${c.kind}` as Parameters<typeof t>[1])}] </Text>
                 <Text>{c.text}</Text>
               </Button>
             ))}
           </Box>
         )}
+        {autoInfo}
         {gameKeys()}
       </Box>
     )

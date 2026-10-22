@@ -679,5 +679,8 @@ Write 10-14 sentences: call back at least three specific memories and the keepsa
 }
 
 export function addUsage(a: Usage, b: Usage): Usage {
-  return { writer: a.writer + b.writer, checker: a.checker + b.checker, input: a.input + b.input, output: a.output + b.output, cacheRead: a.cacheRead + b.cacheRead, cacheWrite: a.cacheWrite + b.cacheWrite }
+  return {
+    writer: a.writer + b.writer, checker: a.checker + b.checker, input: a.input + b.input, output: a.output + b.output, cacheRead: a.cacheRead + b.cacheRead, cacheWrite: a.cacheWrite + b.cacheWrite,
+    pilot: (a.pilot ?? 0) + (b.pilot ?? 0), pilotIn: (a.pilotIn ?? 0) + (b.pilotIn ?? 0), pilotOut: (a.pilotOut ?? 0) + (b.pilotOut ?? 0),
+  }
 }
