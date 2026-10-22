@@ -1,9 +1,12 @@
-// 通过面板走一遍：开新局 → 选地点（模型 mock）→ 翻句 → 选择 → 回退；存档/读档；导入剧本包；调用次数。
+// 通过面板走一遍：开新局 → 选地点（模型 mock）→ 翻句 → 选择 → 回退；存档/读档；导入剧本包；调用次数；
+// 配角上台；提示里的关系与关键事件；旧存档迁移与认不出的存档降级显示；导入第一版格式的包。
 
 import { expect, mock, test } from 'claude-code/testing'
 import type { On } from 'claude-code'
 
+import type { Pack } from '../types'
 import { CICADA } from '../packs/cicada/pack'
+import { TEMPLATE } from '../packs/_template/pack'
 
 const PANE = {
   plugin: 'ai-galgame',
@@ -32,11 +35,11 @@ const SCENE = {
 
 const gal = (args: string) => ({ command: 'gal', args, origin: { kind: 'composer' as const }, presentation: { isFullscreen: true, columns: 160 } })
 
-type Calls = { writer: number; checker: number; firstBlockCached: boolean[] }
+type Calls = { writer: number; checker: number; firstBlockCached: boolean[]; writerPrompts: string[] }
 
-function engineBeneath(on: On, opts: { checkerSays?: string; files?: Record<string, string> } = {}): Calls {
-  const calls: Calls = { writer: 0, checker: 0, firstBlockCached: [] }
-  mock.store(on)
+function engineBeneath(on: On, opts: { checkerSays?: string; files?: Record<string, string>; scene?: unknown; store?: Record<string, unknown> } = {}): Calls {
+  const calls: Calls = { writer: 0, checker: 0, firstBlockCached: [], writerPrompts: [] }
+  mock.store(on, opts.store)
   on('command.register', () => ({ value: { command: 'gal' } }))
   on('ui.open', () => ({ value: { isPlaced: true } }))
   on('ui.toast', () => ({ value: undefined }))
@@ -58,7 +61,8 @@ function engineBeneath(on: On, opts: { checkerSays?: string; files?: Record<stri
       return { value: { isAnswered: true as const, text: opts.checkerSays ?? '{"ok":true}', usage } }
     }
     calls.writer++
-    return { value: { isAnswered: true as const, text: JSON.stringify(SCENE), usage } }
+    calls.writerPrompts.push((e.promptBlocks ?? []).map(b => b.text).join(' | '))
+    return { value: { isAnswered: true as const, text: JSON.stringify(opts.scene ?? SCENE), usage } }
   })
   return calls
 }
@@ -71,8 +75,12 @@ test('一幕：1 次写作 + 1 次检查，设定集打缓存；翻句、选择�
 
   await ui.press({ key: 'menu-new' }) // 新的故事
   expect((await ui.find({ type: 'Text', text: /午休，去哪里/ }))).toBeDefined()
-  await ui.press({ key: 'go-3' }) // 第 4 个地点：天文社（午休）
-  expect(calls).toEqual({ writer: 1, checker: 1, firstBlockCached: [true, true] })
+  await ui.press({ key: 'go-5' }) // 午休开放的第 6 个地点：天文社
+  expect([calls.writer, calls.checker, calls.firstBlockCached]).toEqual([1, 1, [true, true]])
+  // 这一幕相关的人与关系、第一幕的关键事件都写进了提示；不在场的人只有一行摘要
+  expect(calls.writerPrompts[0]).toContain('初中同桌，一起创办天文社')
+  expect(calls.writerPrompts[0]).toContain('[Must happen in this scene')
+  expect(calls.writerPrompts[0]).not.toContain('14 日早上的车')
   expect(await ui.find({ type: 'Text', text: /天文社的门半开着/ })).toBeDefined()
   expect(await ui.find({ type: 'Text', text: /路上有点堵/ })).toBeUndefined()
 
@@ -186,3 +194,75 @@ test('通关：结局解锁、通关次数、自动存档、二周目', async ($
   await ui.unmount()
 })
 
+
+test('配角上台说话：名字、颜色来自配角设定', async ($, on) => {
+  engineBeneath(on, {
+    scene: {
+      ...SCENE, title: '冰柜坏了', cast: [{ id: 'huang', expression: 'smile' }, { id: 'zhiyao', expression: 'normal' }],
+      lines: [{ who: 'huang', text: '小鬼头，绿豆冰棍最后三根了。' }, { who: 'zhiyao', text: '阿姨我要两根！' }],
+    },
+  })
+  await $.session.start({ cwd: '/', surface: 'terminal', isInteractive: true })
+  await $.command.run(gal(''))
+  const ui = await $.ui.mount({ ...PANE, surface: 'terminal' })
+  await ui.press({ key: 'menu-new' })
+  await ui.press({ key: 'go-2' }) // 小卖部
+  await ui.press({ key: 'kb-a' })
+  expect(await ui.find({ type: 'Text', text: /^黄阿姨/ })).toBeDefined()
+  expect(await ui.find({ type: 'Text', text: /小鬼头，绿豆冰棍最后三根了/ })).toBeDefined()
+  await ui.press({ key: 'c0' })
+  await ui.press({ key: 'kb-p' }) // 相册：回忆记在知遥名下
+  expect(await ui.find({ type: 'Text', text: /^知遥/ })).toBeDefined()
+  await ui.unmount()
+})
+
+/** 第一版存档：没有 v / seed / flags / incident，主角色只有三个 */
+const OLD_STORY = {
+  pack: 'cicada', lang: 'zh', loop: 1, cycle: 1, rewinds: 0, loads: 0, phase: 'plan', day: 3, slot: 1,
+  heroines: { xiaoman: { affection: 4, stage: 1, scenes: 2, mood: '', lastDay: 2 }, qingyi: { affection: 0, stage: 0, scenes: 0, mood: '', lastDay: 0 }, zhiyao: { affection: 1, stage: 0, scenes: 0, mood: '', lastDay: 1 } },
+  promises: [{ text: '明天放学还来天文社', heroine: 'xiaoman', day: 2, due: 13, status: 'open' }], notes: [], facts: [], keepsakes: [], album: [],
+  scene: null, after: '', reveal: 0, loadingText: '', ending: '', endingId: '', error: '',
+  usage: { writer: 4, checker: 4, input: 1, output: 2, cacheRead: 3, cacheWrite: 0 },
+}
+
+test('旧存档：session.start 迁移成新格式能读；认不出的存档显示「无法识别」、不能读、不报错', async ($, on) => {
+  engineBeneath(on, { store: { 'save:cicada:1': { story: OLD_STORY, at: 0 }, 'save:cicada:2': { story: { foo: 1 }, at: 0 }, 'save:cicada:3': 'junk' } })
+  await $.session.start({ cwd: '/', surface: 'terminal', isInteractive: true })
+  await $.command.run(gal(''))
+  const ui = await $.ui.mount({ ...PANE, surface: 'terminal' })
+  await ui.press({ key: 'menu-load' })
+  expect(await ui.find({ key: 'slot1' })).toBeDefined()
+  expect(await ui.find({ key: 'slot2' })).toBeUndefined() // 认不出的存档不是按钮
+  expect(await ui.find({ type: 'Text', text: /档位 2 +无法识别的存档/ })).toBeDefined()
+  expect(await ui.find({ type: 'Text', text: /档位 3 +无法识别的存档/ })).toBeDefined()
+  await ui.press({ key: 'slot1' })
+  expect(await ui.find({ type: 'Text', text: /放学，去哪里/ })).toBeDefined()
+  expect(await ui.find({ type: 'Text', text: /答应过小满：明天放学还来天文社/ })).toBeDefined()
+  expect(await ui.find({ type: 'Text', text: /温璃 [♥♡]{5}/ })).toBeDefined() // 新加的主角色补上了
+  await ui.unmount()
+})
+
+test('导入第一版格式（没有新字段）的剧本包，照常能玩', async ($, on) => {
+  const old = JSON.parse(JSON.stringify(TEMPLATE)) as Pack & Record<string, unknown>
+  old.id = 'oldfmt'
+  for (const k of ['npcs', 'relations', 'acts', 'incidents']) delete old[k]
+  for (const e of old.endings) for (const k of ['kind', 'keptKey', 'flags', 'minBroken', 'maxAffection']) delete (e as unknown as Record<string, unknown>)[k]
+  for (const c of old.cast) delete (c as unknown as Record<string, unknown>).tagline
+  const calls = engineBeneath(on, { files: { '/p/old.json': JSON.stringify(old) } })
+  await $.session.start({ cwd: '/', surface: 'terminal', isInteractive: true })
+  const r = await $.command.run(gal('import /p/old.json'))
+  expect(JSON.stringify(r)).toContain('TODO 标题')
+  await $.command.run(gal(''))
+  const ui = await $.ui.mount({ ...PANE, surface: 'terminal' })
+  await ui.press({ key: 'menu-packs' })
+  await ui.press({ key: 'pk-oldfmt' })
+  await ui.press({ key: 'kb-b' })
+  await ui.press({ key: 'menu-new' })
+  await ui.press({ key: 'go-0' })
+  await ui.press({ key: 'kb-a' })
+  await ui.press({ key: 'c0' })
+  await ui.press({ key: 'kb-j' })
+  expect(await ui.find({ type: 'Text', text: /夜里，去哪里/ })).toBeDefined()
+  expect(calls.writerPrompts[0]).toContain('TODO 秘密') // 小包：完整设定仍在缓存块里
+  await ui.unmount()
+})

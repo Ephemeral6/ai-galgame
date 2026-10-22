@@ -5,7 +5,7 @@ import type { Pack } from '../../types'
 
 export const RADIO: Pack = {
   id: 'radio',
-  version: '1.0.0',
+  version: '1.1.0',
   defaultLang: 'zh',
   langs: ['zh', 'en'],
   author: 'ai-galgame contributors',
@@ -95,6 +95,115 @@ Never: genuinely threaten, frighten or scold the player; no horror, gore, mental
       },
     },
   ],
+  npcs: [
+    {
+      id: 'liushen', name: { zh: '刘婶', en: 'Auntie Liu' }, short: { zh: '刘婶', en: 'Auntie Liu' }, color: '#e8916f',
+      role: {
+        zh: '校门口小卖部的老板娘，收音机从早开到晚。她逢人就说半夜收音机里有个小姑娘在说「晚上好」，没人信她。晚晴每天来买一瓶汽水，从不提节目。',
+        en: 'Owner of the shop by the school gate, radio on from dawn to dark. She tells anyone who will listen that late at night a girl says "good evening" on her radio; nobody believes her. Wanqing buys one soda from her every day and never mentions the show.',
+      },
+      look: { zh: '浅橙色的小猪，系一条蓝底碎花围裙', en: 'a peach-colored pig in a blue floral apron' },
+      voice: {
+        zh: '大嗓门，热心，话密，句句带价钱和天气；给学生赊账从来不记；叫「我」「小伙子」。',
+        en: 'Loud, kind, talks in a stream, every sentence carrying a price or the weather; lets students run a tab she never writes down. Calls me "young man".',
+      },
+      samples: [
+        { zh: '小伙子，汽水两块五，冰的三块。……拿冰的吧，算你两块五。', en: 'Young man, soda\'s two-fifty, three for a cold one. ...Take the cold one. Two-fifty.' },
+        { zh: '我跟你说，半夜十一点，我这收音机里有人说晚上好。真的！', en: 'I\'m telling you, eleven at night, somebody on my radio says good evening. Honest!' },
+        { zh: '老楼一拆，我这铺子少一半生意。……也好，我也老了。', en: 'Once the old building\'s gone I lose half my business. ...Well. I\'m getting old anyway.' },
+      ],
+      haunts: { 0: ['shop'], 1: ['shop'] },
+      sprite: {
+        pal: { P: '#f2b49a', p: '#c98a72', S: '#e08f7a', K: '#8a4a3a', A: '#5c8fd6', w: '#ffffff' },
+        art: [
+          '..PP......PP..',
+          '..PPP....PPP..',
+          '.PPPPPPPPPPPP.',
+          '.PPPPPPPPPPPP.',
+          '.PPPPPPPPPPPP.',
+          '.PPPPSSSSPPPP.',
+          '.PPPPSKKSPPPP.',
+          '..PPAwAAwAPP..',
+          '..pPAAwAAAPp..',
+          '...pp....pp...',
+        ],
+        eyes: [[4, 4], [4, 9]], cheeks: [[5, 3], [5, 10]], motion: 'ears',
+      },
+    },
+    {
+      id: 'laogao', name: { zh: '高大爷', en: 'Old Gao' }, short: { zh: '高大爷', en: 'Old Gao' }, color: '#9575cd',
+      role: {
+        zh: '老教学楼的看楼大爷，管钥匙和电闸，每晚十点准时拉掉楼顶喇叭的电。他知道晚晴的夜间节目从来没有喇叭在响，却一直没告诉她——他自己在值班室听她从窗缝漏下来的声音，听了一整个学期。',
+        en: 'The keeper of the old building: keys, fuse box, and at ten sharp every night he cuts the power to the rooftop loudspeakers. He knows Wanqing\'s night show has never once gone out over them, and never told her; he has been listening to her voice leak down through the window gap from his duty room all term.',
+      },
+      look: { zh: '深紫色的蝙蝠，腰上挂一大串黄铜钥匙', en: 'a deep-purple bat with a big ring of brass keys at his waist' },
+      voice: {
+        zh: '慢吞吞，咳两声才说话，爱讲这栋楼哪年盖的、哪间教室出过什么人；说话时把钥匙串晃得叮当响。叫「我」「娃」。',
+        en: 'Slow, clears his throat twice before speaking, loves telling what year the building went up and who once sat in which classroom; jingles his keys while he talks. Calls me "kid".',
+      },
+      samples: [
+        { zh: '娃，十点了，我要拉闸了。……喇叭那根，早拉了。', en: 'Kid, it\'s ten, I\'m pulling the switch. ...The loudspeaker line went off long ago.' },
+        { zh: '这楼是七九年盖的，比你爸岁数都大。广播站那间，原来是物理实验室。', en: 'This building went up in seventy-nine, older than your dad. The radio booth used to be the physics lab.' },
+        { zh: '那丫头每晚在上面说话，我在楼下听着。……反正我听着。', en: 'That girl talks up there every night, and I listen down here. ...Anyway. I listen.' },
+      ],
+      haunts: { 0: ['stairs'], 1: ['stairs'] },
+      sprite: {
+        pal: { V: '#4b3b63', v: '#6f5a8e', L: '#a898c0', Y: '#e0b040' },
+        art: [
+          '..V........V..',
+          '..VV......VV..',
+          '..VVVVVVVVVV..',
+          '.vVVVVVVVVVVv.',
+          'vvVVVVVVVVVVvv',
+          'vvvVVVLLVVVvvv',
+          'vvv.VLLLLV.vvv',
+          'vv..VVVVVV..vv',
+          'v....VYYV....v',
+          '.....V..V.....',
+        ],
+        eyes: [[3, 4], [3, 9]], cheeks: [[4, 4], [4, 9]], motion: 'wings',
+      },
+    },
+  ],
+  relations: [
+    { a: 'wanqing', b: 'laogao', kind: { zh: '楼上楼下', en: 'Upstairs, downstairs' }, text: { zh: '高大爷每晚十点拉掉喇叭的电，知道夜间节目没人听得见；可他自己坐在值班室里，把她从窗缝漏下来的每一期都听完了。', en: 'Old Gao cuts the loudspeaker power at ten and knows no one can hear the night show, yet he sits in the duty room and hears every episode that leaks down through the window gap.' }, hiddenUntil: 3 },
+    { a: 'wanqing', b: 'liushen', kind: { zh: '听众', en: 'A listener' }, text: { zh: '刘婶的收音机半夜偶尔收到一段沙沙声，像有人说晚上好；晚晴每天来买一瓶汽水，从不接这个话。', en: 'Late at night Auntie Liu\'s radio sometimes catches a hiss that sounds like "good evening"; Wanqing buys a soda every day and never takes up the subject.' } },
+    { a: 'me', b: 'wanqing', kind: { zh: '临时工', en: 'The temp' }, text: { zh: '班主任把「我」塞进广播站帮忙；她嘴上嫌弃，第一天就给「我」手写了一张推子说明，每个推子画了一个小箭头。', en: 'My homeroom teacher drafted me into the booth; she grumbles, yet on day one hands me a handwritten guide to the faders with a little arrow drawn by each.' } },
+    { a: 'liushen', b: 'laogao', kind: { zh: '老同事', en: 'Old colleagues' }, text: { zh: '一个卖汽水，一个管钥匙，在校门口守了二十年；楼拆了，两个人都没了去处，谁也不先提。', en: 'One sells soda, one keeps the keys; twenty years at the same gate. With the building coming down neither has anywhere to go, and neither mentions it first.' } },
+  ],
+  acts: [
+    {
+      id: 'r1', from: 1, title: { zh: '第一幕 · 试音', en: 'Act I · Sound Check' },
+      goal: { zh: '开端：「我」被塞进广播站，撞见她对着没人听的麦克风说话；第一处「好像重来过」的痕迹出现。', en: 'Opening: drafted into the booth, I catch her talking into a mic no one hears; the first trace of "this has happened before" appears.' },
+      beats: [
+        { id: 'radio-deadmic', day: 1, by: 1, who: ['wanqing'], kind: { zh: '开端', en: 'Opening' }, text: { zh: '「我」撞见她对着关掉的麦克风轻声说「晚上好」，她红着脸说自己是在试音。', en: 'I catch her murmuring "good evening" into a switched-off mic; she flushes and says she is doing a sound check.' } },
+        { id: 'radio-tape', day: 2, by: 2, who: ['wanqing'], kind: { zh: '伏笔', en: 'Foreshadowing' }, text: { zh: '整理磁带时发现一段被重新录过的痕迹，她还记得被抹掉的那一句是什么。', en: 'Sorting tapes, we find a stretch that was recorded over, and she still remembers the erased sentence.' }, promise: { zh: '答应周四最后一次播音陪她从头播到尾，不打断、不重来', en: 'promise to stay with her for Thursday\'s final broadcast from start to finish, no interruptions, no starting over' } },
+      ],
+      hook: { zh: '晚晴把那盘磁带塞进抽屉最里面，上了锁。楼下，看楼大爷的钥匙串响了一声。', en: 'Wanqing shoves the tape to the back of a drawer and locks it. Downstairs, the keeper\'s keys jingle once.' },
+    },
+    {
+      id: 'r2', from: 3, title: { zh: '第二幕 · 回放', en: 'Act II · Playback' },
+      goal: { zh: '转折：停电夜，看楼大爷手里的电闸揭开「夜间节目没有校内听众」；她问出「这一天是不是过过一次」。', en: 'Turn: in the blackout, the keeper\'s fuse box reveals that the night show has no listener on campus; she asks whether today has happened before.' },
+      beats: [
+        { id: 'radio-keeper', day: 3, by: 3, who: ['laogao'], kind: { zh: '秘密曝光', en: 'Secret out' }, text: { zh: '高大爷打着手电上楼查电路，随口说出喇叭每晚十点就断电——夜间节目从来没有人在楼下听见，除了他。', en: 'Old Gao comes up with a flashlight to check the wiring and lets slip that the loudspeakers are cut at ten every night: no one below has ever heard the night show, except him.' } },
+      ],
+      hook: { zh: '天亮了。刘婶的收音机开着，沙沙声里，好像有人说了一句晚上好。', en: 'Morning. Auntie Liu\'s radio is on, and somewhere in the hiss someone seems to say good evening.' },
+    },
+    {
+      id: 'r3', from: 4, title: { zh: '第三幕 · 停播', en: 'Act III · Sign-Off' },
+      goal: { zh: '高潮：最后一次播音，让她把节目完整地播完，对屏幕外的人说出「谢谢收听」。', en: 'Climax: the final broadcast; let her finish the whole show and say "thanks for listening" to the person beyond the screen.' },
+      beats: [
+        { id: 'radio-final', day: 4, by: 4, who: ['wanqing'], kind: { zh: '高潮', en: 'Climax' }, text: { zh: '最后一次播音，红灯亮着；她要一口气播完，中间不许有人按下停止键。', en: 'The final broadcast, the red light on; she means to go all the way through, and no one may press stop.' } },
+      ],
+    },
+  ],
+  incidents: [
+    { id: 'slip', chance: 0.3, days: [1, 3], places: ['booth'], text: { zh: '点歌箱里多了一张没署名的点歌单，字迹和她的很像，写着「给另一头的人」。', en: 'An unsigned request slip turns up in the box, in handwriting much like hers: "For the person on the other end."' } },
+    { id: 'flicker', chance: 0.3, slots: [1], text: { zh: '「播音中」的红灯闪了几下，又自己亮稳了。', en: 'The ON AIR light flickers a few times, then steadies by itself.' } },
+    { id: 'ball', chance: 0.25, slots: [0], text: { zh: '一颗篮球砸在广播站的窗户上，楼下有人喊「对不起——」，回声在楼道里转了三圈。', en: 'A basketball smacks the booth window; someone below yells "Sorry—", and the echo circles the stairwell three times.' } },
+    { id: 'hiss', chance: 0.4, places: ['shop'], who: ['liushen'], text: { zh: '刘婶的收音机里突然冒出一段沙沙声，她招手让「我」过去听：「你听，是不是有人？」', en: 'Auntie Liu\'s radio suddenly crackles and she waves me over: "Listen. Is someone there?"' } },
+    { id: 'keys', chance: 0.4, places: ['stairs'], who: ['laogao'], text: { zh: '高大爷在楼道里挨间锁门，钥匙串一路叮当响，锁到广播站门口时停了一下。', en: 'Old Gao locks the rooms one by one down the stairwell, keys jingling, and pauses at the booth door.' } },
+  ],
   stages: [
     { zh: '试音', en: 'Sound Check' }, { zh: '同频', en: 'Same Frequency' }, { zh: '回放', en: 'Playback' }, { zh: '另一头', en: 'The Other Side' }, { zh: '停播', en: 'Sign-Off' },
   ],
@@ -118,7 +227,7 @@ Never: genuinely threaten, frighten or scold the player; no horror, gore, mental
   proactiveAfter: 1,
   endings: [
     {
-      id: 'wanqing-welcome', who: 'wanqing', tier: 4, minLoop: 2, minStage: 4, minAffection: 8, minKept: 1, maxBroken: 0,
+      id: 'wanqing-welcome', who: 'wanqing', kind: 'true', tier: 5, minLoop: 2, minStage: 4, minAffection: 8, minKept: 1, maxBroken: 0,
       title: { zh: '欢迎回来，听众朋友', en: 'Welcome Back, Dear Listener' },
       brief: {
         zh: '只在第二周目及以后出现的结局（还要兑现过至少一个约定）。最后一次播音时她认出「我」，也认出屏幕外的你，说出上一周目没说完的那句话，然后对着麦克风说「欢迎回来」。她不要求你留下，只请你下次想她的时候，把音量调大一点。温柔、圆满，不惊悚。',
@@ -126,7 +235,7 @@ Never: genuinely threaten, frighten or scold the player; no horror, gore, mental
       },
     },
     {
-      id: 'wanqing-true', who: 'wanqing', tier: 3, minStage: 4, minAffection: 8, maxBroken: 0,
+      id: 'wanqing-true', who: 'wanqing', kind: 'true', tier: 4, minStage: 4, minAffection: 8, maxBroken: 0, keptKey: 'radio-tape',
       title: { zh: '这一次，不用重来', en: 'No Need to Start Over This Time' },
       brief: {
         zh: '真结局：最后一次播音完整地播完了，没有回退、没有中断。她亲口说出「谢谢收听」，关掉红灯，在黑下来的广播站里和「我」并肩坐着；第二天调音台被搬走，她把最后那盘磁带塞进「我」手里。恋爱结局，安静而确定。',
@@ -134,7 +243,23 @@ Never: genuinely threaten, frighten or scold the player; no horror, gore, mental
       },
     },
     {
-      id: 'wanqing-near', who: 'wanqing', tier: 2, minStage: 3,
+      id: 'wanqing-good', who: 'wanqing', kind: 'good', tier: 3, minStage: 4, minAffection: 8, maxBroken: 0,
+      title: { zh: '红灯熄灭以前', en: 'Before the Red Light Goes Out' },
+      brief: {
+        zh: '好结局：最后一次播音中途卡了一下，是她自己接上的。她说出了「谢谢收听」，只是声音有点抖；关灯前她笑着说，下一次一定一口气播完。恋爱结局，带一点没说满的余地。',
+        en: 'Good ending: the final broadcast stalls once, and she picks it back up herself. She says "thanks for listening", voice trembling a little; before switching off she laughs that next time she will do it in one breath. A romance ending with a little left unsaid.',
+      },
+    },
+    {
+      id: 'wanqing-bad', who: 'wanqing', kind: 'bad', tier: 1, minStage: 2, minBroken: 1,
+      title: { zh: '插播中断', en: 'Transmission Interrupted' },
+      brief: {
+        zh: '坏结局：你答应她的事没做到。最后一次播音播到一半，她自己按下了停止键，轻声说「今天就到这里吧」，把耳机挂回了架子上。不吓人，不责怪，只是很安静；楼下，高大爷拉闸的声音响了一下。',
+        en: 'Bad ending: you did not keep your promise. Halfway through the final broadcast she presses stop herself, says softly, "That\'s all for today," and hangs the headphones back on the hook. No fear, no blame, only quiet; downstairs, Old Gao\'s switch clicks once.',
+      },
+    },
+    {
+      id: 'wanqing-near', who: 'wanqing', kind: 'normal', tier: 2, minStage: 3,
       title: { zh: '磁带的 B 面', en: 'Side B of the Tape' },
       brief: {
         zh: '恋人未满：节目播完了，有一句话她留到了磁带的 B 面，说等「我」哪天想听再翻过来。两人约好以后一起去县城电台投稿。',
@@ -142,7 +267,7 @@ Never: genuinely threaten, frighten or scold the player; no horror, gore, mental
       },
     },
     {
-      id: 'normal', tier: 0,
+      id: 'normal', kind: 'normal', tier: 0,
       title: { zh: '雪花屏之后', en: 'After the Static' },
       brief: {
         zh: '普通结局：广播站按时停播，老楼贴上封条。「我」偶尔在小卖部老板娘的收音机里听到一段沙沙声，像有人在很远的地方说晚上好。不悲伤，只是一点遗憾。',

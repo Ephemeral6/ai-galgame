@@ -2,6 +2,7 @@
 // 像素压成终端格：两行像素一格，上半「▀」前景=上像素、背景=下像素；透明处用终端默认色，不画背景。
 
 import type { Actor, Keepsake, Pack, SpriteDef } from '../types'
+import { personOf } from './pack'
 
 const DEFAULT = 0x01000000
 export const INK = 0x1e1a1a
@@ -92,15 +93,14 @@ function stamp(dst: Px[][], src: Px[][], ox: number, oy: number, scale: number):
   }))
 }
 
-/** 舞台：一到两只小动物；near 时靠在一起，far 时分站两边 */
+/** 舞台：一到两只小动物（主角色或有立绘的配角）；near 时靠在一起，far 时分站两边 */
 export function stageFrame(pack: Pack, cast: Actor[], distance: 'near' | 'far', t: number): Px[][] {
   const px = blank(STAGE_W, SH)
-  const shown = cast.filter(a => pack.cast.some(c => c.id === a.id)).slice(0, 2)
+  const shown = cast.filter(a => !!personOf(pack, a.id)?.sprite).slice(0, 2)
   const n = shown.length
   const xs = n === 1 ? [(STAGE_W - SW) / 2] : distance === 'near' ? [STAGE_W / 2 - SW - 1, STAGE_W / 2 + 1] : [2, STAGE_W - SW - 2]
   shown.forEach((act, i) => {
-    const def = pack.cast.find(c => c.id === act.id)!
-    const spr = sprite(def.sprite, act.expression, t + i * 7)
+    const spr = sprite(personOf(pack, act.id)!.sprite!, act.expression, t + i * 7)
     let dy = 0
     let dx = 0
     const hop = HOP[act.expression]

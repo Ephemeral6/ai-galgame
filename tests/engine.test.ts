@@ -1,11 +1,15 @@
-// 纯逻辑测试：日程推进、约定到期、阶段推进、时间循环、结局判定、信物校验、剧本包校验。
+// 纯逻辑测试：日程推进、约定到期、阶段推进、时间循环、结局判定、信物校验、剧本包校验，
+// 以及新格式：配角出场、关系写进提示、章节关键事件、随机事件、多结局、旧包兼容、旧存档迁移。
 
 import { describe, expect, test } from 'claude-code/testing'
 
 import type { Choice, Pack, Scene, Story } from '../types'
-import { validKeepsake } from '../hooks/art'
-import { advanceTime, applyChoice, applyScene, forcedEvent, freshStory, pickEnding, planOptions, proactive } from '../hooks/engine'
-import { tr, validatePack } from '../hooks/pack'
+import { stageFrame, validKeepsake } from '../hooks/art'
+import {
+  advanceTime, applyChoice, applyScene, dueBeat, focusMode, forcedEvent, freshStory, incidentHere, needsMigration, normalizeStory, parseScene,
+  pickEnding, planOptions, proactive, rollIncident, sceneContext, sceneDynamic, staticBlock,
+} from '../hooks/engine'
+import { chapterOf, personOf, tr, validatePack } from '../hooks/pack'
 import { BUILTIN } from '../packs/index'
 import { CICADA } from '../packs/cicada/pack'
 import { LOOP } from '../packs/loop/pack'
@@ -18,6 +22,18 @@ const scene = (ids: string[], extra: Partial<Scene> = {}): Scene => ({
 })
 const choice = (c: Partial<Choice>): Choice => ({ text: 'c', kind: 'reply', effects: {}, reaction: 'r', ...c })
 const at = (s: Story, day: number, slot: number): Story => ({ ...s, day, slot })
+const META = { endingsSeen: [], clears: 0 }
+const opt = (s: Story, placeId: string) => planOptions(P, s, 'zh').find(o => o.id === placeId)!
+
+/** 一个只有旧字段的包（第一版格式）：没有 npcs / relations / acts / incidents */
+function oldPack(): Pack {
+  const p = JSON.parse(JSON.stringify(TEMPLATE)) as Pack & Record<string, unknown>
+  p.id = 'oldfmt'
+  for (const k of ['npcs', 'relations', 'acts', 'incidents']) delete p[k]
+  for (const e of p.endings) for (const k of ['kind', 'keptKey', 'flags', 'minBroken', 'maxAffection']) delete (e as unknown as Record<string, unknown>)[k]
+  for (const c of p.cast) delete (c as unknown as Record<string, unknown>).tagline
+  return p
+}
 
 describe('日程推进', () => {
   test('一个时段接一个时段，跨天回到第一个时段', () => {
@@ -28,17 +44,19 @@ describe('日程推进', () => {
     expect([s.day, s.slot]).toEqual([2, 0])
   })
 
-  test('地点按时段开放，常去的人列在「可能遇见」', () => {
+  test('地点按时段开放，常去的人列在「可能遇见」，配角排在主角色后面', () => {
     const opts = planOptions(P, freshStory(P, 'zh'), 'zh')
-    const lib = opts.find(o => o.place === '图书馆')!
-    expect(lib.maybe).toEqual(['qingyi'])
+    expect(opts.find(o => o.place === '图书馆')!.maybe).toEqual(['qingyi', 'wenli'])
+    expect(opts.find(o => o.id === 'shop')!.maybe).toEqual(['huang'])
+    expect(opts.find(o => o.id === 'classroom')!.maybe).toEqual(['xiaoman', 'zhiyao', 'chen', 'dachuan'])
     expect(opts.some(o => o.place === '江边')).toBe(false)
     expect(planOptions(P, freshStory(P, 'en'), 'en').some(o => o.place === 'Library')).toBe(true)
   })
 
-  test('固定事件锁定地点', () => {
+  test('固定事件锁定地点，可以带配角', () => {
     const f = forcedEvent(P, at(freshStory(P, 'zh'), 12, 1), 'zh')
     expect(f?.place).toBe('市体育场')
+    expect(f?.maybe).toEqual(['zhiyao', 'zheng'])
     expect(forcedEvent(P, at(freshStory(P, 'zh'), 12, 0), 'zh')).toBe(null)
   })
 
@@ -116,29 +134,264 @@ describe('阶段推进', () => {
   })
 })
 
-describe('结局判定', () => {
-  test('真结局优先，兜底普通结局', () => {
+describe('配角出场', () => {
+  test('AI 写的一幕里配角可以上台、说话；好感只记在主角色身上', () => {
+    const sc = parseScene(P, {
+      narration: 'n', cast: [{ id: 'huang', expression: 'smile' }, { id: 'zhiyao', expression: 'normal' }, { id: 'nobody' }],
+      lines: [{ who: 'huang', text: '小鬼头' }], choices: [{ text: 'a', effects: { huang: 2, zhiyao: 1 } }, { text: 'b' }],
+    }, '小卖部')!
+    expect(sc.cast.map(a => a.id)).toEqual(['huang', 'zhiyao'])
+    expect(sc.choices[0]!.effects).toEqual({ zhiyao: 1 })
+    const s = applyScene(freshStory(P, 'zh'), sc)
+    expect(s.album[0]!.heroine).toBe('zhiyao')
+    expect(s.heroines.zhiyao!.lastDay).toBe(1)
+    expect(personOf(P, 'huang')).toEqual(expect.objectContaining({ npc: true, color: '#c0ca33' }))
+  })
+
+  test('有立绘的配角会画在舞台上，没有立绘的不画', () => {
+    const blank = (px: (number | null)[][]) => px.every(r => r.every(v => v === null))
+    expect(blank(stageFrame(P, [{ id: 'huang', expression: 'normal' }], 'near', 1))).toBe(false)
+    const noSprite = { ...P, npcs: P.npcs!.map(n => ({ ...n, sprite: undefined })) }
+    expect(blank(stageFrame(noSprite, [{ id: 'huang', expression: 'normal' }], 'near', 1))).toBe(true)
+  })
+
+  test('配角常出没的地方会进提示的「相关人物」', () => {
+    const s = freshStory(P, 'zh')
+    const ctx = sceneContext(P, s, opt(s, 'shop'), null)
+    expect(ctx.focus).toContain('huang')
+    expect(sceneDynamic(P, s, opt(s, 'shop'), null, '', 'zh', META, ctx)).toContain('黄阿姨')
+  })
+})
+
+describe('关系写进提示（只放这一幕相关的人）', () => {
+  test('在场主角色的关系与相关配角写进这一幕；不在场的人只在固定块里留一行摘要', () => {
+    const s = at(freshStory(P, 'zh'), 4, 0)
+    const o = opt(s, 'astro')
+    const ctx = sceneContext(P, s, o, null)
+    expect(ctx.focus).toEqual(expect.arrayContaining(['xiaoman', 'fang']))
+    const dyn = sceneDynamic(P, s, o, null, '', 'zh', META, ctx)
+    expect(dyn).toContain('初中同桌，一起创办天文社') // 小满 ↔ 温璃
+    expect(dyn).toContain('望远镜其实是他毕业前弄坏的') // 方既白 ↔ 小满
+    expect(dyn).not.toContain('14 日早上的车') // 清漪的秘密不在这一幕
+    expect(dyn).not.toContain('去年英仙座流星雨那晚，她和小满约好') // 温璃不在场：秘密不进提示
+    const st = staticBlock(P, 'zh')
+    expect(focusMode(P)).toBe(true)
+    expect(st).toContain('沈清漪') // 一行摘要
+    expect(st).not.toContain('14 日早上的车')
+  })
+
+  test('还没到挑明阶段的关系带着「只能暗示」的标注', () => {
+    const s = at(freshStory(P, 'zh'), 4, 1)
+    const o = opt(s, 'council')
+    const dyn = sceneDynamic(P, s, o, null, '', 'zh', META, sceneContext(P, s, o, null))
+    expect(dyn).toMatch(/yinuo「程一诺」 ↔ zhou「周主任」 \[母女\].*keep this implicit/)
+  })
+
+  test('人少的包（旧格式）：全部人物设定照旧放在缓存的固定块里', () => {
+    const p = oldPack()
+    expect(focusMode(p)).toBe(false)
+    expect(staticBlock(p, 'zh')).toContain('TODO 秘密')
+  })
+})
+
+describe('章节关键事件', () => {
+  test('相关的人可能在场时，引擎要求这一幕写到关键事件；写完记进 flags，不再重复', () => {
+    const s = freshStory(P, 'zh')
+    const ctx = sceneContext(P, s, opt(s, 'astro'), null)
+    expect(ctx.beat?.id).toBe('recruit')
+    expect(sceneDynamic(P, s, opt(s, 'astro'), null, '', 'zh', META, ctx)).toContain('[Must happen in this scene — 开端]')
+    expect(sceneContext(P, s, opt(s, 'library'), null).beat).toBe(null) // 小满不在图书馆
+    const after = applyScene(s, scene(['xiaoman'], { beat: 'recruit' }))
+    expect(after.flags).toContain('beat:recruit')
+    expect(sceneContext(P, after, opt(after, 'astro'), null).beat).toBe(null)
+  })
+
+  test('到了最后期限的最后一个时段，不论谁在场都要写', () => {
+    const s = at(freshStory(P, 'zh'), 2, 2) // recruit：第 1 天起，最晚第 2 天
+    expect(dueBeat(P, s, ['qingyi'])?.id).toBe('recruit')
+    expect(dueBeat(P, at(s, 2, 1), ['qingyi'])).toBe(null)
+  })
+
+  test('关键约定：在关键事件里答应的事带上 key，记在事件涉及的主角色名下', () => {
+    let s = applyScene(at(freshStory(P, 'zh'), 8, 1), scene(['yinuo', 'xiaoman'], { beat: 'rumor' }))
+    s = applyChoice(P, s, choice({ kind: 'promise', promise: '流星雨那晚一定到' }), 'zh').story
+    expect(s.promises[0]).toEqual(expect.objectContaining({ key: 'rumor', heroine: 'yinuo' })) // 一诺也在 beat.who 里，领头的就是她
+    let t = applyScene(at(freshStory(P, 'zh'), 9, 2), scene(['zhiyao', 'qingyi'], { beat: 'river' }))
+    t = applyChoice(P, t, choice({ kind: 'promise' }), 'zh').story
+    expect(t.promises[0]).toEqual(expect.objectContaining({ key: 'river', heroine: 'qingyi' })) // 领头的知遥不在 beat.who 里
+  })
+
+  test('跨幕时给出悬念钩子和下一幕的标题', () => {
+    const r = advanceTime(P, { ...at(freshStory(P, 'zh'), 4, 2), phase: 'after' }, 'zh')
+    expect(r.story.after).toContain('社团人数核查表')
+    expect(r.story.after).toContain('第二幕 · 转折')
+    expect(chapterOf(P, 'zh', 5)).toBe('第二章 · 月考前后')
+  })
+})
+
+describe('随机事件', () => {
+  test('同一个种子掷出同样的结果（回退、读档不变），换种子会变', () => {
+    const s = at(freshStory(P, 'zh', 1, 42), 3, 2)
+    expect(rollIncident(P, s)).toBe(rollIncident(P, { ...s }))
+    const seen = new Set<string>()
+    for (let seed = 1; seed <= 400; seed++) seen.add(rollIncident(P, at(freshStory(P, 'zh', 1, seed), 3, 2)))
+    expect(seen.has('')).toBe(true)
+    expect(seen.has('storm')).toBe(true)
+    expect(seen.has('blackout')).toBe(true)
+  })
+
+  test('条件：天数、时段、需要的阶段、先发生过的事', () => {
+    const find = (s: Story, id: string) => {
+      for (let seed = 1; seed <= 2000; seed++) if (rollIncident(P, { ...s, seed }) === id) return seed
+      return 0
+    }
+    const day6 = at(freshStory(P, 'zh'), 6, 0)
+    expect(find(day6, 'sickday')).toBe(0) // 知遥还没到「心事」
+    day6.heroines.zhiyao = { ...day6.heroines.zhiyao!, stage: 2 }
+    expect(find(day6, 'sickday')).toBeGreaterThan(0)
+    const day9 = at(freshStory(P, 'zh'), 9, 0)
+    expect(find(day9, 'queue')).toBe(0) // 误会那件事还没发生
+    expect(find({ ...day9, flags: ['beat:rumor'] }, 'queue')).toBeGreaterThan(0)
+    expect(find(at(freshStory(P, 'zh'), 1, 0), 'storm')).toBe(0) // storm 从第 2 天起
+  })
+
+  test('限地点的事件只在那里发生；发生过就不再掷（可重复的除外）', () => {
+    const s = { ...freshStory(P, 'zh'), incident: 'freezer' }
+    expect(incidentHere(P, s, opt(s, 'shop'))?.id).toBe('freezer')
+    expect(incidentHere(P, s, opt(s, 'library'))).toBe(undefined)
+    const ctx = sceneContext(P, s, opt(s, 'shop'), null)
+    expect(ctx.incident?.id).toBe('freezer')
+    const done = applyScene(s, scene(['zhiyao'], { incident: 'freezer' }))
+    expect([done.incident, done.flags.includes('inc:freezer')]).toEqual(['', true])
+    for (let seed = 1; seed <= 300; seed++) expect(rollIncident(P, at({ ...done, seed }, 5, 1))).not.toBe('freezer')
+  })
+
+  test('推进时段时重掷', () => {
+    let hit = false
+    for (let seed = 1; seed <= 200 && !hit; seed++) {
+      const r = advanceTime(P, { ...at(freshStory(P, 'zh', 1, seed), 2, 2), phase: 'after' }, 'zh')
+      if (r.story.incident) hit = true
+    }
+    expect(hit).toBe(true)
+  })
+})
+
+describe('多结局', () => {
+  const ready = (s: Story, id: string, stage: number, aff: number) => { s.heroines[id] = { ...s.heroines[id]!, stage, affection: aff } }
+  const kept = (heroine: string, key?: string) => ({ text: 'x', heroine, day: 1, due: 2, status: 'kept' as const, ...(key ? { key } : {}) })
+
+  test('真 > 好 > 普通 > 坏 > 群像 / 兜底', () => {
     const s = freshStory(P, 'zh')
     expect(pickEnding(P, s).id).toBe('normal')
-    s.heroines.qingyi = { ...s.heroines.qingyi!, stage: 4, affection: 14 }
-    s.heroines.zhiyao = { ...s.heroines.zhiyao!, stage: 3, affection: 20 }
-    expect(pickEnding(P, s).id).toBe('qingyi-true')
-    s.promises = [{ text: 'x', heroine: 'qingyi', day: 1, due: 2, status: 'broken' }]
-    expect(pickEnding(P, s).id).toBe('zhiyao-near')
+    ready(s, 'xiaoman', 4, 12)
+    expect(pickEnding(P, s).id).toBe('xiaoman-good')
+    s.promises = [kept('xiaoman', 'rumor')]
+    expect(pickEnding(P, s).id).toBe('xiaoman-good') // 还差流星雨那一幕
+    s.flags = ['beat:meteor']
+    expect(pickEnding(P, s).id).toBe('xiaoman-true')
+    s.promises = [kept('xiaoman', 'rumor'), { ...kept('xiaoman'), status: 'broken' }]
+    expect(pickEnding(P, s).id).toBe('xiaoman-near')
+    ready(s, 'xiaoman', 2, 6)
+    expect(pickEnding(P, s).id).toBe('xiaoman-bad')
+  })
+
+  test('关键约定要记在她名下才算；二周目真结局只在二周目出现', () => {
+    const s = freshStory(P, 'zh')
+    ready(s, 'wenli', 4, 13)
+    s.promises = [kept('yinuo', 'vote')]
+    expect(pickEnding(P, s).id).toBe('wenli-good')
+    s.promises = [kept('wenli', 'vote')]
+    expect(pickEnding(P, s).id).toBe('wenli-good') // minLoop 2
+    expect(pickEnding(P, { ...s, loop: 2 }).id).toBe('wenli-true')
+  })
+
+  test('真结局可以要求集齐信物', () => {
+    const s = freshStory(P, 'zh')
+    ready(s, 'qingyi', 4, 12)
+    s.promises = [kept('qingyi', 'river')]
+    expect(pickEnding(P, s).id).toBe('qingyi-good')
+    const k = { pack: 'cicada', day: 1, heroine: 'qingyi', title: 'x', desc: '', art: [], palette: {} }
+    expect(pickEnding(P, { ...s, keepsakes: [k, k] }).id).toBe('qingyi-true')
+  })
+
+  test('群像结局：五个人都到「心事」，没有人更进一步', () => {
+    const s = freshStory(P, 'zh')
+    for (const c of P.cast) ready(s, c.id, 2, 6)
+    expect(pickEnding(P, s).id).toBe('five-on-the-roof')
+  })
+
+  test('每个主角色都有真、好、普通、坏四种结局', () => {
+    for (const c of P.cast) {
+      expect(P.endings.filter(e => e.who === c.id).map(e => e.kind).sort()).toEqual(['bad', 'good', 'normal', 'true'])
+    }
   })
 })
 
 describe('时间循环', () => {
-  test('没达到目标结局就回到第 1 天，伏笔簿与事实保留，好感清零', () => {
-    const s: Story = { ...at(freshStory(LOOP, 'zh'), LOOP.days, LOOP.slots.length - 1), phase: 'after', facts: ['f'], notes: [{ day: 2, heroine: '', text: 'n', used: true }] }
+  test('没达到目标结局就回到第 1 天，伏笔簿与事实保留，好感与关键事件清零', () => {
+    const s: Story = { ...at(freshStory(LOOP, 'zh'), LOOP.days, LOOP.slots.length - 1), phase: 'after', facts: ['f'], flags: ['beat:x'], notes: [{ day: 2, heroine: '', text: 'n', used: true }] }
     const id = LOOP.cast[0]!.id
     s.heroines[id] = { ...s.heroines[id]!, affection: 3 }
     const r = advanceTime(LOOP, s, 'zh')
     expect(r.looped).toBe(true)
-    expect([r.story.day, r.story.cycle, r.story.facts, r.story.heroines[id]!.affection]).toEqual([1, 2, ['f'], 0])
+    expect([r.story.day, r.story.cycle, r.story.facts, r.story.heroines[id]!.affection, r.story.flags]).toEqual([1, 2, ['f'], 0, []])
     expect(r.story.notes[0]!.used).toBe(false)
     const last = advanceTime(LOOP, { ...s, cycle: LOOP.features!.timeLoop!.maxLoops + 1 }, 'zh')
     expect(last.finished).toBe(true)
+  })
+})
+
+describe('旧包兼容', () => {
+  test('第一版格式的包照常通过校验、开局、推进、结局', () => {
+    const p = oldPack()
+    expect(validatePack(p)).toEqual([])
+    let s: Story = { ...freshStory(p, 'zh'), phase: 'after' }
+    expect(s.incident).toBe('')
+    const ctx = sceneContext(p, s, planOptions(p, s, 'zh')[0]!, null)
+    expect([ctx.beat, ctx.incident]).toEqual([null, null])
+    s = advanceTime(p, s, 'zh').story
+    expect([s.day, s.slot]).toEqual([1, 1])
+    expect(pickEnding(p, s).id).toBe('normal')
+    expect(chapterOf(p, 'zh', 1)).toBe('TODO 第一章')
+  })
+
+  test('写了 acts 的包可以省略 chapters；两样都没有才报错', () => {
+    const p = JSON.parse(JSON.stringify(P)) as Pack
+    delete p.chapters
+    expect(validatePack(p)).toEqual([])
+    expect(chapterOf(p, 'zh', 6)).toBe('第二幕 · 转折')
+    delete p.acts
+    for (const e of p.endings) { delete e.keptKey; delete e.flags }
+    p.incidents = p.incidents!.filter(x => !x.after)
+    expect(validatePack(p).some(e => e.startsWith('chapters'))).toBe(true)
+  })
+})
+
+describe('旧存档迁移', () => {
+  /** 第一版存档里的 Story：没有 v / seed / flags / incident，主角色只有三个 */
+  const OLD = {
+    pack: 'cicada', lang: 'zh', loop: 1, cycle: 1, rewinds: 0, loads: 0, phase: 'plan', day: 3, slot: 1,
+    heroines: { xiaoman: { affection: 4, stage: 1, scenes: 2, mood: '', lastDay: 2 }, qingyi: { affection: 0, stage: 0, scenes: 0, mood: '', lastDay: 0 }, zhiyao: { affection: 1, stage: 0, scenes: 0, mood: '', lastDay: 1 } },
+    promises: [{ text: 'x', heroine: 'xiaoman', day: 2, due: 13, status: 'open' }], notes: [], facts: ['天文社在旧器材室'], keepsakes: [], album: [],
+    scene: null, after: '', reveal: 0, loadingText: '', ending: '', endingId: '', error: '',
+    usage: { writer: 4, checker: 4, input: 1, output: 2, cacheRead: 3, cacheWrite: 0 },
+  }
+
+  test('补上新字段和新角色，原有进度不丢', () => {
+    expect(needsMigration(OLD, P)).toBe(true)
+    const s = normalizeStory(OLD, P)!
+    expect([s.v, s.flags, s.incident, typeof s.seed]).toEqual([2, [], '', 'number'])
+    expect(s.heroines.xiaoman).toEqual(OLD.heroines.xiaoman)
+    expect(s.heroines.wenli).toEqual({ affection: 0, stage: 0, scenes: 0, mood: '', lastDay: 0 })
+    expect([s.day, s.slot, s.facts, s.usage.writer, s.promises.length]).toEqual([3, 1, ['天文社在旧器材室'], 4, 1])
+    expect(needsMigration(s, P)).toBe(false)
+    // 迁移后能接着玩
+    expect(advanceTime(P, { ...s, phase: 'after' }, 'zh').story.slot).toBe(2)
+  })
+
+  test('认不出的格式返回 null（调用方降级显示），不抛错', () => {
+    for (const bad of [null, 'junk', 42, [], { foo: 1 }, { pack: 'cicada', day: 'x', slot: 0 }]) expect(normalizeStory(bad, P)).toBe(null)
+    expect(normalizeStory({ ...OLD, phase: 'scene', scene: { broken: true } }, P)!.phase).toBe('plan')
   })
 })
 
@@ -164,7 +417,7 @@ describe('信物校验', () => {
 describe('剧本包加载校验', () => {
   test('所有内置包通过校验，且中英文齐全', () => {
     for (const p of BUILTIN) {
-      expect(validatePack(p)).toEqual([])
+      expect([p.id, validatePack(p)]).toEqual([p.id, []])
       for (const c of p.cast) expect(tr(c.name, 'en', p.defaultLang) !== tr(c.name, 'zh', p.defaultLang)).toBe(true)
     }
     expect(new Set(BUILTIN.map(p => p.id)).size).toBe(BUILTIN.length)
@@ -179,11 +432,15 @@ describe('剧本包加载校验', () => {
     bad.cast[0]!.sprite.art[0] = 'short'
     bad.cast[1]!.haunts = { 0: ['nowhere'] }
     bad.endings = bad.endings.filter(e => e.id !== 'normal')
+    bad.npcs![0]!.id = 'xiaoman'
+    bad.relations![0]!.b = 'ghost'
+    bad.acts![0]!.beats[0]!.who = ['ghost']
+    bad.incidents![0]!.after = ['beat:nope']
+    bad.endings[0]!.keptKey = 'photo' // photo 这个关键事件没有约定
     const errs = validatePack(bad)
-    expect(errs.some(e => e.startsWith('id:'))).toBe(true)
-    expect(errs.some(e => e.includes('sprite.art[0]'))).toBe(true)
-    expect(errs.some(e => e.includes('unknown place'))).toBe(true)
-    expect(errs.some(e => e.includes('fallback'))).toBe(true)
+    for (const k of ['id:', 'sprite.art[0]', 'unknown place', 'fallback', 'npcs[0].id', 'relations[0]', 'acts[0].beats[0].who', 'incidents[0].after', 'keptKey']) {
+      expect([k, errs.some(e => e.includes(k))]).toEqual([k, true])
+    }
     expect(validatePack('not a pack')).toEqual(['pack: not an object'])
   })
   test('缺失的语言回落到默认语言', () => {

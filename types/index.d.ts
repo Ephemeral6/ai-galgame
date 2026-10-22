@@ -40,7 +40,94 @@ export type CastDef = {
   deadline: { day: number; text: L }
   /** 信物灵感：AI 画信物时参考 */
   keepsakeIdeas?: L
+  /** 一行摘要：她不在这一幕时，提示里只放这一行（不填就用 look） */
+  tagline?: L
   sprite: SpriteDef
+}
+
+/** 配角：不可攻略，没有好感与阶段；AI 可以让他们出场推动剧情 */
+export type NpcDef = {
+  id: string
+  name: L
+  short?: L
+  /** 主色（#rrggbb）：名字颜色 */
+  color: string
+  /** 身份，以及与主角、主角色的关系（一两句；也是不在场时的一行摘要） */
+  role: L
+  /** 说话方式 */
+  voice: L
+  /** 示例台词 */
+  samples: L[]
+  /** 外形（有立绘时给 AI 看） */
+  look?: L
+  /** 常出没的地点：时段下标 → 地点 id；玩家去那里时会写进提示 */
+  haunts?: Record<number, string[]>
+  /** 可选的像素立绘（同一套字母图格式）；有立绘才会上台 */
+  sprite?: SpriteDef
+}
+
+/** 人物之间的关系：a、b 是主角色或配角的 id，也可以是 'me' */
+export type RelationDef = {
+  a: string
+  b: string
+  /** 关系类型：旧友、情敌、兄妹、误会…… */
+  kind: L
+  /** 具体说明：发生过什么、现在卡在哪 */
+  text: L
+  /** a 或 b（主角色）到达这个阶段之前，AI 只能暗示、不能挑明 */
+  hiddenUntil?: number
+}
+
+/** 章节关键事件：从 day 起，相关的人在场时引擎要求 AI 写到；到 by 那天最后一个时段不论谁在场都写 */
+export type BeatDef = {
+  id: string
+  day: number
+  /** 最晚哪天（默认 day + 1） */
+  by?: number
+  /** 涉及谁（主角色或配角）；不填表示任何一幕都行 */
+  who?: string[]
+  /** 事件类型：转折、误会、秘密曝光…… */
+  kind?: L
+  /** 必须发生的事 */
+  text: L
+  /** 关键约定：这一幕要给出一个这样的「答应」选项；结局可以用 keptKey 要求兑现它 */
+  promise?: L
+}
+
+/** 一幕（开端、转折、高潮……）：走向、关键事件、结束时的悬念钩子 */
+export type ActDef = {
+  id: string
+  title: L
+  /** 从第几天开始，按升序 */
+  from: number
+  /** 这一幕的走向 */
+  goal: L
+  beats: BeatDef[]
+  /** 这一幕结束、进入下一幕时给玩家看的悬念 */
+  hook?: L
+}
+
+/** 随机或条件事件：每个时段最多一个；用每局的随机种子掷，回退、读档结果不变 */
+export type IncidentDef = {
+  id: string
+  /** 发生了什么（给玩家看，也写进提示） */
+  text: L
+  /** 符合条件的时段触发概率 0..1，默认 0.25 */
+  chance?: number
+  /** 天数范围 [起, 止] */
+  days?: [number, number]
+  /** 只在这些时段 */
+  slots?: number[]
+  /** 只在去这些地点时发生（不填：整个时段，日程页会显示） */
+  places?: string[]
+  /** 会带出谁（主角色或配角） */
+  who?: string[]
+  /** 条件：某个主角色到达阶段 / 好感 */
+  need?: { who: string; minStage?: number; minAffection?: number }
+  /** 条件：先发生过这些（'beat:<id>' 或 'inc:<id>'） */
+  after?: string[]
+  /** 可以在一局里重复发生（默认只发生一次） */
+  repeat?: boolean
 }
 
 export type PlaceDef = { id: string; name: L; mood: L; slots: number[] }
@@ -65,6 +152,16 @@ export type EndingDef = {
   minKeepsakes?: number
   /** 至少第几周目（2 = 通关后再来才可能达成） */
   minLoop?: number
+  /** 好感不超过（坏结局用） */
+  maxAffection?: number
+  /** 至少失约几次（坏结局用） */
+  minBroken?: number
+  /** 必须兑现在这个关键事件（beat id）里对她许下的关键约定 */
+  keptKey?: string
+  /** 必须发生过（'beat:<id>' 或 'inc:<id>'） */
+  flags?: string[]
+  /** 相册里显示的类别 */
+  kind?: 'true' | 'good' | 'normal' | 'bad'
   /** 给 AI 的结局走向说明 */
   brief: L
 }
@@ -116,10 +213,19 @@ export type Pack = {
   slots: L[]
   /** 日期显示模板，{n} 替换为天数，如「第 {n} 天」「Day {n}」 */
   dayLabel: L
-  /** 章节：从某天起的章节名，按 from 升序 */
-  chapters: { from: number; title: L }[]
+  /** 章节：从某天起的章节名，按 from 升序（写了 acts 可以省略，标题取 acts） */
+  chapters?: { from: number; title: L }[]
   places: PlaceDef[]
+  /** 可攻略的主角色（1..6） */
   cast: CastDef[]
+  /** 配角（0..8） */
+  npcs?: NpcDef[]
+  /** 人物关系 */
+  relations?: RelationDef[]
+  /** 剧情主线：分幕与关键事件 */
+  acts?: ActDef[]
+  /** 随机 / 条件事件 */
+  incidents?: IncidentDef[]
   /** 5 个阶段名 */
   stages: [L, L, L, L, L]
   /** 阶段门槛：好感 ≥ affection 且单独相处 ≥ scenes 幕；下标 0 为起点 */
@@ -158,9 +264,13 @@ export type Scene = {
   callback?: string
   fact?: string
   proactive?: boolean
+  /** 引擎要求这一幕写到的关键事件 id */
+  beat?: string
+  /** 这一幕带上的随机事件 id */
+  incident?: string
 }
 export type HState = { affection: number; stage: number; scenes: number; mood: string; lastDay: number }
-export type Promise_ = { text: string; heroine: string; day: number; due: number; status: 'open' | 'kept' | 'broken'; made?: string }
+export type Promise_ = { text: string; heroine: string; day: number; due: number; status: 'open' | 'kept' | 'broken'; made?: string; /** 关键约定：对应的 beat id */ key?: string }
 export type Note = { day: number; heroine: string; text: string; used: boolean }
 export type Keepsake = { pack: string; day: number; heroine: string; title: string; desc: string; art: string[]; palette: Record<string, number> }
 export type Moment = { day: number; slot: number; heroine: string; text: string }
@@ -193,6 +303,14 @@ export type Story = {
   endingId: string
   error: string
   usage: Usage
+  /** 存档格式版本（2 起有） */
+  v: number
+  /** 这一局随机事件的种子 */
+  seed: number
+  /** 已发生的关键事件与随机事件：'beat:<id>'、'inc:<id>' */
+  flags: string[]
+  /** 当前时段掷出的随机事件 id（'' 表示没有） */
+  incident: string
 }
 
 export type View = 'game' | 'album' | 'saves' | 'settings' | 'help' | 'packs'

@@ -36,6 +36,11 @@
 4. 原作 4 个选择、5 个结局 → 7 个按条件触发的结局：三代同堂（新增群像）、我的囚犯、牢房格、周六之夜（新增）、平静结局·游戏、险些出事、禁足。
 5. 原作「受害者」坏结局（侵害与死亡）改为不露骨的「险些出事」；文风规则明确狼是操纵者而非恋爱对象，阿紫未成年，不写性内容。
 6. 英文名沿用作者英译（Mo'、Wolf、Margaret Little、Handov Erzycash）；中文为我们自己的翻译（阿紫、狼、玛格丽特·小、「交出钱来」养老院）；样例台词少量保留法语原句并附译文。
+7. （1.1 版）新增三个配角，均出自原作：爸爸（原作只出现在妈妈的「等你爸回来再说」里，本包也不让他上台，只通过电话和短信出现，台词为我们新写）；警员（原作喷雾结局里的 "Agent"，部分台词引自原作）；「交出钱来」养老院护工（原作「我的囚犯」结局里的护工，部分台词引自原作）。警员和护工配了新画的方块像素小动物（戴警帽的鸽子、穿白大褂的蜥蜴），不模仿原作立绘。
+8. （1.1 版）新增人物关系（母女、父母统一战线、阿紫与狼、狼与外婆、拼字游戏宿敌、警员与外婆），均来自原作情节；其中「狼看过那条门牌号动态」「推销员就是狼」标为到一定阶段才挑明。
+9. （1.1 版）新增三幕主线与 7 个关键事件，按原作场景排列：妈妈的故事与篮子、大道上的「哈喽！」、推销员电话、SocialBook 好友申请、关键约定（答应外婆周六提前过来；兑现才可能达成「牢房格」结局，替换原来的「至少兑现一个约定」条件）、黄瓜片与眼镜、周六晚上的裁决。「推销员周六顺路过来」「答应外婆提前过来」是我们的推断性改编，原作中不存在。
+10. （1.1 版）新增 6 个随机小事件（SocialBook 半夜通知、外婆的电视声、推销员来电、绕路买冰淇淋、黄油在太阳下变软、爸爸的短信），都发生在原作已有的地点与道具上；爸爸的短信为新增推断。
+11. （1.1 版）新增两个不露骨的坏结局：「没有复仇赛」（失约于外婆）、「手机没收」（失约于妈妈）；所有结局标注了类别（真 / 好 / 普通 / 坏）。原作结局名与文风保持不变；狼仍然只是操纵者，阿紫未成年，不写任何性内容或暴力细节。
 
 ---
 
@@ -47,4 +52,8 @@ This pack adapts the script of *Le Petit Chaperon Mauve / Little Mauve Riding Ho
 
 Only the script text (characters, plot, tone) was adapted. **No original art, music, sound effects or fonts are used**; sprites are new block-pixel animals.
 
-Changes: one afternoon expanded to four days with two time slots; Mom promoted to a full character; trust meters, deadlines, promises and foreshadowing added; the original five endings reworked into seven condition-based endings (two new); the original "VICTIM" ending replaced with a non-graphic close call; scenes are written live by AI from this outline; Chinese translation is ours.
+Changes: one afternoon expanded to four days with two time slots; Mom promoted to a full character; trust meters, deadlines, promises and foreshadowing added; the original five endings reworked into nine condition-based endings (four new: an ensemble ending, Saturday Night, and two non-graphic bad endings); the original "VICTIM" ending replaced with a non-graphic close call; scenes are written live by AI from this outline; Chinese translation is ours.
+
+Version 1.1 additions: three supporting characters taken from the original — Dad (only mentioned in the original, kept off stage here and heard by phone/text; his lines are ours), the police officer ("Agent") of the pepper-spray ending, and the Handov Erzycash orderly of the My Prisoner ending (some lines quoted from the original) — with new block-pixel sprites for the last two; character relations from the original's plot; three acts with seven key beats following the original's scenes, one of them a key promise to Granny (our inference, not in the original) that now gates the Jail Space ending; six small random incidents set in the original's places and props (Dad's text is our addition); ending categories (true / good / normal / bad).
+
+License obligations kept: the attribution notice above is shown with the pack; every change is listed here; this adaptation, including the version 1.1 additions, remains under CC BY-SA 4.0 with the full legal code in `LICENSE`.

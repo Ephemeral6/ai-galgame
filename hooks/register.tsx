@@ -11,11 +11,11 @@ import type { EngineInterface, Register } from 'claude-code'
 import type { Choice, Keepsake, Lang, Meta, Pack, PackEntry, PackMeta, GalSettings, Story, UiState, View } from '../types'
 import { PORTRAIT_ROWS, STAGE_ROWS, STAGE_W, cells, keepsakeFrame, portraitFrame, stageFrame } from './art'
 import {
-  addUsage, advanceTime, applyChoice, applyScene, drawKeepsake, forcedEvent, freshStory, pickEnding, planOptions, proactive, writeEnding, writeScene,
+  addUsage, advanceTime, applyChoice, applyScene, drawKeepsake, forcedEvent, freshStory, incidentOf, needsMigration, normalizeStory, pickEnding, planOptions, proactive, writeEnding, writeScene,
 } from './engine'
 import type { PlanOption } from './engine'
 import { LANGS, helpLines, t } from './i18n'
-import { castOf, chapterOf, dayText, packText, tr, validatePack } from './pack'
+import { castOf, chapterOf, dayText, packText, personOf, tr, validatePack } from './pack'
 import { BUILTIN } from '../packs/index'
 
 const PANE = 'ai-galgame'
@@ -46,14 +46,39 @@ function okSettings(x: unknown): boolean {
   return !!st && typeof st.lang === 'string' && typeof st.pack === 'string'
 }
 
-// 写入只能在命令或会话开始时做（画面板时不许写状态）
+const packById = (id: string, extra: PackEntry[] = []): Pack | undefined => allPacks(extra).find(e => e.id === id)?.pack
+
+/**
+ * 迁移：旧格式的会话状态、回退栈、存档补成当前格式。
+ * 只在 command.run 和 session.start 里调用——画面板（ui.render）时不许写状态；画面板时只读，遇到认不出的格式降级显示。
+ */
 async function migrate($: EngineInterface): Promise<void> {
-  if (!okStory(await read($, story))) {
+  const extra = await read($, packs)
+  const raw = await read($, story) as unknown
+  const p0 = okStory(raw) ? packById((raw as Story).pack, extra) : undefined
+  const fixed = okStory(raw) ? normalizeStory(raw, p0) : null
+  if (!fixed) {
     await update($, story, () => ({ ...freshStory(BUILTIN[0]!, 'zh'), phase: 'title' as const }))
     await update($, undo, () => [])
+  } else if (needsMigration(raw, p0)) {
+    await update($, story, () => fixed)
+    await update($, undo, u => u.map(x => {
+      try { return normalizeStory(JSON.parse(x), p0) } catch { return null }
+    }).filter((x): x is Story => !!x).map(x => JSON.stringify(x)))
   }
   if (!okUi(await read($, ui))) await update($, ui, () => DEFAULT_UI)
   if (!okSettings(await read($, settings))) await update($, settings, () => DEFAULT_SETTINGS)
+  // 存档：save:<pack>:<n>，旧格式补全后写回；认不出来的不动（读的时候降级显示）
+  for (const key of await $.store.keys()) {
+    if (!key.startsWith('save:')) continue
+    const f = await $.store.get(key)
+    if (!f || typeof f !== 'object') continue
+    const st = (f as { story?: unknown }).story
+    const p = packById(String((st as { pack?: unknown } | undefined)?.pack ?? ''), extra)
+    if (!needsMigration(st, p)) continue
+    const n = normalizeStory(st, p)
+    if (n) await $.store.set(key, { ...(f as object), story: n })
+  }
 }
 const meta = atom<'ai-galgame', 'meta'>({ plugin: 'ai-galgame', key: 'meta' } as const, {})
 const packs = atom<'ai-galgame', 'packs'>({ plugin: 'ai-galgame', key: 'packs' } as const, [])
@@ -153,17 +178,26 @@ async function setSettings($: EngineInterface, fn: (s: GalSettings) => GalSettin
 }
 
 type SaveFile = { story: Story; at: number }
+/** 读到的存档：正常、空、或者认不出的格式（降级显示，不报错） */
+type SaveRead = SaveFile | 'bad' | null
 
 function saveKey(pack: string, n: number): string {
   return `save:${pack}:${n}`
 }
 
-async function readSave($: EngineInterface, pack: string, n: number): Promise<SaveFile | null> {
-  const raw = await $.store.get(saveKey(pack, n))
-  if (!raw || typeof raw !== 'object') return null
-  const f = raw as SaveFile
-  return f.story && typeof f.story.day === 'number' ? f : null
+/** 只读：存档的 story 先过 normalizeStory（不写回），认不出来返回 'bad' */
+async function readSave($: EngineInterface, pack: string, n: number, extra: PackEntry[] = []): Promise<SaveRead> {
+  let raw: unknown
+  try { raw = await $.store.get(saveKey(pack, n)) } catch { return 'bad' }
+  if (raw === undefined || raw === null) return null
+  if (typeof raw !== 'object') return 'bad'
+  const f = raw as Partial<SaveFile>
+  const st = normalizeStory(f.story, packById(pack, extra))
+  if (!st) return 'bad'
+  return { story: st, at: typeof f.at === 'number' ? f.at : 0 }
 }
+
+const okSave = (f: SaveRead): f is SaveFile => !!f && f !== 'bad'
 
 async function writeSave($: EngineInterface, n: number): Promise<void> {
   const s = await read($, story)
@@ -208,16 +242,19 @@ async function rewind($: EngineInterface): Promise<void> {
   const u = await read($, undo)
   if (u.length === 0) return
   const now = await read($, story)
-  const last = JSON.parse(u[u.length - 1]!) as Story
+  let last: Story | null = null
+  try { last = normalizeStory(JSON.parse(u[u.length - 1]!), await currentPack($, now.pack)) } catch { last = null }
   await update($, undo, x => x.slice(0, -1))
+  if (!last) return
+  const prev = last
   // 回退恢复旧状态，但「回退过几次」记在当前这一局上（打破第四面墙的包会用到）
-  await update($, story, () => ({ ...last, error: '', rewinds: now.rewinds + 1, loads: now.loads, usage: now.usage }))
+  await update($, story, () => ({ ...prev, error: '', rewinds: now.rewinds + 1, loads: now.loads, usage: now.usage }))
 }
 
 async function newGame($: EngineInterface, loop: number): Promise<void> {
   const st = await read($, settings)
   const p = await currentPack($)
-  await update($, story, () => freshStory(p, st.lang, loop))
+  await update($, story, () => freshStory(p, st.lang, loop, Math.floor(Math.random() * 0x7fffffff)))
   await update($, undo, () => [])
   await update($, ui, x => ({ ...x, view: 'game' as View }))
   await writeSave($, 0)
@@ -230,12 +267,13 @@ async function continueGame($: EngineInterface): Promise<void> {
     await update($, ui, x => ({ ...x, view: 'game' as View }))
     return
   }
-  if (await loadSlot($, st.pack, 0)) return
+  if (okSave(await readSave($, st.pack, 0, await read($, packs))) && await loadSlot($, st.pack, 0)) return
   await newGame($, 1)
 }
 
 async function loadSlot($: EngineInterface, pack: string, n: number): Promise<boolean> {
-  const f = await readSave($, pack, n)
+  const f = await readSave($, pack, n, await read($, packs))
+  if (f === 'bad') { $.ui.toast(t((await read($, settings)).lang, 'loadBad')); return false }
   if (!f) return false
   const now = await read($, story)
   const loads = now.pack === pack ? now.loads + 1 : f.story.loads
@@ -374,8 +412,10 @@ export const register: Register = on => {
     const Raster = 'Raster' in el ? el.Raster : null
     const st = okSettings(await read($, settings)) ? await read($, settings) : DEFAULT_SETTINGS
     const view = okUi(await read($, ui)) ? await read($, ui) : DEFAULT_UI
-    const s = okStory(await read($, story)) ? await read($, story) : TITLE_STORY
     const extra = await read($, packs)
+    // 只读：旧格式的状态在这里补成能显示的样子，不写回（写回在 migrate 里）
+    const rawStory = await read($, story) as unknown
+    const s = (okStory(rawStory) ? normalizeStory(rawStory, packById((rawStory as Story).pack, extra)) : null) ?? TITLE_STORY
     const m = await read($, meta)
     const canUndo = (await read($, undo)).length > 0
     const lang = st.lang
@@ -384,9 +424,12 @@ export const register: Register = on => {
     const p = (list.find(x => x.id === (view.view === 'packs' ? st.pack : s.phase === 'title' ? st.pack : s.pack)) ?? list[0]!).pack
     const T = packText(p, lang)
     const pm = packMeta(m, p.id)
+    // 只数本包里还存在的结局（包更新后旧 id 不算）
+    const seenCount = p.endings.filter(x => pm.endings.includes(x.id)).length
     const cols = e.props.bodyColumns ?? 80
-    const colorOf = (id: string) => castOf(p, id)?.color ?? '#cccccc'
-    const nameOf = (id: string) => (id === 'me' ? T(p.me) : T(castOf(p, id)?.name) || id)
+    const colorOf = (id: string) => personOf(p, id)?.color ?? '#cccccc'
+    const nameOf = (id: string) => (id === 'me' ? T(p.me) : T(personOf(p, id)?.name) || id)
+    const shortOf = (id: string) => T(personOf(p, id)?.short) || id
     const inScene = view.view === 'game' && (s.phase === 'scene' || s.phase === 'after')
     if (!inScene) anim = null
 
@@ -498,7 +541,7 @@ export const register: Register = on => {
               return (
                 <Button key={`pk-${en.id}`} hotkey={i < 9 ? String(i + 1) : undefined} plain onPress={() => void setSettings($, x => ({ ...x, pack: q.id })).then(() => update($, story, x => ({ ...x, phase: 'title' as const })))}>
                   <Text bold color={cur ? ACCENT : undefined}>{cur ? '▶ ' : '  '}{Q(q.title)}</Text>
-                  <Text color={DIM}>  {Q(q.subtitle)} · {q.cast.length}♥ · {q.days}d · {L(`packOrigin_${en.origin}` as Parameters<typeof t>[1])}{q.langs.includes(lang) ? '' : ` · ${q.defaultLang}`}</Text>
+                  <Text color={DIM}>  {Q(q.subtitle)} · {q.cast.length}♥{q.npcs?.length ? ` · ${L('npcs', { n: q.npcs.length })}` : ''} · {q.days}d · {L(`packOrigin_${en.origin}` as Parameters<typeof t>[1])}{q.langs.includes(lang) ? '' : ` · ${q.defaultLang}`}</Text>
                 </Button>
               )
             })}
@@ -520,9 +563,10 @@ export const register: Register = on => {
     // ---------- 存档 ----------
     if (view.view === 'saves') {
       const pack = s.phase === 'title' ? st.pack : s.pack
-      const files = await Promise.all([0, ...SAVE_SLOTS].map(n => readSave($, pack, n)))
+      const files = await Promise.all([0, ...SAVE_SLOTS].map(n => readSave($, pack, n, extra)))
       const canSave = view.saveMode === 'save' && s.pack === pack && (s.phase === 'plan' || s.phase === 'after' || s.phase === 'scene')
-      const info = (f: SaveFile | null) => {
+      const info = (f: SaveRead) => {
+        if (f === 'bad') return L('saveBad')
         if (!f) return L('empty')
         const q = list.find(x => x.id === f.story.pack)?.pack ?? p
         const d = new Date(f.at)
@@ -541,7 +585,7 @@ export const register: Register = on => {
               const label = n === 0 ? L('auto') : L('slot', { n })
               const act = view.saveMode === 'save'
                 ? (n === 0 || !canSave ? null : () => void writeSave($, n).then(() => { $.ui.toast(L('saved', { n })); return update($, ui, x => ({ ...x })) }))
-                : (f ? () => void loadSlot($, pack, n) : null)
+                : (okSave(f) ? () => void loadSlot($, pack, n) : null)
               return act ? (
                 <Button key={`slot${n}`} hotkey={String(n)} plain onPress={act}>
                   <Text bold>{label}</Text><Text color={DIM}>  {info(f)}</Text>
@@ -567,7 +611,7 @@ export const register: Register = on => {
         body = mem.length ? mem.map((x, i) => (
           <Text key={`mem${i}`} wrap="wrap">
             <Text color={DIM}>{dayText(p, lang, x.day)} {T(p.slots[x.slot])}  </Text>
-            <Text color={x.heroine ? colorOf(x.heroine) : DIM}>{x.heroine ? `${T(castOf(p, x.heroine)?.short)}  ` : ''}</Text>
+            <Text color={x.heroine ? colorOf(x.heroine) : DIM}>{x.heroine ? `${shortOf(x.heroine)}  ` : ''}</Text>
             <Text>{x.text}</Text>
           </Text>
         )) : <Text color={DIM}>{L('noMemories')}</Text>
@@ -587,13 +631,13 @@ export const register: Register = on => {
       } else if (view.tab === 2) {
         body = (
           <Box flexDirection="column">
-            <Text color={DIM}>{L('endingsSeen', { a: pm.endings.length, b: p.endings.length })} · {L('clears', { n: pm.clears })}</Text>
+            <Text color={DIM}>{L('endingsSeen', { a: seenCount, b: p.endings.length })} · {L('clears', { n: pm.clears })}</Text>
             {p.endings.map(x => {
               const seen = pm.endings.includes(x.id)
               return (
-                <Text key={`end-${x.id}`}>
+                <Text key={`end-${x.id}`} wrap="wrap">
                   <Text color={seen ? (x.who ? colorOf(x.who) : ACCENT) : DIM}>{seen ? '★' : '☆'} {seen ? T(x.title) : L('locked')}</Text>
-                  <Text color={DIM}>{seen && x.who ? `  ${T(castOf(p, x.who)?.short)}` : ''}</Text>
+                  <Text color={DIM}>{x.who ? `  ${shortOf(x.who)}` : ''}{x.kind ? ` · ${L(`end_${x.kind}` as Parameters<typeof t>[1])}` : ''}</Text>
                 </Text>
               )
             })}
@@ -603,7 +647,7 @@ export const register: Register = on => {
         const ps = mine ? s.promises : []
         body = ps.length ? ps.map((x, i) => (
           <Text key={`pr${i}`} color={x.status === 'kept' ? '#81c784' : x.status === 'broken' ? '#e57373' : undefined} wrap="wrap">
-            {x.status === 'kept' ? '✓' : x.status === 'broken' ? '✗' : '○'} <Text color={colorOf(x.heroine)}>{T(castOf(p, x.heroine)?.short)}</Text>：{x.text}（{dayText(p, lang, x.due)}）
+            {x.status === 'kept' ? '✓' : x.status === 'broken' ? '✗' : '○'} {x.key ? '★' : ''}<Text color={colorOf(x.heroine)}>{shortOf(x.heroine)}</Text>：{x.text}（{dayText(p, lang, x.due)}）
           </Text>
         )) : <Text color={DIM}>—</Text>
       }
@@ -622,8 +666,8 @@ export const register: Register = on => {
 
     // ---------- 标题 ----------
     if (s.phase === 'title') {
-      const auto = await readSave($, p.id, 0)
-      const hasCont = !!auto && auto.story.phase !== 'ending'
+      const auto = await readSave($, p.id, 0, extra)
+      const hasCont = okSave(auto) && auto.story.phase !== 'ending'
       const items: { id: string; label: string; on: () => void; primary?: boolean }[] = [
         ...(hasCont ? [{ id: 'continue', label: L('continue'), on: () => void continueGame($), primary: true }] : []),
         { id: 'new', label: L('newGame'), on: () => void newGame($, 1), primary: !hasCont },
@@ -642,8 +686,8 @@ export const register: Register = on => {
             <Text color={DIM}>{T(p.subtitle)}</Text>
           </Box>
           {Raster ? (
-            <Box flexDirection="row" gap={2} marginTop={1}>
-              {p.cast.slice(0, 4).map((c, i) => (
+            <Box flexDirection="row" gap={2} marginTop={1} flexWrap="wrap" justifyContent="center">
+              {p.cast.slice(0, 6).map((c, i) => (
                 <Box key={`pt-${c.id}`} flexDirection="column" alignItems="center">
                   <Raster key={`portrait-${c.id}`} columns={14} rows={PORTRAIT_ROWS} cells={cells(portraitFrame(c.sprite, i % 2 ? 'normal' : 'smile', 1))} />
                   <Text color={c.color} bold>{T(c.name)}</Text>
@@ -663,7 +707,7 @@ export const register: Register = on => {
           </Box>
           <Text color={DIM}>
             {p.source === 'original' ? `${L('original')} · ${p.author}` : L('sourceBy', { work: T(p.source.work), author: T(p.source.author), license: T(p.source.license) })}
-            {pm.clears > 0 ? ` · ${L('clears', { n: pm.clears })} · ${L('endingsSeen', { a: pm.endings.length, b: p.endings.length })}` : ''}
+            {pm.clears > 0 ? ` · ${L('clears', { n: pm.clears })} · ${L('endingsSeen', { a: seenCount, b: p.endings.length })}` : ''}
           </Text>
         </Box>
       )
@@ -686,24 +730,26 @@ export const register: Register = on => {
       const opts = forced ? [forced] : planOptions(p, s, lang)
       const open = s.promises.filter(x => x.status === 'open')
       const today = p.events.filter(x => x.day === s.day).map(x => T(x.text)).join(' · ')
+      const inc = incidentOf(p, s.incident)
       return (
         <Box flexDirection="column">
           {header}
           {today ? <Text color="#e57373">◆ {L('today', { text: today })}</Text> : null}
+          {inc && !inc.places ? <Text color="#9fc5e8" wrap="wrap">◇ {L('happening', { text: T(inc.text) })}</Text> : null}
           {s.after ? <Text color={ACCENT} wrap="wrap">{s.after}</Text> : null}
-          {open.map((x, i) => <Text key={`op${i}`} color={colorOf(x.heroine)} wrap="wrap">○ {L('promised', { name: T(castOf(p, x.heroine)?.short), text: x.text, due: dayText(p, lang, x.due) })}</Text>)}
+          {open.map((x, i) => <Text key={`op${i}`} color={colorOf(x.heroine)} wrap="wrap">{x.key ? '★' : '○'} {L('promised', { name: shortOf(x.heroine), text: x.text, due: dayText(p, lang, x.due) })}</Text>)}
           <Box flexDirection="column" marginTop={1}>
             <Text bold>{forced ? L('mustGo') : L('where', { slot: T(p.slots[s.slot]) })}</Text>
             {lonely ? (
               <Button key="lonely" hotkey="0" plain onPress={() => void goTo($, { place: T(p.places[0]!.name), mood: '', maybe: [lonely], who: lonely }, lonely)}>
-                <Text color={colorOf(lonely)} bold>✉ {L('seeksYou', { name: T(castOf(p, lonely)?.short) })}</Text>
+                <Text color={colorOf(lonely)} bold>✉ {L('seeksYou', { name: shortOf(lonely) })}</Text>
               </Button>
             ) : null}
             {opts.map((o, i) => (
               <Button key={`go-${i}`} hotkey={String(i + 1)} plain onPress={() => void goTo($, o, null)}>
                 <Text bold>{o.forced ? `★ ${o.forced}` : o.place}</Text>
                 <Text color={DIM}>  {o.mood}</Text>
-                {o.maybe.length ? <Text>  {o.maybe.map((id, j) => <Text key={`mb${j}`} color={colorOf(id)}>{j ? '/' : ''}{T(castOf(p, id)?.short)}</Text>)}<Text color={DIM}>?</Text></Text> : null}
+                {o.maybe.length ? <Text>  {o.maybe.map((id, j) => <Text key={`mb${j}`} color={colorOf(id)} dimColor={!!personOf(p, id)?.npc}>{j ? '/' : ''}{shortOf(id)}</Text>)}<Text color={DIM}>?</Text></Text> : null}
               </Button>
             ))}
           </Box>
@@ -724,7 +770,7 @@ export const register: Register = on => {
             <Text bold color={c}>{end ? T(end.title) : ''}</Text>
           </Box>
           <Box marginTop={1} paddingX={1}><Text wrap="wrap">{s.ending}</Text></Box>
-          <Text color={DIM}>{L('endingsSeen', { a: pm.endings.length, b: p.endings.length })} · {L('clears', { n: pm.clears })}</Text>
+          <Text color={DIM}>{L('endingsSeen', { a: seenCount, b: p.endings.length })} · {L('clears', { n: pm.clears })}</Text>
           {keyBar([
             { k: '1', label: `1 ${L('newGamePlus', { n: s.loop + 1 })}`, dim: false, on: () => void newGame($, s.loop + 1) },
             { k: 'p', label: `P ${L('album')}`, on: () => void update($, ui, x => ({ ...x, view: 'album' as View, tab: 2, back: 'game' as View })) },
@@ -742,8 +788,8 @@ export const register: Register = on => {
     const items = [{ who: '', text: sc.narration }, ...sc.lines]
     const shown = s.phase === 'after' ? items.length : Math.min(items.length, s.reveal + 1)
     const done = shown >= items.length
-    const lead = sc.cast[0]?.id
-    const castShown = sc.cast.filter(a => castOf(p, a.id))
+    const lead = sc.cast.find(a => castOf(p, a.id))?.id ?? sc.cast[0]?.id
+    const castShown = sc.cast.filter(a => !!personOf(p, a.id)?.sprite)
     if (Raster && castShown.length && st.anim) {
       anim = { pack: p, cast: castShown, distance: sc.distance, }
       ensureAnim($)

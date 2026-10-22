@@ -1,11 +1,12 @@
 // 原创剧本包《蝉鸣与晚自习》：江南县城中学，暑假前的十四天。
-// 这是剧本包格式的完整示例：人写骨架，AI 填每一幕。
+// 旗舰示例：五名主角色、六名配角、人物关系、三幕主线与关键事件、随机事件、每人四个结局。
+// 人写骨架，AI 填每一幕。
 
 import type { Pack } from '../../types'
 
 export const CICADA: Pack = {
   id: 'cicada',
-  version: '1.0.0',
+  version: '2.0.0',
   defaultLang: 'zh',
   langs: ['zh', 'en'],
   author: 'ai-galgame contributors',
@@ -13,14 +14,18 @@ export const CICADA: Pack = {
   title: { zh: '蝉鸣与晚自习', en: 'Cicadas & Evening Study' },
   subtitle: { zh: '江南小镇 · 县城中学 · 暑假前的十四天', en: 'A county-town high school, fourteen days before summer break' },
   premise: {
-    zh: '第一人称「我」是高二下学期转来江南小镇县城中学的男生，离暑假还有两周。学校有晚自习，宿舍熄灯早，镇上有老街、江和稻田。',
-    en: 'The first-person narrator ("I") is a boy who transferred mid-term into a county-town high school in a small river town in southern China, two weeks before summer break. There is evening study hall, an old street, a river and rice fields.',
+    zh: `第一人称「我」是高二下学期转来江南小镇县城中学的男生，离暑假还有两周。学校有晚自习，宿舍熄灯早，镇上有老街、江和稻田。
+小时候「我」在这个镇上住过几年，后来随父母去了外地，这次是跟着调回县医院的妈妈回来的。学校在撤并「人数不足的社团」，学生会第 10 天要表决撤社名单；天文社只剩一个社员。`,
+    en: `The first-person narrator ("I") is a boy who transferred mid-term into a county-town high school in a small river town in southern China, two weeks before summer break. There is evening study hall, an old street, a river and rice fields.
+I lived in this town for a few years as a kid, then moved away with my parents; I am back because my mother was transferred to the county hospital. The school is cutting "clubs without enough members", and on Day 10 the student council votes on the list. The astronomy club has one member left.`,
   },
   style: {
-    zh: `文风：国产青春校园小说的质感，克制、具体、有画面；多写动作和细节（汗湿的校服后背、冰棍化在手上、自行车铃），少写空泛形容词和心理独白。
-每个人的说话方式要分得开。偶尔有小幽默。不要出现日本元素（前后辈称呼、樱花、神社、祭典），不要用「命运」「羁绊」这类空词。`,
-    en: `Style: understated, concrete, cinematic young-adult fiction set in a Chinese county-town school. Favor small physical details (sweat-damp uniform backs, popsicles melting on fingers, bicycle bells) over abstract adjectives or long inner monologue.
-Each character must sound distinct. Light humor is welcome. No Japanese school tropes (senpai/kohai, cherry blossoms, shrines, matsuri). Avoid empty words like "destiny" or "bond".`,
+    zh: `文风：国产青春校园小说的质感，克制、具体、有画面；多写动作和细节（汗湿的校服后背、冰棍化在手上、自行车铃、吊扇、粉笔灰），少写空泛形容词和心理独白。
+每个人的说话方式要分得开。偶尔有小幽默。配角是活人，有自己的事，不只是传话筒；但不要喧宾夺主。人物之间的旧怨与误会要一点点露出来，不要一幕里全部讲完。
+不要出现日本元素（前后辈称呼、樱花、神社、祭典、浴衣），不要用「命运」「羁绊」这类空词。`,
+    en: `Style: understated, concrete, cinematic young-adult fiction set in a Chinese county-town school. Favor small physical details (sweat-damp uniform backs, popsicles melting on fingers, bicycle bells, ceiling fans, chalk dust) over abstract adjectives or long inner monologue.
+Each character must sound distinct. Light humor is welcome. Supporting characters are real people with their own business, not messengers, but they never steal the scene. Old grudges and misunderstandings between characters should surface a little at a time, never all in one scene.
+No Japanese school tropes (senpai/kohai, cherry blossoms, shrines, matsuri, yukata). Avoid empty words like "destiny" or "bond".`,
   },
   me: { zh: '我', en: 'Me' },
   days: 14,
@@ -35,6 +40,8 @@ Each character must sound distinct. Light humor is welcome. No Japanese school t
   places: [
     { id: 'classroom', name: { zh: '教室', en: 'Classroom' }, mood: { zh: '电风扇吱呀转，窗外梧桐和蝉鸣', en: 'creaking ceiling fans, plane trees and cicadas outside' }, slots: [0] },
     { id: 'canteen', name: { zh: '食堂', en: 'Canteen' }, mood: { zh: '不锈钢餐盘、番茄炒蛋和排长队', en: 'steel trays, tomato-and-egg, long queues' }, slots: [0] },
+    { id: 'shop', name: { zh: '校门口小卖部', en: 'Shop by the Gate' }, mood: { zh: '冰柜嗡嗡响，绿豆冰棍，收音机里在唱越剧', en: 'a humming freezer, mung-bean popsicles, Yue opera on the radio' }, slots: [0, 1] },
+    { id: 'council', name: { zh: '行政楼三楼', en: 'Admin Building, Third Floor' }, mood: { zh: '学生会和校报编辑部门对门，空调开得很足，走廊贴满通知', en: 'student council and the school paper face each other across a hall of notices; the air-con is fierce' }, slots: [0, 1] },
     { id: 'library', name: { zh: '图书馆', en: 'Library' }, mood: { zh: '旧书味、靠窗座位和老式吊扇', en: 'old-paper smell, window seats, an ancient fan' }, slots: [0, 1] },
     { id: 'astro', name: { zh: '天文社', en: 'Astronomy Club' }, mood: { zh: '堆满杂物的旧器材室，一台老望远镜', en: 'a cluttered storeroom with one old telescope' }, slots: [0, 1] },
     { id: 'track', name: { zh: '操场', en: 'Sports Field' }, mood: { zh: '红色塑胶跑道，傍晚的晚霞', en: 'red rubber track under the sunset' }, slots: [1, 2] },
@@ -45,30 +52,32 @@ Each character must sound distinct. Light humor is welcome. No Japanese school t
   cast: [
     {
       id: 'xiaoman', name: { zh: '林小满', en: 'Lin Xiaoman' }, short: { zh: '小满', en: 'Xiaoman' }, color: '#f06292',
+      tagline: { zh: '天文社最后一个社员，吵闹、嘴硬，一个人撑着社团', en: 'the astronomy club\'s last member; loud, stubborn, holding it up alone' },
       look: { zh: '粉色猫团子，耳边别着红蝴蝶结', en: 'a round pink cat with a red bow by one ear' },
       voice: {
-        zh: '语速快、爱用感叹号和「诶——」「真是的」，逞强时嘴硬，被戳中会突然安静；叫「我」「转学生」，熟了以后叫名字。',
-        en: 'Talks fast, loves exclamation marks, "Hey—!" and "Honestly!"; stubborn when cornered, suddenly quiet when touched; calls me "new kid", later my name.',
+        zh: '语速快、爱用感叹号和「诶——」「真是的」，逞强时嘴硬，被戳中会突然安静；叫「我」「转学生」，熟了以后叫名字；提到温璃只说「那个人」。',
+        en: 'Talks fast, loves exclamation marks, "Hey—!" and "Honestly!"; stubborn when cornered, suddenly quiet when touched; calls me "new kid", later my name; refers to Wen Li only as "that person".',
       },
       samples: [
         { zh: '诶——你也太慢了吧！天文社的门我都替你开好了！', en: 'Hey—you are so slow! I already unlocked the club room for you!' },
         { zh: '……我才没有在等你，只是刚好路过。', en: '...I was not waiting for you. I was just passing by.' },
         { zh: '要是连我都放弃了，这里就真的什么都不剩了。', en: 'If even I give up, there will be nothing left here at all.' },
+        { zh: '去年流星雨那天晚上，天台上只有我一个人。今年不会了，对吧？', en: 'Last year on the meteor night, I was alone on that roof. Not this year. Right?' },
       ],
       secret: {
-        zh: '天文社只剩她一个社员，学期末就要被撤销；她偷偷用攒的零花钱修好了社里那台老望远镜，想在流星雨那晚证明这个社团还有意义。',
-        en: 'She is the last member of the astronomy club, which will be dissolved at term end; she secretly spent her savings fixing the old telescope to prove the club still matters on the meteor-shower night.',
+        zh: '天文社只剩她一个社员，学期末就要被撤销；她偷偷用攒的零花钱修好了社里那台老望远镜，想在流星雨那晚证明这个社团还有意义。她也一直留着去年和温璃一起填的、没用上的观测表。',
+        en: 'She is the last member of the astronomy club, which will be dissolved at term end; she secretly spent her savings fixing the old telescope to prove the club still matters on the meteor-shower night. She also still keeps last year\'s observation sheet she filled in with Wen Li, never used.',
       },
       arc: [
         { zh: '陌生：把转学生硬拉去天文社「凑人数」，热闹又有点强势。', en: 'Strangers: drags the new kid into the club "to make up numbers", loud and pushy.' },
         { zh: '熟悉：一起修望远镜、贴招新海报，互相吐槽，偶尔一起回家。', en: 'Familiar: fixing the telescope, putting up posters, bickering, walking home together.' },
-        { zh: '心事：被通知社团要撤销，强装没事，却在没人的天台发呆。', en: 'Worries: told the club will be dissolved, pretends to be fine, stares into space on the empty roof.' },
-        { zh: '秘密：承认望远镜是她自己掏钱修的，害怕「我」只是可怜她才来。', en: 'Secret: admits she paid for the repair herself, afraid I only come out of pity.' },
+        { zh: '心事：被通知社团要撤销，强装没事，却在没人的天台发呆；看见温璃就绕路走。', en: 'Worries: told the club will be dissolved, pretends to be fine, stares into space on the empty roof; takes the long way round whenever she sees Wen Li.' },
+        { zh: '秘密：承认望远镜是她自己掏钱修的，害怕「我」只是可怜她才来；拿出去年那张没用上的观测表。', en: 'Secret: admits she paid for the repair herself, afraid I only come out of pity; shows me last year\'s unused observation sheet.' },
         { zh: '抉择：流星雨那晚要不要和她一起守在天台，让天文社撑到最后。', en: 'Choice: whether to stay with her on the roof on the meteor night and keep the club alive to the end.' },
       ],
       haunts: { 0: ['classroom', 'astro'], 1: ['astro', 'roof'], 2: ['roof', 'oldstreet'] },
       deadline: { day: 13, text: { zh: '流星雨之夜，天文社最后一次活动', en: 'the meteor-shower night, the club\'s last meeting' } },
-      keepsakeIdeas: { zh: '修望远镜的小螺丝刀、手写的招新海报、星图贴纸', en: 'a tiny screwdriver, a hand-drawn recruitment poster, a star-chart sticker' },
+      keepsakeIdeas: { zh: '修望远镜的小螺丝刀、手写的招新海报、星图贴纸、去年的观测表', en: 'a tiny screwdriver, a hand-drawn recruitment poster, a star-chart sticker, last year\'s observation sheet' },
       sprite: {
         pal: { B: '#f4a3bf', b: '#d77a9b', L: '#ffd9e6', A: '#e0313c', W: '#ffffff', w: '#9c4a64' },
         art: [
@@ -88,24 +97,26 @@ Each character must sound distinct. Light humor is welcome. No Japanese school t
     },
     {
       id: 'qingyi', name: { zh: '沈清漪', en: 'Shen Qingyi' }, short: { zh: '清漪', en: 'Qingyi' }, color: '#6c7fd8',
+      tagline: { zh: '高三学姐，图书馆靠窗座位的主人，话少毒舌，悄悄要走', en: 'a senior who owns the library window seat; few words, sharp tongue, quietly leaving' },
       look: { zh: '夜蓝色猫头鹰，一对圆圆的眼镜框', en: 'a night-blue owl with round glasses' },
       voice: {
-        zh: '话少、句子短、语气平淡，常用反问和书里的句子回答；毒舌但从不说谎；叫「我」「学弟」。',
-        en: 'Few words, short flat sentences, answers with questions or lines from books; sharp-tongued but never lies; calls me "junior".',
+        zh: '话少、句子短、语气平淡，常用反问和书里的句子回答；毒舌但从不说谎；叫「我」「学弟」，叫夏知遥「学生」（她给知遥补数学）。',
+        en: 'Few words, short flat sentences, answers with questions or lines from books; sharp-tongued but never lies; calls me "junior", calls Xia Zhiyao "my student" (she tutors her in math).',
       },
       samples: [
         { zh: '学弟，图书馆不是让你睡觉的地方。', en: 'Junior, the library is not a place to nap.' },
         { zh: '星星的光要走很多年才到这里。你看到的，早就不在了。', en: 'Starlight takes years to get here. What you see is long gone.' },
         { zh: '……你问这个做什么。', en: '...Why do you ask.' },
+        { zh: '我那个学生，函数图像画得像心电图。你别学她。', en: 'My student draws function graphs like heart monitors. Don\'t copy her.' },
       ],
       secret: {
-        zh: '家里已经替她办好高考后出国的手续，14 日早上的车；她没跟任何人说过，因为说了就会舍不得。',
-        en: 'Her family has arranged for her to study abroad; her bus leaves the morning of day 14. She has told no one, because saying it would make leaving harder.',
+        zh: '家里已经替她办好高考后出国的手续，14 日早上的车；她没跟任何人说过，因为说了就会舍不得。学校里只有班主任老陈知道，材料上的章是他盖的。',
+        en: 'Her family has arranged for her to study abroad; her bus leaves the morning of day 14. She has told no one, because saying it would make leaving harder. At school only Old Chen knows; he stamped her papers.',
       },
       arc: [
         { zh: '陌生：在图书馆被她冷冷地赶出「她的」靠窗座位。', en: 'Strangers: she coldly evicts me from "her" window seat.' },
         { zh: '熟悉：发现她在借阅卡上写星座笔记，开始交换书和书签留言。', en: 'Familiar: I find constellation notes on her library cards; we trade books and bookmark notes.' },
-        { zh: '心事：她频繁看手机日历，借的书全部提前还了。', en: 'Worries: she keeps checking her calendar and returns every book early.' },
+        { zh: '心事：她频繁看手机日历，借的书全部提前还了；给知遥补课时走神，把答案写错了。', en: 'Worries: she keeps checking her calendar and returns every book early; tutoring Zhiyao, she drifts off and writes a wrong answer.' },
         { zh: '秘密：在江边承认自己要走，说「所以别对我太好」。', en: 'Secret: by the river she admits she is leaving: "So don\'t be too kind to me."' },
         { zh: '抉择：14 日早上去不去车站送她，或者说出挽留的话。', en: 'Choice: whether to see her off at the station on day 14, or ask her to stay.' },
       ],
@@ -132,19 +143,21 @@ Each character must sound distinct. Light humor is welcome. No Japanese school t
     },
     {
       id: 'zhiyao', name: { zh: '夏知遥', en: 'Xia Zhiyao' }, short: { zh: '知遥', en: 'Zhiyao' }, color: '#ffb74d',
+      tagline: { zh: '「我」的发小，田径队主力，大大咧咧，瞒着膝伤', en: 'my childhood friend, the track team\'s star; breezy, hiding a bad knee' },
       look: { zh: '橘色兔子，额头绑着白色运动发带', en: 'an orange rabbit with a white sports headband' },
       voice: {
-        zh: '大大咧咧、爱开玩笑、爱拍人肩膀，用「喂」开头；难过时反而笑得更大声；叫「我」的小名「阿屿」。',
-        en: 'Breezy, jokey, slaps shoulders, starts with "Oi"; laughs louder when hurt; calls me by my childhood nickname "Ah-Yu".',
+        zh: '大大咧咧、爱开玩笑、爱拍人肩膀，用「喂」开头；难过时反而笑得更大声；叫「我」的小名「阿屿」，叫沈清漪「沈老师」（故意气她）。',
+        en: 'Breezy, jokey, slaps shoulders, starts with "Oi"; laughs louder when hurt; calls me by my childhood nickname "Ah-Yu", and Shen Qingyi "Teacher Shen" just to needle her.',
       },
       samples: [
         { zh: '喂阿屿，比赛跑到小卖部，输的请冰棍！', en: 'Oi, Ah-Yu! Race you to the shop—loser buys popsicles!' },
         { zh: '我没事啦！就是腿有点酸，酸！', en: 'I\'m fine! My legs are just a bit sore. Sore!' },
         { zh: '……你别这样看我，搞得我好像要哭了一样。', en: '...Don\'t look at me like that. You\'re making it seem like I\'m about to cry.' },
+        { zh: '沈老师今天又给我讲题了，讲一道看你一眼，讲一道看你一眼，你说她图啥？', en: 'Teacher Shen tutored me again today. One problem, one glance at you. One problem, one glance. What\'s she after, huh?' },
       ],
       secret: {
-        zh: '膝盖旧伤复发，医生建议放弃 12 日的省运会；这是她最后一次能拿名次的机会，她瞒着教练每晚偷偷加练。',
-        en: 'An old knee injury has flared up and the doctor told her to skip the provincial games on day 12—her last chance at a medal. She trains in secret every night, hiding it from her coach.',
+        zh: '膝盖旧伤复发，医生建议放弃 12 日的省运会；这是她最后一次能拿名次的机会，她瞒着郑教练每晚偷偷加练，小卖部的黄阿姨每晚塞给她一袋冰。',
+        en: 'An old knee injury has flared up and the doctor told her to skip the provincial games on day 12—her last chance at a medal. She trains in secret every night, hiding it from Coach Zheng; Auntie Huang at the shop slips her a bag of ice each night.',
       },
       arc: [
         { zh: '陌生（重逢）：多年没见的发小，一见面就把「我」当成小时候的跟班。', en: 'Reunion: a childhood friend who instantly treats me like her old sidekick.' },
@@ -153,7 +166,7 @@ Each character must sound distinct. Light humor is welcome. No Japanese school t
         { zh: '秘密：承认膝伤，求「我」帮她保密，说「这是我最后一次」。', en: 'Secret: admits the knee injury, begs me to keep it quiet: "This is my last chance."' },
         { zh: '抉择：12 日省运会前，支持她上场，还是劝她放弃。', en: 'Choice: before the games on day 12, support her running or persuade her to withdraw.' },
       ],
-      haunts: { 0: ['canteen', 'classroom'], 1: ['track'], 2: ['track'] },
+      haunts: { 0: ['canteen', 'classroom'], 1: ['track', 'shop'], 2: ['track'] },
       deadline: { day: 12, text: { zh: '省运会', en: 'the provincial games' } },
       keepsakeIdeas: { zh: '号码布、冰棍棍、护膝', en: 'a race bib, a popsicle stick, a knee brace' },
       sprite: {
@@ -173,6 +186,359 @@ Each character must sound distinct. Light humor is welcome. No Japanese school t
         eyes: [[5, 4], [5, 9]], cheeks: [[6, 3], [6, 10]], motion: 'ears',
       },
     },
+    {
+      id: 'yinuo', name: { zh: '程一诺', en: 'Cheng Yinuo' }, short: { zh: '一诺', en: 'Yinuo' }, color: '#66bb6a',
+      tagline: { zh: '高一学妹，校报小记者，好奇心过剩，手里压着两篇稿子', en: 'a first-year on the school paper; nosy to a fault, sitting on two drafts' },
+      look: { zh: '红棕色松鼠，尾巴蓬松卷起，耳尖一撮毛，脖子上挂着一台旧相机', en: 'a russet squirrel with a fluffy curled tail, ear tufts, and an old camera round her neck' },
+      voice: {
+        zh: '语速像连珠炮，句句带问号，爱说「据可靠消息来源」「这个可以写」；一紧张就咬笔帽，咔咔响；叫「我」「学长」，采访时一本正经叫全名。',
+        en: 'Rapid-fire, every sentence a question, loves "according to a reliable source" and "this I can use"; chews her pen cap when nervous, click-click; calls me "senior" (学长), and my full name when she is "on the record".',
+      },
+      samples: [
+        { zh: '学长学长！转学生的第一印象可以写进校报吗？我保证匿名——大概。', en: 'Senior, senior! Can I put the new kid\'s first impressions in the paper? Anonymous, I promise. Probably.' },
+        { zh: '据可靠消息来源——就是小卖部黄阿姨——你昨天在天台待到九点四十。', en: 'According to a reliable source—Auntie Huang at the shop—you were on the roof until 9:40 last night.' },
+        { zh: '……如果一篇稿子会害到一个人，那写它的人算不算凶手？我就随便问问。', en: '...If an article ends up hurting someone, does that make the writer the culprit? Just asking. Hypothetically.' },
+      ],
+      secret: {
+        zh: '她是教导主任周主任的女儿（随爸爸姓，全校没人知道）。这期校报专题《僵尸社团调查》是妈妈指定的选题，第一个点名的就是天文社，配图是她偷拍的空器材室——稿子会在第 10 天学生会表决前登出，被当成撤社的证据。她真正想交的是另一篇：天文社最后一个社员一个人修望远镜的特写，写好了，压在抽屉里不敢交。',
+        en: 'She is the daughter of Director Zhou, the dean of students (she has her father\'s surname; nobody at school knows). This issue\'s feature, "Zombie Clubs: An Investigation", was assigned by her mother; the first club it names is astronomy, illustrated with her own sneaky photo of the empty storeroom. It runs before the Day 10 council vote and will be used as evidence. The piece she actually wants to file is another: a profile of the club\'s last member fixing the telescope alone. It is finished, and sits in her drawer.',
+      },
+      arc: [
+        { zh: '陌生：第一天就举着相机堵在教室门口「采访转学生」，问题一个比一个离谱。', en: 'Strangers: on day one she ambushes me at the classroom door with a camera to "interview the new kid", each question wilder than the last.' },
+        { zh: '熟悉：跟着她满校园跑新闻——食堂涨价、操场夜跑、谁在天台晾校服；她把「我」当线人，报酬是辣条。', en: 'Familiar: chasing campus news with her—canteen prices, night runners, whose uniform hangs on the roof; I become her informant, paid in spicy gluten sticks.' },
+        { zh: '心事：她总在天文社门口转悠又不进去，相机里全是器材室的照片；一提第 10 天她就岔开话题。', en: 'Worries: she keeps circling the club door without going in; her camera is full of storeroom photos; mention Day 10 and she changes the subject.' },
+        { zh: '秘密：在校报编辑部承认那篇专题和她妈妈，把两份稿子摊在「我」面前：「你说，我交哪一篇？」', en: 'Secret: in the paper\'s office she admits the feature and her mother, and lays both drafts in front of me: "You tell me. Which one do I file?"' },
+        { zh: '抉择：第 10 天截稿前，陪她把那篇特写交到妈妈面前，还是让专题照常登出。', en: 'Choice: before the Day 10 deadline, go with her to hand the profile to her mother, or let the feature run as planned.' },
+      ],
+      haunts: { 0: ['canteen', 'council'], 1: ['council', 'oldstreet'], 2: ['oldstreet'] },
+      deadline: { day: 10, text: { zh: '校报截稿、学生会表决撤社名单', en: 'the paper\'s deadline and the council\'s vote on club cuts' } },
+      keepsakeIdeas: { zh: '采访本上撕下的一页、旧胶卷相机里的一张底片、那篇特写的样刊', en: 'a page torn from her notebook, a negative from her old film camera, a proof of the profile' },
+      sprite: {
+        pal: { B: '#c8743a', T: '#e39a55', L: '#f6dfc0', K: '#3a3a44', G: '#66bb6a', w: '#5a2e14' },
+        art: [
+          '.B....B...TT..',
+          '.BB.GBB..TTTT.',
+          '.BBBBBB.TT..TT',
+          'BBBBBBBB....TT',
+          'BBBBBBBB....TT',
+          '.BBBwwB....TTT',
+          '.BLLLLBB..TTT.',
+          '.BLKKLBBTTTT..',
+          '.BLKKLBBTTT...',
+          '..ww..ww......',
+        ],
+        eyes: [[3, 2], [3, 5]], cheeks: [[4, 1], [4, 6]], motion: 'tail',
+      },
+    },
+    {
+      id: 'wenli', name: { zh: '温璃', en: 'Wen Li' }, short: { zh: '温璃', en: 'Wen Li' }, color: '#26a69a',
+      tagline: { zh: '学生会副主席，小满的旧友，天文社前副社长，客气得像一纸公文', en: 'student council vice-president; Xiaoman\'s old friend and the club\'s former deputy; polite as a memo' },
+      look: { zh: '白鹭，细长的脖子，翅膀上别着红色学生会袖章', en: 'a white egret with a long neck and a red student-council armband on one wing' },
+      voice: {
+        zh: '说话客气、慢、像念公文：「按规定」「请你理解」「这位同学」；数字记得极准；从不提高音量，讽刺都包在礼貌里；熟了以后叫名字；提到林小满只叫「林同学」。',
+        en: 'Polite, slow, like reading out a memo: "per the regulations", "I trust you understand", "this student"; precise with numbers; never raises her voice, wraps every barb in courtesy; uses my name once we are close; only ever calls Lin Xiaoman "Student Lin".',
+      },
+      samples: [
+        { zh: '这位同学，按规定，晚自习后天台不开放。请你理解。', en: 'Per the regulations, the roof is closed after evening study. I trust you understand.' },
+        { zh: '天文社，社员一名，器材十七件，其中能用的四件。数字不会因为谁难过就变。', en: 'Astronomy club: one member, seventeen pieces of equipment, four of them working. Numbers don\'t change because someone is sad.' },
+        { zh: '……林同学到现在还以为我是为了学生会才走的吧。那就让她这么以为好了。', en: '...Student Lin still thinks I left for the council, I suppose. Let her think so.' },
+      ],
+      secret: {
+        zh: '去年英仙座流星雨那晚，她和小满约好在天台观测，她没去，也再没解释：那天晚上她爸爸突发脑溢血，她在县医院走廊坐了一整夜。之后她退社进学生会，是为了坐到能在撤社名单上签字的位置上，把天文社的名字压下来——这一年她已经压了两次。这次压不住了；按章程，社员凑满三人就能保留，她一直在找「第三个人」，却没想过那个人可以是她自己。',
+        en: 'Last year on the Perseid night she and Xiaoman had planned to watch from the roof. She never came and never explained: that night her father had a stroke, and she sat in the county hospital corridor until dawn. She then quit the club and joined the council to sit where the cut list gets signed, and keep the astronomy club off it; she has done so twice this year. This time she cannot. By the rules, a club with three members survives; she has been hunting for a "third person", never thinking it could be herself.',
+      },
+      arc: [
+        { zh: '陌生：在天台门口拦下「我」，背出校规第几条第几款，袖章别得一丝不苟。', en: 'Strangers: she stops me at the roof door, recites the article and clause of the school rules, armband pinned just so.' },
+        { zh: '熟悉：帮学生会搬档案时发现她把每个社团的材料都翻起了毛边，天文社那份最厚。', en: 'Familiar: carrying files for the council, I notice every club folder is worn soft at the edges; the astronomy one is the thickest.' },
+        { zh: '心事：她和小满在走廊擦肩而过，谁都不看谁；她问「我」：「她最近，还在修那台望远镜吗？」', en: 'Worries: she and Xiaoman pass in the hall without a glance; then she asks me, "Is she... still fixing that telescope?"' },
+        { zh: '秘密：在行政楼的消防楼梯上，她说出去年流星雨那晚医院走廊的事，和她压下的两次撤社名单。', en: 'Secret: on the admin building\'s fire stairs she tells me about the hospital corridor on last year\'s meteor night, and the two cut lists she buried.' },
+        { zh: '抉择：流星雨之前，劝她回天文社当第三个社员、当面跟小满说清楚，还是替她保守秘密。', en: 'Choice: before the meteor night, urge her to rejoin as the third member and tell Xiaoman to her face, or keep her secret for her.' },
+      ],
+      haunts: { 0: ['council', 'library'], 1: ['council', 'roof'], 2: ['roof', 'classroom'] },
+      deadline: { day: 13, text: { zh: '流星雨之夜：天文社要三个人到场', en: 'the meteor night: the club needs three members present' } },
+      keepsakeIdeas: { zh: '摘下来的学生会袖章、去年没用上的观测表、医院自动售货机的易拉罐拉环', en: 'her removed council armband, last year\'s unused observation sheet, a ring-pull from the hospital vending machine' },
+      sprite: {
+        pal: { W: '#f4f6f6', w: '#c3cfd2', Y: '#f2c14e', R: '#d84343', K: '#3b3b3b' },
+        art: [
+          '..w.WWWWWW.w..',
+          '...WWWWWWWW...',
+          '...WWWWWWWW...',
+          '....WWYYWW....',
+          '......YY......',
+          '.....WWWW.....',
+          '...wWWWWWWw...',
+          '..wWWRRWWWWw..',
+          '.wWWWRRWWWWWw.',
+          '..wWWWWWWWWw..',
+          '....WWWWWW....',
+          '.....K..K.....',
+        ],
+        eyes: [[2, 4], [2, 9]], cheeks: [[3, 4], [3, 9]], motion: 'wings',
+      },
+    },
+  ],
+  npcs: [
+    {
+      id: 'chen', name: { zh: '陈国平（老陈）', en: 'Chen Guoping ("Old Chen")' }, short: { zh: '老陈', en: 'Old Chen' }, color: '#8bc34a',
+      role: { zh: '「我」的班主任、数学老师，带了三届毕业班；学校里唯一知道沈清漪要出国的人（章是他盖的）', en: 'my homeroom and math teacher, three graduating classes behind him; the only one at school who knows Qingyi is leaving (he stamped her papers)' },
+      look: { zh: '墨绿色老乌龟，背着一只不锈钢保温杯', en: 'a dark-green old tortoise carrying a steel thermos' },
+      voice: {
+        zh: '口头禅「我讲两句」，一讲就是二十句；保温杯不离手，训人先讲道理再讲道理；叫学生全名；骂完了会塞你一个橘子。',
+        en: 'Catchphrase "Just two words", then twenty more; never without his thermos; lectures with reasons, then more reasons; calls students by full name; after a scolding he slips you a mandarin orange.',
+      },
+      samples: [
+        { zh: '我讲两句啊——就两句——这个月考，不是考你们，是考我。', en: 'Just two words—only two—this exam isn\'t testing you. It\'s testing me.' },
+        { zh: '林小满，天文社的事你跟我急也没用，学生会那边我去讲。', en: 'Lin Xiaoman, shouting at me won\'t save your club. I\'ll have a word with the council.' },
+        { zh: '……沈清漪的事，你们别瞎打听。哎，橘子拿去。', en: '...Leave Shen Qingyi\'s business alone. Here. Have an orange.' },
+      ],
+      haunts: { 0: ['classroom'], 2: ['classroom'] },
+      sprite: {
+        pal: { S: '#a8c49a', G: '#4e7d4a', g: '#33572f', M: '#c0c4cc', m: '#8a8f99' },
+        art: [
+          '....SSSS......',
+          '...SSSSSS.....',
+          '...SSSSSS..MM.',
+          '....SSSS...MM.',
+          '..GGGGGGGG.MM.',
+          '.GgGGgGGgGGmm.',
+          'GGGgGGGgGGGGG.',
+          'GgGGGgGGGgGGGG',
+          '.GGGGGGGGGGGG.',
+          '.SS.......SS..',
+        ],
+        eyes: [[2, 4], [2, 7]], cheeks: [[3, 4], [3, 7]], motion: 'bob',
+      },
+    },
+    {
+      id: 'dachuan', name: { zh: '周大川', en: 'Zhou Dachuan' }, short: { zh: '大川', en: 'Dachuan' }, color: '#b0bec5',
+      role: { zh: '「我」的同桌，自封「大川情报站」，暗恋夏知遥三年；把「我」当情敌，又忍不住给「我」通风报信', en: 'my deskmate, self-styled "Dachuan Intelligence"; has had a crush on Zhiyao for three years; treats me as a rival yet can\'t stop tipping me off' },
+      look: { zh: '圆滚滚的熊猫，校服扣子扣错了一颗', en: 'a roly-poly panda with his uniform buttoned one hole off' },
+      voice: {
+        zh: '一句话里三个「我跟你讲」，爱用夸张比喻，情报按辣条计价；说漏嘴比谁都快，说漏了还要强调「我什么都没说」。叫「我」「新同桌」「兄弟」。',
+        en: 'Three "listen, listen"s per sentence, wild comparisons, prices his intel in spicy gluten sticks; blurts secrets faster than anyone, then insists "I said nothing". Calls me "new deskmate" or "bro".',
+      },
+      samples: [
+        { zh: '我跟你讲，我跟你讲——学生会那个温璃，今天在天台站了二十分钟，就盯着天文社那扇窗。', en: 'Listen, listen—that Wen Li from the council stood on the roof for twenty minutes today, just staring at the astronomy club window.' },
+        { zh: '兄弟，情报一条一包辣条，童叟无欺。', en: 'Bro, one tip, one pack of spicy sticks. Fair price, no haggling.' },
+        { zh: '知遥她……算了，你别跟她说冰棍是我买的。', en: 'Zhiyao, she... forget it. Don\'t tell her the popsicles were from me.' },
+      ],
+      haunts: { 0: ['classroom', 'canteen'], 1: ['shop'] },
+      sprite: {
+        pal: { W: '#f5f5f5', K: '#262626', B: '#3f6fb5', w: '#d0d0d0' },
+        art: [
+          '.KKK......KKK.',
+          '.KKWWWWWWWWKK.',
+          '..WWWWWWWWWW..',
+          '.WWKKWWWWKKWW.',
+          '.WWKKWWWWKKWW.',
+          '.WWWWWKKWWWWW.',
+          '..WWWWWWWWWW..',
+          '.KBBBBWBBBBBK.',
+          'KKBBBBBWBBBBKK',
+          '.KBBBBWBBBBBK.',
+          '..KKK....KKK..',
+        ],
+        eyes: [[4, 4], [4, 9]], cheeks: [[5, 2], [5, 11]], motion: 'bob',
+      },
+    },
+    {
+      id: 'zhou', name: { zh: '周主任', en: 'Director Zhou' }, color: '#8d6e63',
+      role: { zh: '教导主任，推动撤销「僵尸社团」的人；程一诺的妈妈（全校没人知道）', en: 'dean of students, the driving force behind cutting "zombie clubs"; Cheng Yinuo\'s mother (nobody at school knows)' },
+      look: { zh: '灰褐色刺猬，耳边别着一支红笔', en: 'a grey-brown hedgehog with a red pen tucked by one ear' },
+      voice: {
+        zh: '说话像开会，结论先行：「数据说话」「我们要讲效率」；从不发火，只在本子上画圈；对女儿温柔得笨拙，一开口还是像在布置工作。',
+        en: 'Talks like a meeting, conclusion first: "the data speaks", "we have to be efficient"; never angry, just circles things in her notebook; tender with her daughter in a clumsy way that still sounds like assigning work.',
+      },
+      samples: [
+        { zh: '一个社，一个人，一间屋子，一年电费。数据说话。', en: 'One club, one member, one room, one year of electricity. The data speaks.' },
+        { zh: '学生的热情我理解，但学校要讲效率。', en: 'I understand the students\' enthusiasm, but a school has to be efficient.' },
+        { zh: '一诺，稿子写得怎么样了？……吃饭了没有。', en: 'Yinuo, how is the article coming? ...Have you eaten.' },
+      ],
+      haunts: { 1: ['council'] },
+      sprite: {
+        pal: { S: '#6d5f55', s: '#4a3f38', F: '#e8d3b5', R: '#d32f2f', K: '#2b2b2b' },
+        art: [
+          '.s.s.s..s.s.s.',
+          '.sSSSSSSSSSSs.',
+          'sSSSSSSSSSSSSs',
+          'SSSFFFFFFFFSSS',
+          'SSFFFFFFFFFFSS',
+          'SSFFFFKKFFFFSS',
+          '.SSFFFFFFFFSSR',
+          '.sSSFFFFFFSSRs',
+          '..sSSSSSSSSRs.',
+          '...FF....FF...',
+        ],
+        eyes: [[4, 4], [4, 9]], cheeks: [[5, 3], [5, 10]], motion: 'bob',
+      },
+    },
+    {
+      id: 'huang', name: { zh: '黄阿姨', en: 'Auntie Huang' }, color: '#c0ca33',
+      role: { zh: '校门口小卖部的老板娘，消息比校报快；每晚给夏知遥一袋冰敷膝盖，替她瞒着', en: 'runs the shop by the gate; her news travels faster than the paper; slips Zhiyao a bag of ice for her knee every night and keeps quiet about it' },
+      look: { zh: '胖胖的芦花母鸡，戴一副碎花袖套', en: 'a plump barred hen in floral sleeve covers' },
+      voice: {
+        zh: '本地口音，「小鬼头」「作孽哦」挂在嘴边；一边听收音机里的越剧一边按计算器；嘴上说什么都没看见，其实什么都看见了。',
+        en: 'Local accent; "you little rascal" and "what a sin" on her lips; punches a calculator while Yue opera plays on the radio; claims she saw nothing, and saw everything.',
+      },
+      samples: [
+        { zh: '小鬼头，绿豆冰棍最后三根了，要就快点。', en: 'Little rascal, three mung-bean popsicles left. Want one, be quick.' },
+        { zh: '作孽哦，那个小姑娘的膝盖肿得跟馒头一样，还天天跑。', en: 'What a sin. That girl\'s knee is swollen like a steamed bun, and she runs every day.' },
+        { zh: '阿姨嘴巴紧的，阿姨什么都没看见——你说的是哪个？', en: 'Auntie keeps her mouth shut. Auntie saw nothing. ...Which one are you asking about?' },
+      ],
+      haunts: { 0: ['shop'], 1: ['shop'] },
+      sprite: {
+        pal: { C: '#d83a34', W: '#e6e1d5', b: '#8e8a80', Y: '#f2b233', P: '#f48fb1' },
+        art: [
+          '.....C.C.C....',
+          '.....CCCCC....',
+          '...WWWWWWWW...',
+          '..WWWWWWWWWW..',
+          '..WWWWYYWWWW..',
+          '..WWWWWCWWWW..',
+          '.PbWWWWWWWWbP.',
+          'PPWbWWbWWbWWPP',
+          '.WWWbWWbWWbWW.',
+          '..WWWWWWWWWW..',
+          '....Y....Y....',
+        ],
+        eyes: [[3, 4], [3, 9]], cheeks: [[4, 3], [4, 10]], motion: 'wings',
+      },
+    },
+    {
+      id: 'zheng', name: { zh: '郑教练', en: 'Coach Zheng' }, color: '#e0a96d',
+      role: { zh: '学校田径队教练，把省运会的名额押在夏知遥身上；不知道她的膝伤', en: 'the school track coach, who has bet the provincial-games slot on Zhiyao; knows nothing of her knee' },
+      look: { zh: '黄白相间的斗牛犬，脖子上挂着红绳哨子', en: 'a tan-and-white bulldog with a whistle on a red cord' },
+      voice: {
+        zh: '嗓门大，句子短，全是口令：「起！」「再来一组！」；不会安慰人，只会说「你行的」；真着急时会结巴。',
+        en: 'Loud, short sentences, all commands: "Up!" "Another set!"; can\'t comfort anyone, only says "You\'ve got this"; stammers when truly worried.',
+      },
+      samples: [
+        { zh: '夏知遥！摆臂！摆臂！你是在跑步还是在赶鸭子！', en: 'Xia Zhiyao! Arms! Arms! Are you running or herding ducks?' },
+        { zh: '省运会就这一次。错过了，没有下次。', en: 'The provincial games come once. Miss them, there\'s no next time.' },
+        { zh: '……腿、腿疼？谁腿疼？疼了你要讲啊！', en: '...Your l-leg hurts? Whose leg? If it hurts, you say so!' },
+      ],
+      haunts: { 1: ['track'], 2: ['track'] },
+      sprite: {
+        pal: { B: '#d9a066', b: '#a8703a', L: '#f5ead6', K: '#2b2b2b', R: '#e53935', M: '#c0c4cc' },
+        art: [
+          '.bb........bb.',
+          '.bBBBBBBBBBBb.',
+          '.BBBBBBBBBBBB.',
+          'BBBBLLBBLLBBBB',
+          'BBBLLLLLLLLBBB',
+          'BLLLLLKKLLLLLB',
+          'BLLLLLLLLLLLLB',
+          '.BLLRLLLLRLLB.',
+          '..BBBRRMRBBB..',
+          '..BBBBBBBBBB..',
+          '..bb......bb..',
+        ],
+        eyes: [[3, 4], [3, 9]], cheeks: [[4, 2], [4, 11]], motion: 'ears',
+      },
+    },
+    {
+      id: 'fang', name: { zh: '方既白', en: 'Fang Jibai' }, short: { zh: '方学长', en: 'Fang' }, color: '#4fc3f7',
+      role: { zh: '已毕业的前天文社社长，读大一，暑假回镇；小满崇拜的人，望远镜是他毕业前弄坏的；温璃的表哥，知道去年那晚的真相', en: 'the club\'s former president, now a college freshman home for summer; Xiaoman\'s idol, who broke the telescope before graduating; Wen Li\'s cousin, who knows what happened last year' },
+      look: { zh: '蓝黑色的燕子，白肚皮，背着一个星图纸筒', en: 'a navy swallow with a white belly and a star-chart tube on his back' },
+      voice: {
+        zh: '温和、慢条斯理，爱讲中国星官的典故（河鼓、织女、天津）；有点躲事，话总留半句；叫小满「小林」，叫「我」「学弟」。',
+        en: 'Gentle and unhurried, loves the lore of Chinese star groups (the Herdboy, the Weaver Girl, the Heavenly Ford); a bit evasive, always leaves half a sentence unsaid; calls Xiaoman "Little Lin" and me "junior".',
+      },
+      samples: [
+        { zh: '织女一、天津四、河鼓二——夏夜大三角，我高一就是在这个天台认的。', en: 'Vega, Deneb, Altair—the Summer Triangle. I learned it on this very roof as a first-year.' },
+        { zh: '那台镜子……是我对不起她。我一直没敢说。', en: 'That telescope... I owe her for that. I never dared tell her.' },
+        { zh: '小璃不让我讲。她自己不讲，这事就烂在我肚子里。', en: 'Li made me promise. If she won\'t tell it, it rots in my gut.' },
+      ],
+      haunts: { 1: ['astro', 'oldstreet'], 2: ['river'] },
+      sprite: {
+        pal: { N: '#2c3e70', n: '#1b2647', W: '#f4f4f4', R: '#c0623a', T: '#d8c08a' },
+        art: [
+          '....NNNNNN....',
+          '...NNNNNNNN...',
+          '...NNNNNNNN...',
+          '...NRRRRRRN...',
+          '..nNWWWWWWNn..',
+          '.nnNWWWWWWNnn.',
+          'nnNNWWWWWWNNnn',
+          '...NWWWWWWNTT.',
+          '....NNNNNNTT..',
+          '....n.nn.n....',
+          '...n......n...',
+        ],
+        eyes: [[2, 4], [2, 9]], cheeks: [[3, 4], [3, 9]], motion: 'wings',
+      },
+    },
+  ],
+  relations: [
+    { a: 'me', b: 'zhiyao', kind: { zh: '发小', en: 'childhood friends' }, text: { zh: '小时候住同一条巷子，「阿屿」是她起的外号；她记得「我」小时候怕狗，「我」记得她摔破过的那只膝盖。', en: 'We grew up on the same lane; "Ah-Yu" is her nickname for me. She remembers I was scared of dogs; I remember the knee she skinned as a kid.' } },
+    { a: 'xiaoman', b: 'wenli', kind: { zh: '旧友 · 误会', en: 'old friends · misunderstanding' }, text: { zh: '初中同桌，一起创办天文社；去年流星雨那晚温璃失约，第二天就退了社、进了学生会。小满认定她是为了学生会抛弃了社团，从此不说话。', en: 'Deskmates in middle school who founded the club together. Last year Wen Li stood her up on the meteor night and quit for the council the next day. Xiaoman is sure she traded the club for a council badge; they have not spoken since.' } },
+    { a: 'yinuo', b: 'xiaoman', kind: { zh: '提防 · 暗中崇拜', en: 'wariness · secret admiration' }, text: { zh: '一诺总在拍天文社，小满把她当成学生会派来的「探子」，见了就赶；一诺其实偷偷佩服小满一个人撑着社团。', en: 'Yinuo keeps photographing the club; Xiaoman takes her for a council spy and chases her off. Yinuo secretly admires her for holding it up alone.' } },
+    { a: 'yinuo', b: 'zhou', kind: { zh: '母女', en: 'mother and daughter' }, text: { zh: '一诺随爸爸姓，在学校装作和周主任不熟；那篇专题是妈妈布置的。', en: 'Yinuo uses her father\'s surname and pretends at school to barely know Director Zhou; the feature was her mother\'s assignment.' }, hiddenUntil: 3 },
+    { a: 'qingyi', b: 'zhiyao', kind: { zh: '家教 · 暗暗较劲', en: 'tutor and student · quiet rivals' }, text: { zh: '清漪每周给知遥补两次数学（知遥妈妈请的），一个闹一个冷；两人都察觉到对方在意「我」，谁也不说破。', en: 'Qingyi tutors Zhiyao in math twice a week (her mother hired her); one rowdy, one cool. Each has noticed the other cares about me; neither says so.' } },
+    { a: 'zhiyao', b: 'huang', kind: { zh: '共谋', en: 'accomplices' }, text: { zh: '黄阿姨每晚塞给知遥一袋冰敷膝盖，替她瞒着教练。', en: 'Auntie Huang gives Zhiyao a bag of ice every night for her knee and keeps it from the coach.' }, hiddenUntil: 2 },
+    { a: 'zhiyao', b: 'zheng', kind: { zh: '师徒 · 隐瞒', en: 'coach and athlete · a secret kept' }, text: { zh: '郑教练把省运会的名额押在知遥身上，最怕她出事，偏偏被瞒着。', en: 'Coach Zheng has bet the provincial slot on Zhiyao and dreads her getting hurt; he is exactly who she hides it from.' } },
+    { a: 'dachuan', b: 'zhiyao', kind: { zh: '暗恋', en: 'unrequited crush' }, text: { zh: '大川暗恋知遥三年，每天替她买冰棍却不敢署名；他把「我」当情敌，又总忍不住告诉「我」知遥的事。', en: 'Dachuan has liked Zhiyao for three years and buys her popsicles anonymously; he sees me as a rival, yet keeps telling me things about her.' } },
+    { a: 'fang', b: 'xiaoman', kind: { zh: '崇拜 · 亏欠', en: 'idol · a debt' }, text: { zh: '小满崇拜这位前社长，以为他回来能救社团；望远镜其实是他毕业前弄坏的，他一直没敢认。', en: 'Xiaoman idolizes the former president and thinks he can save the club; he broke the telescope before graduating and has never owned up.' } },
+    { a: 'fang', b: 'wenli', kind: { zh: '表兄妹', en: 'cousins' }, text: { zh: '方既白是温璃的表哥，去年那晚他也在医院，知道她为什么失约。', en: 'Fang is Wen Li\'s cousin; he was at the hospital that night too and knows why she never came.' }, hiddenUntil: 3 },
+    { a: 'chen', b: 'qingyi', kind: { zh: '师生 · 知情人', en: 'teacher · the one who knows' }, text: { zh: '老陈带过清漪一年，她出国的材料是他盖的章；他答应替她保密到最后一天。', en: 'Old Chen taught Qingyi for a year and stamped her study-abroad papers; he has promised to keep it quiet until the last day.' }, hiddenUntil: 3 },
+    { a: 'zhou', b: 'wenli', kind: { zh: '上级 · 对手', en: 'superior · opponent' }, text: { zh: '温璃两次在学生会会议上用程序问题把撤社名单拖了下来，周主任记着这笔账。', en: 'Twice Wen Li stalled the cut list in council meetings on points of procedure; Director Zhou has not forgotten.' } },
+  ],
+  acts: [
+    {
+      id: 'act1', from: 1,
+      title: { zh: '第一幕 · 开端', en: 'Act I · Arrival' },
+      goal: {
+        zh: '「我」转学进来，被小满拉进天文社，与五个人一一初识；埋下三条线：天文社的撤社危机、清漪频繁看日历、知遥走路不对劲；一诺的相机和温璃的袖章都盯着天文社。',
+        en: 'I arrive, get dragged into the astronomy club, and meet all five one by one. Plant three threads: the club facing the cut, Qingyi checking her calendar, Zhiyao\'s stride being off. Yinuo\'s camera and Wen Li\'s armband are both trained on the club.',
+      },
+      beats: [
+        { id: 'recruit', day: 1, by: 2, who: ['xiaoman'], kind: { zh: '开端', en: 'inciting moment' }, text: { zh: '小满硬把「我」拉进天文社填了入社表——那是天文社今年唯一一张新表；她把表压在望远镜底下，像压着一张存折。', en: 'Xiaoman drags me into the club to fill in a membership form, the only new form this year; she tucks it under the telescope like a bankbook.' } },
+        { id: 'photo', day: 2, by: 3, who: ['yinuo'], kind: { zh: '伏笔', en: 'foreshadowing' }, text: { zh: '一诺在天文社窗外偷拍空荡荡的器材室，被「我」撞见；她慌张地说是「校报素材」，把相机藏到身后。', en: 'I catch Yinuo photographing the empty storeroom through the club window; flustered, she says it\'s "material for the paper" and hides the camera behind her back.' } },
+        { id: 'roofkey', day: 3, by: 4, who: ['wenli', 'xiaoman'], kind: { zh: '冲突', en: 'conflict' }, text: { zh: '温璃在天台门口按校规没收了天文社的天台钥匙；她和小满之间的空气冷得像冰柜，小满一句话没说转身就走，温璃看着她的背影站了很久。', en: 'At the roof door Wen Li confiscates the club\'s roof key per the rules; the air between her and Xiaoman is freezer-cold. Xiaoman leaves without a word; Wen Li watches her back for a long time.' } },
+      ],
+      hook: { zh: '月考要来了。学生会公告栏贴出一张「社团人数核查表」，天文社那一栏只有两个名字——一个是小满，一个是你。', en: 'The monthly exam is coming. The council noticeboard posts a "Club Membership Audit". The astronomy line has two names: Xiaoman\'s, and yours.' },
+    },
+    {
+      id: 'act2', from: 5,
+      title: { zh: '第二幕 · 转折', en: 'Act II · Turn' },
+      goal: {
+        zh: '月考前后，秘密开始渗出：知遥的膝伤被「我」撞见；清漪在江边说出要走；一诺的专题样稿流出，小满认定是温璃指使，误会当众炸开。每个人都开始有求于「我」，也开始互相较劲。',
+        en: 'Around the exam, secrets seep out: I catch Zhiyao\'s injury; Qingyi admits by the river that she is leaving; a proof of Yinuo\'s feature leaks, Xiaoman blames Wen Li, and the misunderstanding blows up in public. Everyone starts needing something from me, and pulling against each other.',
+      },
+      beats: [
+        { id: 'knee', day: 5, by: 6, who: ['zhiyao'], kind: { zh: '发现', en: 'discovery' }, text: { zh: '晚自习后「我」撞见知遥一个人在操场加练，落地时膝盖一软；她笑着说没事，央求「我」别告诉郑教练。', en: 'After evening study I find Zhiyao training alone; she lands and her knee buckles. She laughs it off and begs me not to tell Coach Zheng.' }, promise: { zh: '答应知遥替她保守膝伤的秘密、陪她练到省运会，但她得答应疼了就停', en: 'promise Zhiyao to keep her knee secret and train with her until the games, if she promises to stop when it hurts' } },
+        { id: 'rumor', day: 8, by: 9, who: ['xiaoman', 'yinuo', 'wenli'], kind: { zh: '误会', en: 'misunderstanding' }, text: { zh: '校报专题《僵尸社团调查》的样稿在班里传开，配图是天文社器材室；小满认定是温璃让一诺写的，在走廊上当众撕了样稿，冲温璃喊「你满意了？」。温璃一个字没解释。', en: 'A proof of the paper\'s feature "Zombie Clubs: An Investigation" circulates, illustrated with the club storeroom. Xiaoman is sure Wen Li put Yinuo up to it, tears the proof in the hallway and shouts at Wen Li, "Happy now?" Wen Li explains nothing.' }, promise: { zh: '答应小满：流星雨那晚一定到天台，不会像「那个人」一样失约', en: 'promise Xiaoman you will be on the roof on the meteor night and won\'t stand her up like "that person" did' } },
+        { id: 'river', day: 9, by: 10, who: ['qingyi'], kind: { zh: '秘密曝光', en: 'a secret comes out' }, text: { zh: '江边，清漪把最后一本借来的书还给「我」，承认第 14 天早上要坐车出国，说「所以别对我太好」。', en: 'By the river Qingyi hands back the last borrowed book and admits she leaves the country on the morning of Day 14: "So don\'t be too kind to me."' }, promise: { zh: '答应清漪：第 14 天清晨去车站送她', en: 'promise Qingyi to see her off at the station on the morning of Day 14' } },
+      ],
+      hook: { zh: '明天，学生会要表决撤社名单。一诺的抽屉里压着两篇稿子；温璃的签字笔还没拔开笔帽；清漪的日历上，第 14 天被红笔圈了起来。', en: 'Tomorrow the council votes on the cut list. Yinuo\'s drawer holds two drafts; Wen Li\'s pen is still capped; on Qingyi\'s calendar, Day 14 is circled in red.' },
+    },
+    {
+      id: 'act3', from: 10,
+      title: { zh: '第三幕 · 高潮', en: 'Act III · Climax' },
+      goal: {
+        zh: '撤社表决、省运会、灯会与流星雨、清晨车站接连到来；所有误会要么解开要么定型；每个人都要在自己的截止日前做出选择，「我」的约定兑现与否决定她们的结局。',
+        en: 'The vote, the games, the lantern fair and meteor shower, the morning station, one after another. Every misunderstanding is either cleared or set in stone; each girl must choose before her deadline, and whether I keep my promises decides how it ends.',
+      },
+      beats: [
+        { id: 'vote', day: 10, by: 10, who: ['wenli', 'yinuo'], kind: { zh: '转折', en: 'turning point' }, text: { zh: '学生会表决撤社名单：一诺交哪篇稿、温璃签不签字，只隔一扇门；温璃说出章程——三个社员就能保留，所有人都在看第三个名字是谁。大川说漏了嘴，全班知道了一诺是周主任的女儿。', en: 'The council votes on the cut list: which draft Yinuo files and whether Wen Li signs are a single door apart. Wen Li reads out the rule: three members and a club survives. Everyone looks for the third name. Dachuan blurts that Yinuo is Director Zhou\'s daughter, and the whole class knows.' }, promise: { zh: '答应她：在流星雨之前，陪她去做那件一直不敢做的事（温璃：当面把去年那晚告诉小满；一诺：把那篇特写交到周主任面前）', en: 'promise her that before the meteor night you will go with her to do the thing she never dared (Wen Li: tell Xiaoman about last year to her face; Yinuo: hand the profile to Director Zhou)' } },
+        { id: 'games', day: 12, by: 12, who: ['zhiyao', 'zheng'], kind: { zh: '高潮', en: 'climax' }, text: { zh: '省运会检录处，知遥的膝盖肿了，郑教练终于看见；她转头要「我」替她决定上不上跑道。', en: 'At the call room of the provincial games Zhiyao\'s knee is swollen and Coach Zheng finally sees it; she turns to me and asks me to decide whether she runs.' } },
+        { id: 'meteor', day: 13, by: 13, who: ['xiaoman', 'wenli'], kind: { zh: '高潮', en: 'climax' }, text: { zh: '灯会与流星雨之夜，天台：天文社最后一次活动，社员表上第三个名字的空格还空着；温璃站在天台门口，手里攥着去年那张观测表。', en: 'The lantern fair and meteor night, on the roof: the club\'s last meeting, the third line on the membership sheet still blank. Wen Li stands at the roof door holding last year\'s observation sheet.' } },
+      ],
+    },
+  ],
+  incidents: [
+    { id: 'storm', chance: 0.2, days: [2, 12], slots: [1, 2], text: { zh: '一场雷阵雨砸下来，操场成了河，走廊里挤满躲雨的人，伞不够用。', en: 'A thunderstorm crashes down; the field becomes a river, the halls fill with people sheltering, and there aren\'t enough umbrellas.' } },
+    { id: 'blackout', chance: 0.15, days: [3, 12], slots: [2], text: { zh: '晚自习突然停电，整栋楼一阵欢呼，手电筒和蜡烛在走廊里晃。', en: 'The power cuts out during evening study; the whole building cheers, and flashlights and candles bob along the halls.' } },
+    { id: 'results', chance: 0.7, days: [8, 9], slots: [0], who: ['chen'], text: { zh: '月考成绩贴在走廊上，围了一圈人；老陈端着保温杯站在旁边，「我讲两句」。', en: 'The exam results go up in the hallway and a crowd gathers; Old Chen stands nearby with his thermos: "Just two words."' } },
+    { id: 'intel', chance: 0.12, repeat: true, places: ['classroom', 'canteen'], who: ['dachuan'], text: { zh: '同桌周大川神秘兮兮地凑过来：「我跟你讲，独家情报——」', en: 'Dachuan leans in, all mystery: "Listen, listen, exclusive intel—"' } },
+    { id: 'freezer', chance: 0.35, days: [3, 11], places: ['shop'], who: ['huang'], text: { zh: '小卖部的冰柜坏了，黄阿姨在门口贱卖化了一半的冰棍，一边骂一边塞给你两根。', en: 'The shop freezer has died; Auntie Huang is selling half-melted popsicles cheap at the door, cursing, and presses two on you.' } },
+    { id: 'sickday', chance: 0.3, days: [6, 11], slots: [0], need: { who: 'zhiyao', minStage: 2 }, text: { zh: '夏知遥今天没来上课，班里说是中暑；她的座位上放着一瓶没开的冰水。', en: 'Zhiyao is absent today; the class says heatstroke. On her desk sits an unopened bottle of ice water.' } },
+    { id: 'alumnus', chance: 0.35, days: [4, 12], places: ['oldstreet', 'astro'], who: ['fang'], text: { zh: '一个背着星图纸筒的大学生出现了，他盯着天文社的门牌看了很久。', en: 'A college boy with a star-chart tube on his back turns up and stares at the astronomy club\'s nameplate for a long time.' } },
+    { id: 'queue', chance: 0.4, days: [8, 10], slots: [0, 1], after: ['beat:rumor'], who: ['yinuo'], text: { zh: '校报编辑部门口排起了队，所有人都在问那篇《僵尸社团调查》什么时候登。', en: 'A queue forms outside the paper\'s office; everyone wants to know when "Zombie Clubs" will run.' } },
+    { id: 'patrol', chance: 0.3, slots: [2], places: ['roof'], who: ['zhou'], text: { zh: '周主任打着手电筒巡查天台，脚步声一层一层上来了。', en: 'Director Zhou is patrolling the roof with a flashlight; her footsteps climb floor by floor.' } },
+    { id: 'drills', chance: 0.3, days: [3, 11], places: ['track'], who: ['zheng'], text: { zh: '郑教练把田径队拉到操场加练，哨子一声比一声急。', en: 'Coach Zheng has the track team out for extra drills; each whistle sharper than the last.' } },
+    { id: 'forecast', chance: 0.6, days: [11, 12], slots: [2], text: { zh: '收音机里说，第 13 天夜里晴，英仙座流星雨到极大，每小时上百颗。', en: 'The radio says Day 13 will be clear at night, the Perseids at their peak, a hundred an hour.' } },
+    { id: 'flood', chance: 0.3, days: [5, 13], places: ['river'], text: { zh: '上游放水，江面涨了一截，渔火比平时多了一倍，堤上有人在收网。', en: 'Water released upstream has raised the river; there are twice the usual fishing lamps, and someone on the embankment is hauling in nets.' } },
   ],
   stages: [
     { zh: '陌生', en: 'Strangers' }, { zh: '熟悉', en: 'Friends' }, { zh: '心事', en: 'Worries' }, { zh: '秘密', en: 'Secret' }, { zh: '抉择', en: 'Choice' },
@@ -185,27 +551,50 @@ Each character must sound distinct. Light humor is welcome. No Japanese school t
     { affection: 12, scenes: 7 },
   ],
   events: [
-    { day: 3, text: { zh: '班主任宣布下周月考', en: 'Homeroom teacher announces the monthly exam' } },
+    { day: 3, text: { zh: '班主任宣布下周月考；学生会贴出社团人数核查表', en: 'Homeroom announces next week\'s exam; the council posts a club membership audit' } },
     { day: 7, text: { zh: '月考', en: 'Monthly exam' } },
-    { day: 10, text: { zh: '学生会通知：人数不足的社团学期末撤销', en: 'Student council: clubs short of members will be dissolved' } },
+    { day: 8, text: { zh: '月考成绩出来；校报样稿开始流传', en: 'Exam results; proofs of the school paper start circulating' } },
+    { day: 10, text: { zh: '校报截稿；学生会表决撤社名单', en: 'Paper deadline; the council votes on club cuts' } },
     { day: 12, text: { zh: '省运会（夏知遥的比赛）', en: 'Provincial games (Zhiyao\'s race)' } },
     { day: 13, text: { zh: '江边灯会，夜里英仙座流星雨', en: 'Riverside lantern fair; Perseid meteor shower at night' } },
     { day: 14, text: { zh: '暑假前最后一天；沈清漪早上的车', en: 'Last day before summer; Qingyi\'s morning bus' } },
   ],
   fixed: [
-    { day: 12, slot: 1, place: { zh: '市体育场', en: 'City Stadium' }, mood: { zh: '省运会，看台上的加油声', en: 'the provincial games, cheering from the stands' }, title: { zh: '省运会：夏知遥的比赛', en: 'The games: Zhiyao\'s race' }, cast: ['zhiyao'] },
-    { day: 13, slot: 2, place: { zh: '江边灯会', en: 'Lantern Fair' }, mood: { zh: '河灯、糖画摊，夜里的英仙座流星雨', en: 'river lanterns, sugar-painting stalls, the Perseids overhead' }, title: { zh: '灯会与流星雨之夜', en: 'Lanterns and meteors' }, cast: ['xiaoman', 'qingyi', 'zhiyao'] },
+    { day: 10, slot: 1, place: { zh: '行政楼三楼 · 学生会会议室门外', en: 'Admin Building · Outside the Council Room' }, mood: { zh: '门缝里漏出空调冷气和念名单的声音，走廊里挤满了来听结果的人', en: 'cold air and the sound of a list being read leak under the door; the hall is packed with people waiting for the result' }, title: { zh: '撤社表决', en: 'The Vote' }, cast: ['wenli', 'yinuo', 'xiaoman'] },
+    { day: 12, slot: 1, place: { zh: '市体育场', en: 'City Stadium' }, mood: { zh: '省运会，看台上的加油声', en: 'the provincial games, cheering from the stands' }, title: { zh: '省运会：夏知遥的比赛', en: 'The games: Zhiyao\'s race' }, cast: ['zhiyao', 'zheng'] },
+    { day: 13, slot: 2, place: { zh: '江边灯会与天台', en: 'Lantern Fair and the Rooftop' }, mood: { zh: '河灯、糖画摊，夜里的英仙座流星雨', en: 'river lanterns, sugar-painting stalls, the Perseids overhead' }, title: { zh: '灯会与流星雨之夜', en: 'Lanterns and meteors' }, cast: ['xiaoman', 'wenli', 'qingyi', 'zhiyao', 'yinuo'] },
     { day: 14, slot: 0, place: { zh: '县城车站', en: 'County Bus Station' }, mood: { zh: '清晨的薄雾和广播', en: 'morning mist and announcements' }, title: { zh: '清晨的车站', en: 'The morning station' }, cast: ['qingyi'] },
   ],
   proactiveAfter: 3,
   endings: [
-    { id: 'xiaoman-true', who: 'xiaoman', tier: 3, minStage: 4, minAffection: 12, maxBroken: 0, title: { zh: '流星落在天台上', en: 'Meteors on the Rooftop' }, brief: { zh: '流星雨那晚天台上只有你们，天文社没有被撤销；恋爱结局。', en: 'On the meteor night it is just the two of you on the roof; the club survives. Romance ending.' } },
-    { id: 'qingyi-true', who: 'qingyi', tier: 3, minStage: 4, minAffection: 12, maxBroken: 0, title: { zh: '光走了很多年', en: 'Light That Travelled for Years' }, brief: { zh: '车站送别，她仍然要走，但留下了约定和地址；隔着时差的恋爱结局。', en: 'She still leaves, but at the station leaves a promise and an address. A long-distance romance ending.' } },
-    { id: 'zhiyao-true', who: 'zhiyao', tier: 3, minStage: 4, minAffection: 12, maxBroken: 0, title: { zh: '第四道的风', en: 'Wind in Lane Four' }, brief: { zh: '省运会的结果由你的选择决定；无论名次，她终于在你面前哭了出来；恋爱结局。', en: 'The race result follows your choice; whatever the place, she finally cries in front of you. Romance ending.' } },
-    { id: 'xiaoman-near', who: 'xiaoman', tier: 2, minStage: 3, title: { zh: '天文社还剩两个人', en: 'Two Members Left' }, brief: { zh: '恋人未满：你成了天文社第二个社员，话没说出口。', en: 'Not quite lovers: you became the club\'s second member, words left unsaid.' } },
-    { id: 'qingyi-near', who: 'qingyi', tier: 2, minStage: 3, title: { zh: '夹在书里的车票', en: 'A Ticket in a Book' }, brief: { zh: '恋人未满：她走后，你在还回去的书里发现她留下的车票。', en: 'Not quite lovers: after she leaves, you find her ticket stub inside a returned book.' } },
-    { id: 'zhiyao-near', who: 'zhiyao', tier: 2, minStage: 3, title: { zh: '冰棍还欠一根', en: 'One Popsicle Owed' }, brief: { zh: '恋人未满：还是发小，约好明年夏天再比一次。', en: 'Not quite lovers: still childhood friends, a rematch promised for next summer.' } },
-    { id: 'normal', tier: 0, title: { zh: '各自的暑假', en: 'Separate Summers' }, brief: { zh: '普通结局：大家各奔东西，夏天照常结束。', en: 'Normal ending: everyone goes their own way and summer ends as usual.' } },
+    // 林小满
+    { id: 'xiaoman-true', who: 'xiaoman', kind: 'true', tier: 4, minStage: 4, minAffection: 12, maxBroken: 0, keptKey: 'rumor', flags: ['beat:meteor'], title: { zh: '流星落在天台上', en: 'Meteors on the Rooftop' }, brief: { zh: '真结局：你如约在天台，温璃也来了，社员表上填满了三个名字，天文社保住了；小满和温璃隔了一年并肩看完流星，然后小满转身对你说了那句话。恋爱结局。', en: 'True ending: you keep your word and are on the roof; Wen Li comes too, the sheet gets its three names, and the club survives. Xiaoman and Wen Li watch the meteors side by side after a year apart, then Xiaoman turns and says it to you. Romance ending.' } },
+    { id: 'xiaoman-good', who: 'xiaoman', kind: 'good', tier: 3, minStage: 4, minAffection: 12, maxBroken: 0, title: { zh: '搬到楼顶的望远镜', en: 'A Telescope on Her Roof' }, brief: { zh: '好结局：天文社还是被撤了，你们把那台望远镜搬到了她家楼顶，每个晴天都开一次「社团活动」。恋爱结局。', en: 'Good ending: the club is still cut, so the two of you haul the telescope up to the roof of her house and hold a "club meeting" every clear night. Romance ending.' } },
+    { id: 'xiaoman-near', who: 'xiaoman', kind: 'normal', tier: 2, minStage: 3, title: { zh: '天文社还剩两个人', en: 'Two Members Left' }, brief: { zh: '普通结局：恋人未满，你成了天文社第二个社员，话没说出口。', en: 'Normal ending: not quite lovers; you became the club\'s second member, words left unsaid.' } },
+    { id: 'xiaoman-bad', who: 'xiaoman', kind: 'bad', tier: 1, minStage: 2, minBroken: 1, title: { zh: '天台的门锁上了', en: 'The Roof Door Was Locked' }, brief: { zh: '坏结局：你失约了。流星雨那晚她一个人在天台，像去年一样；第二天天文社的门牌被摘下，她在走廊上看见你，绕了路。', en: 'Bad ending: you broke your word. On the meteor night she was alone on the roof, just like last year. The next day the club\'s nameplate comes down; she sees you in the hall and takes the long way round.' } },
+    // 沈清漪
+    { id: 'qingyi-true', who: 'qingyi', kind: 'true', tier: 4, minStage: 4, minAffection: 12, maxBroken: 0, keptKey: 'river', minKeepsakes: 2, title: { zh: '光走了很多年', en: 'Light That Travelled for Years' }, brief: { zh: '真结局：清晨车站，你如约来了，手里是她的两件信物；她仍然要走，却把一本写满批注的书和地址留给你，约好每年英仙座流星雨那晚，各自在自己的时区抬头。隔着时差的恋爱结局。', en: 'True ending: you came to the morning station as promised, both her keepsakes in hand. She still leaves, but gives you a book full of her margin notes and an address, and you agree that every Perseid night you will each look up in your own time zone. A romance across time zones.' } },
+    { id: 'qingyi-good', who: 'qingyi', kind: 'good', tier: 3, minStage: 4, minAffection: 12, maxBroken: 0, title: { zh: '隔着时差的书签', en: 'Bookmarks Across Time Zones' }, brief: { zh: '好结局：她走了，你们开始用书签写信，每封都只写一句；恋爱结局。', en: 'Good ending: she leaves, and you start writing on bookmarks, one sentence each. Romance ending.' } },
+    { id: 'qingyi-near', who: 'qingyi', kind: 'normal', tier: 2, minStage: 3, title: { zh: '夹在书里的车票', en: 'A Ticket in a Book' }, brief: { zh: '普通结局：恋人未满；她走后，你在还回去的书里发现她留下的车票。', en: 'Normal ending: not quite lovers; after she leaves, you find her ticket stub inside a returned book.' } },
+    { id: 'qingyi-bad', who: 'qingyi', kind: 'bad', tier: 1, minStage: 2, minBroken: 1, title: { zh: '没赶上的车', en: 'The Bus I Missed' }, brief: { zh: '坏结局：你没去车站。车开了，她最后一条消息是「也好」。图书馆靠窗的座位空了一整个暑假。', en: 'Bad ending: you never went to the station. The bus left; her last message was "Just as well." The library window seat stays empty all summer.' } },
+    // 夏知遥
+    { id: 'zhiyao-true', who: 'zhiyao', kind: 'true', tier: 4, minStage: 4, minAffection: 12, maxBroken: 0, keptKey: 'knee', flags: ['beat:games'], title: { zh: '第四道的风', en: 'Wind in Lane Four' }, brief: { zh: '真结局：你守住了约定，也守住了她的底线——疼了就停。省运会的结果由你的选择决定；无论名次，她终于在你面前哭了出来，然后叫了一声「阿屿」。恋爱结局。', en: 'True ending: you kept your word and held her to hers—stop when it hurts. The race goes the way you chose; whatever the place, she finally cries in front of you, then says "Ah-Yu". Romance ending.' } },
+    { id: 'zhiyao-good', who: 'zhiyao', kind: 'good', tier: 3, minStage: 4, minAffection: 12, maxBroken: 0, title: { zh: '看台上的冰棍', en: 'A Popsicle in the Stands' }, brief: { zh: '好结局：她听了你的话退赛，在看台上和你分一根冰棍，约好明年膝盖好了再跑一次；恋爱结局。', en: 'Good ending: she listens and withdraws; in the stands you split a popsicle and agree she\'ll run again next year when the knee has healed. Romance ending.' } },
+    { id: 'zhiyao-near', who: 'zhiyao', kind: 'normal', tier: 2, minStage: 3, title: { zh: '冰棍还欠一根', en: 'One Popsicle Owed' }, brief: { zh: '普通结局：恋人未满，还是发小，约好明年夏天再比一次。', en: 'Normal ending: not quite lovers; still childhood friends, a rematch promised for next summer.' } },
+    { id: 'zhiyao-bad', who: 'zhiyao', kind: 'bad', tier: 1, minStage: 2, minBroken: 1, title: { zh: '护膝', en: 'The Knee Brace' }, brief: { zh: '坏结局：她瞒着所有人上了场，第三个弯道膝盖撑不住，被抬下跑道。她不怪你，可那个暑假她再也没叫过「阿屿」。', en: 'Bad ending: she ran without telling anyone; on the third bend the knee gave out and she was carried off the track. She doesn\'t blame you, but all that summer she never calls you "Ah-Yu" again.' } },
+    // 程一诺
+    { id: 'yinuo-true', who: 'yinuo', kind: 'true', tier: 4, minStage: 4, minAffection: 12, maxBroken: 0, keptKey: 'vote', title: { zh: '头版', en: 'Front Page' }, brief: { zh: '真结局：你陪她把那篇特写交到周主任面前；周主任在办公室里读了三遍，撤社名单上划掉了一行。特写登上校报头版，署名下面多了一行「摄影：程一诺」。她第一次不用「学长」叫你。恋爱结局。', en: 'True ending: you go with her to hand the profile to Director Zhou, who reads it three times in her office and strikes one line from the cut list. It runs on the front page, with "Photos: Cheng Yinuo" under the byline. For the first time she calls you by your name, not "senior". Romance ending.' } },
+    { id: 'yinuo-good', who: 'yinuo', kind: 'good', tier: 3, minStage: 4, minAffection: 12, maxBroken: 0, title: { zh: '没署名的稿子', en: 'The Unsigned Article' }, brief: { zh: '好结局：特写没能登出，她把它打印出来，贴在天文社的门上，没有署名；恋爱结局。', en: 'Good ending: the profile never runs, so she prints it and tapes it to the club door, unsigned. Romance ending.' } },
+    { id: 'yinuo-near', who: 'yinuo', kind: 'normal', tier: 2, minStage: 3, title: { zh: '采访本最后一页', en: 'The Last Page of Her Notebook' }, brief: { zh: '普通结局：恋人未满；她送你一本用完的采访本，最后一页写着「待采访：学长」。', en: 'Normal ending: not quite lovers; she gives you a used-up notebook. The last page reads "To interview: senior."' } },
+    { id: 'yinuo-bad', who: 'yinuo', kind: 'bad', tier: 1, minStage: 2, minBroken: 1, title: { zh: '样刊', en: 'The Proof' }, brief: { zh: '坏结局：专题照常登出，天文社被撤。她拿着样刊来道歉，你没有接；她把相机里的器材室照片一张张删掉，删到最后一张，手停住了。', en: 'Bad ending: the feature runs and the club is cut. She comes with the proof to apologize and you don\'t take it; she deletes the storeroom photos one by one, and her hand stops at the last.' } },
+    // 温璃
+    { id: 'wenli-true', who: 'wenli', kind: 'true', tier: 4, minStage: 4, minAffection: 12, maxBroken: 0, keptKey: 'vote', minLoop: 2, title: { zh: '第三个名字', en: 'The Third Name' }, brief: { zh: '真结局（二周目）：你陪她当面把去年那晚告诉了小满；流星雨那晚，社员表上第三个名字是「温璃」。两个女生隔了一年并肩看流星，温璃摘下袖章，第一次叫你的名字时没有加「同学」。恋爱结局。', en: 'True ending (second playthrough): you go with her to tell Xiaoman about last year, face to face. On the meteor night the third name on the sheet is "Wen Li". The two girls watch the meteors side by side after a year; Wen Li takes off her armband and, for the first time, says your name without "student". Romance ending.' } },
+    { id: 'wenli-good', who: 'wenli', kind: 'good', tier: 3, minStage: 4, minAffection: 12, maxBroken: 0, title: { zh: '袖章摘下来的那天', en: 'The Day the Armband Came Off' }, brief: { zh: '好结局：她辞了学生会副主席，没有回天文社，却在每个晴天的晚自习后来天台「巡查」，然后坐下来；恋爱结局。', en: 'Good ending: she resigns as vice-president; she doesn\'t rejoin the club, but every clear night after study hall she comes to the roof "on patrol", and sits down. Romance ending.' } },
+    { id: 'wenli-near', who: 'wenli', kind: 'normal', tier: 2, minStage: 3, title: { zh: '消防楼梯', en: 'The Fire Stairs' }, brief: { zh: '普通结局：恋人未满；她把去年的事只告诉了你一个人，你们在消防楼梯上坐到熄灯铃。', en: 'Normal ending: not quite lovers; she has told only you about last year, and you sit on the fire stairs until the lights-out bell.' } },
+    { id: 'wenli-bad', who: 'wenli', kind: 'bad', tier: 1, minStage: 2, minBroken: 1, title: { zh: '签字', en: 'Signed' }, brief: { zh: '坏结局：她还是在撤社名单上签了字，理由写得滴水不漏；流星雨那晚，她一个人坐在县医院的走廊里。', en: 'Bad ending: she signs the cut list after all, with an airtight justification; on the meteor night she sits alone in the county hospital corridor.' } },
+    // 群像与兜底
+    { id: 'five-on-the-roof', kind: 'good', tier: 2, minStage: 2, title: { zh: '天台上挤满了人', en: 'A Crowded Rooftop' }, brief: { zh: '群像结局：你和五个人都走到了心事这一步，却没有和谁走到最后。流星雨那晚天台上挤满了人——小满、温璃、清漪、知遥、一诺，还有大川和老陈的保温杯；天文社按章程保住了，因为社员表写满了一整页。', en: 'Ensemble ending: you reached all five, but went all the way with none. On the meteor night the roof is packed: Xiaoman, Wen Li, Qingyi, Zhiyao, Yinuo, plus Dachuan and Old Chen\'s thermos. The club survives by the rules, because the membership sheet fills a whole page.' } },
+    { id: 'normal', kind: 'normal', tier: 0, title: { zh: '各自的暑假', en: 'Separate Summers' }, brief: { zh: '普通结局：大家各奔东西，夏天照常结束。', en: 'Normal ending: everyone goes their own way and summer ends as usual.' } },
   ],
   finale: { zh: '最后一句点题「蝉鸣」或「晚自习」。', en: 'The last sentence should echo the title: cicadas or evening study.' },
   loading: [
@@ -214,5 +603,6 @@ Each character must sound distinct. Light humor is welcome. No Japanese school t
     { zh: '自行车铃在巷子里响了一声…', en: 'A bicycle bell rings down the alley...' },
     { zh: '粉笔灰在阳光里浮着…', en: 'Chalk dust floats in the sunlight...' },
     { zh: '远处有人在喊你的名字…', en: 'Someone far off is calling your name...' },
+    { zh: '小卖部的收音机在唱越剧…', en: 'The shop radio is singing Yue opera...' },
   ],
 }

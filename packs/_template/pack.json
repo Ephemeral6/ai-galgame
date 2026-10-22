@@ -158,6 +158,10 @@
         "zh": "TODO 信物灵感",
         "en": "TODO keepsake ideas"
       },
+      "tagline": {
+        "zh": "TODO 一行摘要（她不在场时提示里只放这一行）",
+        "en": "TODO one-line summary (all the prompt gets when she is not in the scene)"
+      },
       "sprite": {
         "pal": {
           "B": "#8ecae6",
@@ -198,6 +202,107 @@
           ]
         ],
         "motion": "ears"
+      }
+    }
+  ],
+  "npcs": [
+    {
+      "id": "friend",
+      "name": {
+        "zh": "TODO 配角名",
+        "en": "TODO Supporting Name"
+      },
+      "color": "#b0bec5",
+      "role": {
+        "zh": "TODO 身份，以及和主角、主角色的关系",
+        "en": "TODO who they are and how they relate to me and the heroine"
+      },
+      "voice": {
+        "zh": "TODO 说话方式",
+        "en": "TODO how they talk"
+      },
+      "samples": [
+        {
+          "zh": "TODO 示例台词",
+          "en": "TODO sample line"
+        }
+      ],
+      "haunts": {
+        "0": [
+          "place-b"
+        ]
+      }
+    }
+  ],
+  "relations": [
+    {
+      "a": "her",
+      "b": "friend",
+      "kind": {
+        "zh": "TODO 关系类型",
+        "en": "TODO kind"
+      },
+      "text": {
+        "zh": "TODO 发生过什么、现在卡在哪",
+        "en": "TODO what happened, where it stands"
+      },
+      "hiddenUntil": 2
+    }
+  ],
+  "acts": [
+    {
+      "id": "act1",
+      "from": 1,
+      "title": {
+        "zh": "TODO 第一幕",
+        "en": "TODO Act I"
+      },
+      "goal": {
+        "zh": "TODO 这一幕的走向",
+        "en": "TODO where this act goes"
+      },
+      "beats": [
+        {
+          "id": "turn",
+          "day": 2,
+          "by": 3,
+          "who": [
+            "her"
+          ],
+          "kind": {
+            "zh": "转折",
+            "en": "turning point"
+          },
+          "text": {
+            "zh": "TODO 必须发生的事",
+            "en": "TODO what must happen"
+          },
+          "promise": {
+            "zh": "TODO 关键约定（可选）",
+            "en": "TODO key promise (optional)"
+          }
+        }
+      ],
+      "hook": {
+        "zh": "TODO 悬念钩子（可选）",
+        "en": "TODO cliffhanger (optional)"
+      }
+    }
+  ],
+  "incidents": [
+    {
+      "id": "rain",
+      "chance": 0.3,
+      "days": [
+        1,
+        3
+      ],
+      "slots": [
+        1
+      ],
+      "text": {
+        "zh": "TODO 下雨了",
+        "en": "TODO it rains"
       }
     }
   ],
@@ -280,10 +385,12 @@
     {
       "id": "her-true",
       "who": "her",
-      "tier": 3,
+      "kind": "true",
+      "tier": 4,
       "minStage": 4,
       "minAffection": 8,
       "maxBroken": 0,
+      "keptKey": "turn",
       "title": {
         "zh": "TODO 真结局",
         "en": "TODO True Ending"
@@ -294,11 +401,60 @@
       }
     },
     {
-      "id": "normal",
-      "tier": 0,
+      "id": "her-good",
+      "who": "her",
+      "kind": "good",
+      "tier": 3,
+      "minStage": 4,
+      "minAffection": 8,
+      "maxBroken": 0,
+      "title": {
+        "zh": "TODO 好结局",
+        "en": "TODO Good Ending"
+      },
+      "brief": {
+        "zh": "TODO 走向",
+        "en": "TODO what happens"
+      }
+    },
+    {
+      "id": "her-near",
+      "who": "her",
+      "kind": "normal",
+      "tier": 2,
+      "minStage": 3,
       "title": {
         "zh": "TODO 普通结局",
         "en": "TODO Normal Ending"
+      },
+      "brief": {
+        "zh": "TODO 走向",
+        "en": "TODO what happens"
+      }
+    },
+    {
+      "id": "her-bad",
+      "who": "her",
+      "kind": "bad",
+      "tier": 1,
+      "minStage": 2,
+      "minBroken": 1,
+      "title": {
+        "zh": "TODO 坏结局",
+        "en": "TODO Bad Ending"
+      },
+      "brief": {
+        "zh": "TODO 走向",
+        "en": "TODO what happens"
+      }
+    },
+    {
+      "id": "normal",
+      "kind": "normal",
+      "tier": 0,
+      "title": {
+        "zh": "TODO 兜底结局",
+        "en": "TODO Fallback Ending"
       },
       "brief": {
         "zh": "TODO 走向",

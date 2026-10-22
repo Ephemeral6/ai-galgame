@@ -7,7 +7,7 @@ import type { Pack } from '../../types'
 
 export const EQUALIA: Pack = {
   id: 'equalia',
-  version: '1.0.0',
+  version: '1.1.0',
   defaultLang: 'en',
   langs: ['en', 'zh'],
   author: 'ai-galgame contributors',
@@ -147,7 +147,7 @@ Content: the original carries warnings (unreality, drugs, alcohol, death, missin
       ],
       haunts: { 1: ['jail'], 2: ['jail'] },
       deadline: { day: 4, text: { en: 'the guild wipes the jail and bans the whole IP range', zh: '公会清空牢房、封掉整个 IP 段' } },
-      keepsakeIdeas: { en: 'a golden apple tossed through the bars, a respawn bed, a blurry iPod photo of a bonfire', zh: '从铁栏间扔进来的金苹果、一张重生床、一张模糊的 iPod 篝火照片' },
+      keepsakeIdeas: { en: 'the respawn bed in the jail cell, the crossbow he never fires, a blurry iPod photo of a bonfire', zh: '牢房里那张重生床、他从来没射过的弩、一张模糊的 iPod 篝火照片' },
       sprite: {
         pal: { T: '#c8a06a', t: '#a87d48', D: '#7a5530' },
         art: [
@@ -254,6 +254,100 @@ Content: the original carries warnings (unreality, drugs, alcohol, death, missin
       },
     },
   ],
+  npcs: [
+    {
+      id: 'kloose', name: { en: 'kloose', zh: 'kloose' }, short: { en: 'kloose', zh: 'kloose' }, color: '#a89a86',
+      role: {
+        en: 'wood\'s high-school friend and fellow Horny Guild member; was there for the nine arches; lives in another timezone and is reachable only through wood. The one who still remembers EBBB\'s full German name.',
+        zh: '木头的高中朋友，同在「Horny Guild」；烧九道拱门那次他也在；住在另一个时区，只能通过木头联系上。唯一还记得 EBBB 德语全名的人。',
+      },
+      look: { en: 'a dusty grey-brown moth with feathery antennae, awake at the wrong hours', zh: '一只灰褐色的蛾子，羽毛状触角，总在不对的时间醒着' },
+      voice: {
+        en: 'Lowercase, terse, half asleep; answers by email or relayed through wood rather than in person; more careful than wood, less willing to brag; types the German slowly and correctly.',
+        zh: '全小写、极短、半睡半醒；用邮件或让木头转话，几乎不亲自出现；比木头谨慎，不爱吹；德语打得很慢，但一个字母都不错。',
+      },
+      samples: [
+        { en: 'this isnt my timezone. make it quick', zh: '现在不是我这边的时间。快点说' },
+        { en: 'wood talks too much. i remember the name. i just never wanted to type it', zh: '木头话太多。名字我记得。只是从来不想把它打出来' },
+        { en: 'Einsatzgruppe zur Begrenzung von Brücken und Bruchstellen. dont email me again', zh: 'Einsatzgruppe zur Begrenzung von Brücken und Bruchstellen。别再给我发邮件了' },
+      ],
+      sprite: {
+        pal: { A: '#c9b36a', M: '#a89a86', m: '#7d705f', B: '#4b4038', F: '#e8dcc4' },
+        art: [
+          '....A....A....',
+          '.....A..A.....',
+          'MM...FFFF...MM',
+          'MMM.FFFFFF.MMM',
+          'MMMMBBBBBBMMMM',
+          'MmMMBBBBBBMMmM',
+          '.MMMBBBBBBMMM.',
+          '..mmBFFFFBmm..',
+          '...mBBBBBBm...',
+          '.....B..B.....',
+        ],
+        eyes: [[3, 5], [3, 8]], cheeks: [[3, 4], [3, 9]], motion: 'wings',
+      },
+    },
+    {
+      id: 'balenciaga', name: { en: 'balenciaga', zh: 'balenciaga' }, short: { en: 'balenciaga', zh: 'balenciaga' }, color: '#4f7a52',
+      role: {
+        en: 'admin of the Horny Guild Minecraft server; jailed Maggie\'s bot ykwilk921 behind iron bars, threatens to ban her IP range, and tossed her a golden apple when she asked. Fetches wood when kloose is asleep.',
+        zh: '「Horny Guild」Minecraft 服务器的管理员；把玛姬的机器人 ykwilk921 关进铁栏牢房，扬言封她的 IP 段，她要金苹果时也真的扔了一个进来。kloose 睡着时，是他去把木头叫来。',
+      },
+      look: { en: 'a glossy dark-green beetle with a stubby horn, blocky as a server mob', zh: '一只油亮的墨绿色甲虫，一只短角，方得像服务器里的怪物' },
+      voice: {
+        en: 'Lowercase, flat, threats with no punctuation; bored power; never explains a rule, only enforces it; grudgingly fair when outplayed.',
+        zh: '全小写、平板、威胁不带标点；无聊的权力感；从不解释规矩，只执行；被玩明白了会不情不愿地讲道理。',
+      },
+      samples: [
+        { en: 'tell me your trick before I ban your ip range', zh: '先说你用的什么招，不然我封你整个ip段' },
+        { en: 'what do you even want', zh: '你到底想要什么' },
+        { en: 'this isnt his timezone. ill get wood. dont touch anything', zh: '现在不是他那边的时间。我去叫木头。什么都别碰' },
+      ],
+      haunts: { 1: ['jail'], 2: ['jail'] },
+      sprite: {
+        pal: { H: '#6b5a3a', K: '#2e3b2f', k: '#4f7a52', L: '#d9e6c8', N: '#1f2420' },
+        art: [
+          '......HH......',
+          '.....HH.......',
+          '...KKKKKKKK...',
+          '..KLLLLLLLLK..',
+          '..KLLLLLLLLK..',
+          '.KKKKKkKKKKKK.',
+          'NKkKKKkKKKkKKN',
+          '.KKkKKkKKkKKK.',
+          'NKKKKKkKKKKKKN',
+          '..KKKKKKKKKK..',
+          '.N..N....N..N.',
+        ],
+        eyes: [[4, 5], [4, 8]], cheeks: [[4, 3], [4, 10]], motion: 'bob',
+      },
+    },
+    {
+      id: 'coolguy', name: { en: 'the guy in the tracksuit', zh: '穿运动服的那个人' }, short: { en: 'tracksuit guy', zh: '运动服' }, color: '#5e5e5e',
+      role: {
+        en: 'Only a memory, never a live speaker or on stage: the older "cool guy" in a tracksuit, black beanie and five-o\'clock shadow who paid wood, kloose and their crew in weed for "missions", called the nine arches a "bridge", and preached EBBB\'s contempt for fiction. Appears only in wood\'s retelling, his iPod photos, and the tracts.',
+        zh: '只存在于回忆里，从不当面说话、不上台：那个穿运动服、戴黑毛线帽、一脸胡茬的「酷哥」，用大麻换木头、kloose 和他们那伙人去做「任务」，把九道拱门叫作「桥」，宣讲 EBBB 对虚构的轻蔑。只出现在木头的讲述、iPod 照片和那些小册子里。',
+      },
+      voice: {
+        en: 'Heard only second-hand, through wood\'s paraphrase: smooth, conspiratorial, always "they"; speaks of fiction as a trick played on the world.',
+        zh: '只通过木头的转述出现：油滑、阴谋论腔调，开口就是「他们」；把虚构说成一场针对世界的骗局。',
+      },
+      samples: [
+        { en: '(as wood remembers it) I need a couple of guys with guts for a little mission.', zh: '（木头记得的原话）我需要几个有胆子的家伙，去做个小任务。' },
+        { en: '(as wood remembers it) That thing in the glade? It\'s a bridge. Pull it up.', zh: '（木头记得的原话）林子里那个东西？那是座桥。把它拔了。' },
+        { en: '(as wood remembers it) Fiction is a trick they\'re playing on you. All of it.', zh: '（木头记得的原话）虚构是他们耍你的把戏。全部都是。' },
+      ],
+    },
+  ],
+  relations: [
+    { a: 'crows', b: 'dahlia', kind: { en: 'best friends; Attendant to the Crown', zh: '挚友；王冠侍从' }, text: { en: 'Old friends who spoke in long chains of reference and lovingly aggressive banter. Dahlia granted 7crows moderator status days before the sovereignty party; it handed mod accounts to EBBB.', zh: '老朋友，说话靠一长串只有彼此懂的梗和亲昵的互损。主权派对前几天，达莉娅把管理员权限给了七鸦；它转手把管理员账号交给了 EBBB。' }, hiddenUntil: 3 },
+    { a: 'wood', b: 'kloose', kind: { en: 'high-school crew; guild mutuals', zh: '高中同伙；公会互关' }, text: { en: 'Six of them tagged in the woods as teenagers; both did the arson "mission". Now members of the same Horny Guild; wood forgot the German name, kloose did not.', zh: '少年时六个人一起在林子里涂鸦，那次纵火「任务」两人都在。如今同在 Horny Guild；德语全名木头忘了，kloose 没忘。' } },
+    { a: 'wood', b: 'coolguy', kind: { en: 'errand boy and recruiter', zh: '跑腿的与招募人' }, text: { en: 'The tracksuit guy paid in weed for missions: the nine arches, blacked-out stickers, dead animals on doorsteps. wood still repeats his ideas without knowing they were never his own.', zh: '运动服男人用大麻换任务：九道拱门、涂黑的贴纸、别人门口的死动物。木头至今还在复述他的观点，却不知道那从来不是自己的想法。' }, hiddenUntil: 3 },
+    { a: 'balenciaga', b: 'wood', kind: { en: 'guild admin and member', zh: '公会管理员与成员' }, text: { en: 'balenciaga runs the server and the jail; wood is the one sent to the bars to talk to the "bot with a thousand accounts".', zh: 'balenciaga 管服务器和牢房；被派到铁栏前跟「有一千个账号的机器人」谈话的是木头。' } },
+    { a: 'me', b: 'dahlia', kind: { en: 'a visitor\'s pass', zh: '一张访客通行证' }, text: { en: 'They met at a Second Life rave; kewpie gave Maggie a visitor\'s pass to eQualia and called her "bunny". Maggie promised to stop by the next day and forgot.', zh: '两人在 Second Life 的派对上认识；kewpie 给了玛姬一张 eQualia 的访客通行证，叫她「小兔」。玛姬答应第二天就去看看，然后忘了。' } },
+    { a: 'me', b: 'librarian', kind: { en: 'email correspondents', zh: '邮件往来' }, text: { en: 'They had spoken over email before Maggie came in for the interlibrary microfilm.', zh: '玛姬来看馆际借阅的缩微胶卷之前，两人通过邮件联系过。' } },
+  ],
   stages: [
     { en: 'Stranger', zh: '陌生' }, { en: 'Contact', zh: '接触' }, { en: 'Doubt', zh: '疑点' }, { en: 'Truth', zh: '真相' }, { en: 'Choice', zh: '抉择' },
   ],
@@ -279,10 +373,57 @@ Content: the original carries warnings (unreality, drugs, alcohol, death, missin
     { day: 5, slot: 1, place: { en: 'SL: Upside-down Sim', zh: 'SL：倒置模拟区' }, mood: { en: 'the balcony ceiling, legs dangling over the sky, a flock that counts differently now', zh: '阳台的天花板，双腿悬在天空上，一群数目不对的乌鸦' }, title: { en: 'Six, Not Seven', zh: '六只，不是七只' }, cast: ['crows'] },
     { day: 7, slot: 2, place: { en: 'Featureless Room', zh: '空白房间' }, mood: { en: 'FEATURELESS ROOM / empty test place / there is a letter here / >', zh: '空白房间 / 空的测试场所 / 这里有一封信 / >' }, title: { en: 'There Is a Letter Here', zh: '这里有一封信' }, cast: ['dahlia'] },
   ],
+  acts: [
+    {
+      id: 'trailhead', from: 1, title: { en: 'I · Trailhead', zh: '一 · 起点' },
+      goal: { en: 'Setup. Maggie finds the razed kingdom, reconstructs kewpie from deleted accounts, and meets the only citizen left.', zh: '开端。玛姬发现被洗劫的王国，从被删除的账号里拼出 kewpie，见到唯一剩下的公民。' },
+      beats: [
+        { id: 'tapestry', day: 1, by: 1, kind: { en: 'inciting incident', zh: '起因' }, text: { en: 'In the throne room behind a door-less archway, the one surviving tapestry reads "eebeebeebee crew was here". kewpie is unreachable.', zh: '王座厅没有门的拱门后，唯一幸存的挂毯上写着「eebeebeebee crew was here」。kewpie 联系不上。' } },
+        { id: 'seven-sites', day: 2, by: 2, kind: { en: 'clue', zh: '线索' }, text: { en: 'DGSA finally returns: kewpie_faygo existed on seven websites and was deleted on all seven; every eQualia citizen but one is gone too.', zh: 'DGSA 终于返回：kewpie_faygo 在七个网站上存在过，七个全被删除；eQualia 的公民除了一个，全都不见了。' } },
+        { id: 'witness', day: 1, by: 3, who: ['crows'], kind: { en: 'first contact', zh: '初次接触' }, text: { en: '7crows, on its upside-down balcony, tells Maggie that kewpie was Princess Dahlia, eQualia\'s only moderator, and says it resigned for "personal reasons". Its typing indicator flickers on and off.', zh: '七鸦在倒置的阳台上告诉玛姬：kewpie 就是 eQualia 唯一的管理员达莉娅公主；说自己是「因个人原因」退出的。它的「正在输入」忽明忽灭。' } },
+      ],
+      hook: { en: 'Everyone who knew the Princess has vanished from the internet at once. Whatever did that does not live online.', zh: '认识公主的人同时从互联网上消失了。干这件事的东西，不住在网上。' },
+    },
+    {
+      id: 'offline', from: 3, title: { en: 'II · Off the Internet', zh: '二 · 离开互联网' },
+      goal: { en: 'Rising action. The trail leaves the internet: a griefers\' jail, a story about burning a bridge in the woods, and German tracts on microfilm.', zh: '发展。线索离开了互联网：恶意破坏者的牢房、一个在林子里烧掉一座桥的故事、缩微胶卷上的德语小册子。' },
+      beats: [
+        { id: 'jail', day: 3, by: 4, who: ['wood', 'balenciaga'], kind: { en: 'reversal', zh: '转折' }, text: { en: 'Behind the iron bars of the Horny Guild jail, wood finally tells the story: the tracksuit guy, the nine woven arches in a glade, the fire, the iPod photos. He knows the word "EBBB" but not what it stands for.', zh: '隔着 Horny Guild 牢房的铁栏，木头终于讲出来：运动服男人、林间空地上九道编织的拱门、那把火、iPod 照片。他知道「EBBB」这个词，却说不出它代表什么。' } },
+        { id: 'german-name', day: 4, by: 5, who: ['kloose', 'wood'], kind: { en: 'clue', zh: '线索' }, text: { en: 'Through wood, kloose emails the full name: "Einsatzgruppe zur Begrenzung von Brücken und Bruchstellen". The worst thing that can happen to an internet sleuth: the case has left the internet.', zh: '通过木头转交，kloose 发来了全名：「Einsatzgruppe zur Begrenzung von Brücken und Bruchstellen」。对网络侦探来说最糟的事发生了：案子离开了互联网。' } },
+        { id: 'tracts', day: 3, by: 5, who: ['librarian'], kind: { en: 'revelation', zh: '揭示' }, text: { en: 'On the microfilm reader Maggie finds the EBBB tracts, including a line almost word for word what 7crows said to her: fantasy is too compelling, it makes you make bad decisions.', zh: '在缩微胶卷阅读机上，玛姬找到了 EBBB 的小册子，其中一句几乎和七鸦对她说过的话一字不差：幻想太有说服力，会让你做出坏决定。' } },
+      ],
+      hook: { en: '7crows quoted the tracts before Maggie ever found them. It has known, this whole time.', zh: '玛姬还没找到小册子，七鸦就已经引用过它们了。它一直都知道。' },
+    },
+    {
+      id: 'bridges', from: 5, title: { en: 'III · The Eschatology of Bridges', zh: '三 · 桥的末世论' },
+      goal: { en: 'Crisis. 7crows meets Maggie as six crows, not seven, and confesses its version of the sovereignty party.', zh: '危机。七鸦以六只、而不是七只乌鸦的样子来见玛姬，讲出它版本的主权派对。' },
+      beats: [
+        { id: 'six-crows', day: 5, by: 6, who: ['crows'], kind: { en: 'key promise', zh: '关键约定' }, text: { en: 'On the balcony ceiling Maggie counts six crows, not seven. Before it will talk, 7crows asks one thing: if she ever finds anything from Dahlia, she brings it to the six first, whole.', zh: '在阳台的天花板上，玛姬数了一遍：六只，不是七只。七鸦开口之前只求一件事：如果她找到任何达莉娅留下的东西，先完整地带给它们六个。' }, promise: { en: 'promise 7crows to bring it anything Dahlia left behind, first and whole', zh: '答应七鸦：找到达莉娅留下的任何东西，第一时间、完整地带给它' } },
+        { id: 'confession', day: 5, by: 6, who: ['crows'], kind: { en: 'secret revealed', zh: '秘密曝光' }, text: { en: '"the only reason you know ebbb exists at all is because i called them." The lever on its pedestal, the Seventh Crow waking too late, the mod accounts handed over, the friends frozen while the vandals razed the world.', zh: '「你知道 ebbb 存在，唯一的原因是我把他们叫来的。」底座上的拉闸、太晚醒来的第七只乌鸦、交出去的管理员账号、破坏者洗劫世界时被冻住的朋友们。' } },
+      ],
+      hook: { en: 'Dahlia would have forgiven it. A woman like that leaves a message somewhere only royalty would look.', zh: '达莉娅会原谅它的。那样的人，会把话留在只有王室才会去看的地方。' },
+    },
+    {
+      id: 'featureless', from: 7, title: { en: 'IV · Featureless Room', zh: '四 · 空白房间' },
+      goal: { en: 'Climax. The server runs out of credit tonight. Maggie finds the unlisted test room and decides what to do with what is inside.', zh: '高潮。服务器今晚额度耗尽。玛姬找到那个不对外连通的测试房间，决定怎么处理里面的东西。' },
+      beats: [
+        { id: 'letter', day: 7, who: ['dahlia'], kind: { en: 'climax', zh: '高潮' }, text: { en: 'FEATURELESS ROOM / empty test place / there is a letter here. "To my dear birds": an apology, forgiveness, and an invitation to the end of a new bridge. The room has no exit.', zh: '空白房间 / 空的测试场所 / 这里有一封信。「致我亲爱的鸟儿们」：一封道歉、一份原谅，和去一座新桥尽头的邀请。房间没有出口。' } },
+      ],
+    },
+  ],
+  incidents: [
+    { id: 'dgsa-hang', chance: 0.3, days: [1, 3], slots: [0, 2], text: { en: 'The DGSA progress bar sits full and hangs for an hour; the results come in only after Maggie has given up and opened the minifridge.', zh: 'DGSA 的进度条满了却卡住一个小时；直到玛姬放弃、打开小冰箱，结果才出来。' } },
+    { id: 'typing-flicker', chance: 0.35, days: [1, 6], places: ['upside', 'gardens'], who: ['crows'], text: { en: '7crows\' typing indicator flickers on and off for a long time, and what finally arrives is much shorter than what it was typing.', zh: '七鸦的「正在输入」亮了又灭，灭了又亮；最后发来的，比它打了那么久的短得多。' } },
+    { id: 'bots-dying', chance: 0.4, days: [2, 4], places: ['jail'], who: ['balenciaga'], text: { en: 'Maggie\'s other bots keep dying one by one in the bedrock maze; balenciaga watches the kill feed scroll and is not amused.', zh: '玛姬剩下的机器人在基岩迷宫里一个接一个死去；balenciaga 盯着滚动的击杀提示，一点也不觉得好笑。' } },
+    { id: 'reader-jam', chance: 0.4, days: [3, 5], places: ['library'], who: ['librarian'], text: { en: 'The microfilm reader jams mid-reel; the librarian threads it again by hand, touching only the blank area.', zh: '缩微胶卷阅读机卷到一半卡住了；图书管理员徒手重新穿片，只碰空白的地方。' } },
+    { id: 'translate-mount', chance: 0.5, days: [4, 6], places: ['room'], after: ['beat:tracts'], text: { en: 'The open-source translators choke on the two-column German; Maggie builds a K\'Nex mount for her phone and realizes she has rebuilt a microfilm reader.', zh: '开源翻译工具被两栏排版的德语卡死；玛姬用 K\'Nex 给手机搭了个支架，才发现自己造了一台简陋的缩微胶卷阅读机。' } },
+    { id: 'ensure-sleep', chance: 0.2, slots: [2], text: { en: 'A chilled vanilla Ensure, twenty-five shakes, carbs on an empty stomach: Maggie nods off mid-case and wakes at exactly the wrong, or right, moment.', zh: '一瓶冰香草 Ensure，摇二十五下，空腹的碳水：玛姬在案子中间睡着了，醒来的时机恰好不对——或者恰好对。' } },
+    { id: 'visitors-reply', chance: 0.3, days: [4, 6], places: ['room', 'square'], text: { en: 'A few former eQualia visitors answer Maggie\'s messages; they know less than she does and can offer only curiosity and worry.', zh: '几个曾经的 eQualia 访客回了玛姬的消息；他们知道的比她还少，能给的只有好奇和担心。' } },
+  ],
   proactiveAfter: 2,
   endings: [
     {
-      id: 'threshold', tier: 4, minStage: 3,
+      id: 'threshold', kind: 'true', tier: 4, minStage: 3,
       title: { en: 'Threshold People', zh: '门槛上的人' },
       brief: {
         en: 'Everyone trusted Maggie with their truth. She delivers Dahlia\'s letter to 7crows whole, invitation and all, because the six crows asked to choose for themselves; wood sends the bonfire photos and stops repeating the tracts; Rosalind lends her a notebook to read offline. A reply arrives from a brand-new account with a dragon avatar. The case is not "solved", but for once nobody is alone behind the curtains.',
@@ -290,7 +431,7 @@ Content: the original carries warnings (unreality, drugs, alcohol, death, missin
       },
     },
     {
-      id: 'crows-true', who: 'crows', tier: 3, minStage: 4, minAffection: 11, maxBroken: 0,
+      id: 'crows-true', kind: 'true', who: 'crows', tier: 3, minStage: 4, minAffection: 11, maxBroken: 0, keptKey: 'six-crows',
       title: { en: 'Murmuration', zh: '群飞' },
       brief: {
         en: 'Maggie gives 7crows the letter, the invitation cut away "like removing the detonator from a bomb", and stays on the balcony while it reads. The six do not ask about the missing strip. They paint one new shape on the sky. Trust ending, close to the original\'s.',
@@ -298,7 +439,7 @@ Content: the original carries warnings (unreality, drugs, alcohol, death, missin
       },
     },
     {
-      id: 'dahlia-true', who: 'dahlia', tier: 3, minStage: 4, minAffection: 11, maxBroken: 0,
+      id: 'dahlia-true', kind: 'good', who: 'dahlia', tier: 3, minStage: 4, minAffection: 11, maxBroken: 0,
       title: { en: 'The End of a New Bridge', zh: '新桥的尽头' },
       brief: {
         en: 'Locked in the featureless room with no exit, Maggie reads the invitation and, for the first time, does not push the flowers of unreality away. She blinks, and she is out; or she is somewhere tall with flowers. Write it so either reading holds. The last thing in her inbox: "Sent."',
@@ -306,7 +447,7 @@ Content: the original carries warnings (unreality, drugs, alcohol, death, missin
       },
     },
     {
-      id: 'wood-true', who: 'wood', tier: 3, minStage: 4, minAffection: 11, maxBroken: 0,
+      id: 'wood-true', kind: 'good', who: 'wood', tier: 3, minStage: 4, minAffection: 11, maxBroken: 0,
       title: { en: 'Somebody Has to Burn It', zh: '总得有人去烧' },
       brief: {
         en: 'wood sends the iPod photos of nine arches on fire, gets kloose to give up the full German name, and admits he never believed any of it; he just wanted to look cool. He asks Maggie whether the bridge was for anything. She tells him the truth: nobody will ever know. He logs off the guild for good.',
@@ -314,7 +455,7 @@ Content: the original carries warnings (unreality, drugs, alcohol, death, missin
       },
     },
     {
-      id: 'librarian-true', who: 'librarian', tier: 3, minStage: 4, minAffection: 11, maxBroken: 0,
+      id: 'librarian-true', kind: 'good', who: 'librarian', tier: 3, minStage: 4, minAffection: 11, maxBroken: 0,
       title: { en: 'Dark Matter', zh: '暗物质' },
       brief: {
         en: 'After the reels go home, Rosalind meets Maggie in the empty reading room and hands her a notebook: a fantasy kingdom in pencil that has never touched the internet. Maggie promises to never scan a page. An offline friendship between two threshold people. Trust ending.',
@@ -322,7 +463,7 @@ Content: the original carries warnings (unreality, drugs, alcohol, death, missin
       },
     },
     {
-      id: 'crows-near', who: 'crows', tier: 2, minStage: 3,
+      id: 'crows-near', kind: 'normal', who: 'crows', tier: 2, minStage: 3,
       title: { en: 'A Comforting Story', zh: '一个让人安心的故事' },
       brief: {
         en: '7crows tells its version and flies off before Maggie can say what she thinks. She is left holding a story she does not believe, and a letter she never found.',
@@ -330,7 +471,7 @@ Content: the original carries warnings (unreality, drugs, alcohol, death, missin
       },
     },
     {
-      id: 'dahlia-near', who: 'dahlia', tier: 2, minStage: 3,
+      id: 'dahlia-near', kind: 'normal', who: 'dahlia', tier: 2, minStage: 3,
       title: { en: 'Behind the Curtains', zh: '窗帘后面' },
       brief: {
         en: 'Maggie guesses where the letter must be but the server goes dark before she gets in. In the last dream the curtains move once. She never finds out who was behind them.',
@@ -338,15 +479,39 @@ Content: the original carries warnings (unreality, drugs, alcohol, death, missin
       },
     },
     {
-      id: 'wood-near', who: 'wood', tier: 2, minStage: 3,
+      id: 'wood-near', kind: 'normal', who: 'wood', tier: 2, minStage: 3,
       title: { en: 'Golden Apple', zh: '金苹果' },
       brief: {
-        en: 'wood passes the email along and gets Maggie the name, then bans her anyway, grudgingly, with a golden apple tossed through the bars as a goodbye.',
-        zh: '木头转了邮箱、替玛姬拿到了名字，然后还是不情不愿地封了她，临别从铁栏间扔进来一个金苹果。',
+        en: 'wood passes the email along and gets Maggie the name; the guild bans her bot anyway, and the last thing in the cell is the golden apple balenciaga once tossed through the bars. wood logs off without saying goodbye, which is how he says it.',
+        zh: '木头转了邮箱、替玛姬拿到了名字；公会还是封了她的机器人，牢房里最后剩下的，是 balenciaga 当初从铁栏间扔进来的那个金苹果。木头没说再见就下线了——这就是他的再见。',
       },
     },
     {
-      id: 'not-closure', tier: 0,
+      id: 'crows-scatter', kind: 'bad', who: 'crows', tier: 1, minStage: 2, minBroken: 1,
+      title: { en: 'Scatter', zh: '四散' },
+      brief: {
+        en: 'Maggie broke her word to the six. When she comes back with what she found, the upside-down apartment is empty and the account is gone; somewhere a flock of six lands on six different perches. She keeps the letter, and no one to read it to.',
+        zh: '玛姬对那六只乌鸦食言了。等她带着找到的东西回来，倒置的公寓空了，账号也没了；某个地方，六只乌鸦落在了六根不同的枝头。信在她手里，却没有人可以念给它听。',
+      },
+    },
+    {
+      id: 'wood-banned', kind: 'bad', who: 'wood', tier: 1, minStage: 1, minBroken: 1,
+      title: { en: 'IP Range Banned', zh: '封禁整个 IP 段' },
+      brief: {
+        en: 'Maggie let wood down; balenciaga wipes the jail and bans the whole IP range. The German name never arrives, and the only trace of the nine arches stays on an old iPod nobody will ever charge again.',
+        zh: '玛姬让木头失望了；balenciaga 清空牢房，封掉整个 IP 段。德语全名再也没有来，九道拱门唯一的痕迹留在一台没人会再充电的旧 iPod 里。',
+      },
+    },
+    {
+      id: 'reels-gone', kind: 'bad', who: 'librarian', tier: 1, minStage: 1, minBroken: 1,
+      title: { en: 'Shipped Back Overseas', zh: '寄回海外' },
+      brief: {
+        en: 'Maggie missed the reading room; the reels went back overseas with half the pages unread. Rosalind\'s email is polite and final. The part of the world that never answers search queries stays silent.',
+        zh: '玛姬没赶上阅览室；胶卷寄回了海外，一半的页数没读。罗莎琳的邮件客气而干脆。世界上那部分不回应搜索的东西，继续沉默。',
+      },
+    },
+    {
+      id: 'not-closure', kind: 'normal', tier: 0,
       title: { en: 'Not Closure', zh: '不是结案' },
       brief: {
         en: 'Occam\'s razor: the eQualia gang were scared off the internet and shucked their identities like old clothes, somewhere Maggie will never be privy to. She closes notes.txt without believing it. Not every case can be solved. That\'s just part of the job.',

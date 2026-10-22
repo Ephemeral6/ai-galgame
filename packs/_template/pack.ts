@@ -46,6 +46,7 @@ export const TEMPLATE: Pack = {
       haunts: { 0: ['place-a'], 1: ['place-a'] }, // 时段下标 → 常去的地点 id
       deadline: { day: 3, text: { zh: 'TODO 截止事件', en: 'TODO deadline event' } },
       keepsakeIdeas: { zh: 'TODO 信物灵感', en: 'TODO keepsake ideas' },
+      tagline: { zh: 'TODO 一行摘要（她不在场时提示里只放这一行）', en: 'TODO one-line summary (all the prompt gets when she is not in the scene)' }, // 可选
       sprite: {
         // 14 列宽、4–12 行；'.' 透明；字母在 pal 里取色
         pal: { B: '#8ecae6', b: '#5fa8c9', L: '#e8f6fb', A: '#ffb703' },
@@ -67,6 +68,36 @@ export const TEMPLATE: Pack = {
       },
     },
   ],
+  // 以下四项都可省略（第一版格式的包没有它们也照常能玩）
+  npcs: [ // 配角：不可攻略，0..8 人
+    {
+      id: 'friend',
+      name: { zh: 'TODO 配角名', en: 'TODO Supporting Name' },
+      color: '#b0bec5',
+      role: { zh: 'TODO 身份，以及和主角、主角色的关系', en: 'TODO who they are and how they relate to me and the heroine' },
+      voice: { zh: 'TODO 说话方式', en: 'TODO how they talk' },
+      samples: [{ zh: 'TODO 示例台词', en: 'TODO sample line' }],
+      haunts: { 0: ['place-b'] }, // 可选：在哪出没（玩家去那里时会写进提示）
+      // sprite: { ... } 可选：有立绘才会上台，格式同主角色
+    },
+  ],
+  relations: [ // a、b 是主角色、配角的 id，或 'me'
+    { a: 'her', b: 'friend', kind: { zh: 'TODO 关系类型', en: 'TODO kind' }, text: { zh: 'TODO 发生过什么、现在卡在哪', en: 'TODO what happened, where it stands' }, hiddenUntil: 2 },
+  ],
+  acts: [ // 分幕：每一幕的走向、关键事件、结束时的悬念
+    {
+      id: 'act1', from: 1,
+      title: { zh: 'TODO 第一幕', en: 'TODO Act I' },
+      goal: { zh: 'TODO 这一幕的走向', en: 'TODO where this act goes' },
+      beats: [
+        { id: 'turn', day: 2, by: 3, who: ['her'], kind: { zh: '转折', en: 'turning point' }, text: { zh: 'TODO 必须发生的事', en: 'TODO what must happen' }, promise: { zh: 'TODO 关键约定（可选）', en: 'TODO key promise (optional)' } },
+      ],
+      hook: { zh: 'TODO 悬念钩子（可选）', en: 'TODO cliffhanger (optional)' },
+    },
+  ],
+  incidents: [ // 随机 / 条件事件
+    { id: 'rain', chance: 0.3, days: [1, 3], slots: [1], text: { zh: 'TODO 下雨了', en: 'TODO it rains' } },
+  ],
   stages: [{ zh: '陌生', en: 'Strangers' }, { zh: '熟悉', en: 'Friends' }, { zh: '心事', en: 'Worries' }, { zh: '秘密', en: 'Secret' }, { zh: '抉择', en: 'Choice' }],
   gates: [
     { affection: 0, scenes: 0 },
@@ -78,9 +109,12 @@ export const TEMPLATE: Pack = {
   events: [{ day: 1, text: { zh: 'TODO 日历事件', en: 'TODO calendar event' } }],
   fixed: [{ day: 3, slot: 1, place: { zh: 'TODO 固定事件地点', en: 'TODO fixed place' }, mood: { zh: 'TODO', en: 'TODO' }, title: { zh: 'TODO 固定事件', en: 'TODO fixed event' }, cast: ['her'] }],
   proactiveAfter: 1,
-  endings: [
-    { id: 'her-true', who: 'her', tier: 3, minStage: 4, minAffection: 8, maxBroken: 0, title: { zh: 'TODO 真结局', en: 'TODO True Ending' }, brief: { zh: 'TODO 走向', en: 'TODO what happens' } },
-    { id: 'normal', tier: 0, title: { zh: 'TODO 普通结局', en: 'TODO Normal Ending' }, brief: { zh: 'TODO 走向', en: 'TODO what happens' } },
+  endings: [ // 先比 tier（高者优先），同 tier 比好感；kind 只用于相册显示
+    { id: 'her-true', who: 'her', kind: 'true', tier: 4, minStage: 4, minAffection: 8, maxBroken: 0, keptKey: 'turn', title: { zh: 'TODO 真结局', en: 'TODO True Ending' }, brief: { zh: 'TODO 走向', en: 'TODO what happens' } },
+    { id: 'her-good', who: 'her', kind: 'good', tier: 3, minStage: 4, minAffection: 8, maxBroken: 0, title: { zh: 'TODO 好结局', en: 'TODO Good Ending' }, brief: { zh: 'TODO 走向', en: 'TODO what happens' } },
+    { id: 'her-near', who: 'her', kind: 'normal', tier: 2, minStage: 3, title: { zh: 'TODO 普通结局', en: 'TODO Normal Ending' }, brief: { zh: 'TODO 走向', en: 'TODO what happens' } },
+    { id: 'her-bad', who: 'her', kind: 'bad', tier: 1, minStage: 2, minBroken: 1, title: { zh: 'TODO 坏结局', en: 'TODO Bad Ending' }, brief: { zh: 'TODO 走向', en: 'TODO what happens' } },
+    { id: 'normal', kind: 'normal', tier: 0, title: { zh: 'TODO 兜底结局', en: 'TODO Fallback Ending' }, brief: { zh: 'TODO 走向', en: 'TODO what happens' } },
   ],
   finale: { zh: 'TODO 最后一句的点题要求', en: 'TODO how the last sentence should echo the title' },
   loading: [{ zh: 'TODO 生成中的氛围句…', en: 'TODO a mood line while writing...' }],

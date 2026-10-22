@@ -4,6 +4,8 @@
 - `pack.json`：同样内容的 JSON 版，可直接 `/gal validate` / `/gal import`。
 - 模板本身以 CC0 1.0 发布（见 `LICENSE`），可随意使用；你的剧本包请在自己的目录里放上你选择的许可。
 
+- 模板里的 `npcs`（配角）、`relations`（人物关系）、`acts`（分幕与关键事件）、`incidents`（随机事件）和结局的 `kind`、`keptKey` 都是可选的，不需要就整段删掉。
+
 写法与许可核对清单见仓库根目录的 `CONTRIBUTING.md`。
 
-Copy this folder, rename it to your pack id and replace every `TODO`. The template itself is CC0 1.0. See `CONTRIBUTING.md`.
+Copy this folder, rename it to your pack id and replace every `TODO`. `npcs`, `relations`, `acts`, `incidents` and the endings' `kind` / `keptKey` are optional; delete what you don't need. The template itself is CC0 1.0. See `CONTRIBUTING.md`.
