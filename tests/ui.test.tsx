@@ -193,6 +193,7 @@ test('通关：结局解锁、通关次数、自动存档、二周目', async ($
   }
   expect(await ui.find({ type: 'Text', text: /终幕/ })).toBeDefined()
   expect(await ui.find({ type: 'Text', text: /已见结局 1\/\d · 通关 1 次/ })).toBeDefined()
+  expect(await ui.find({ type: 'Text', text: /^ai-galgame · 停播前的四个夜晚$/ })).toBeDefined() // 结局卡
   // 默认配置：8 幕 × (1 写作 + 1 检查) + 1 次结局；另外每过一天 1 次 Haiku 写夜里的小镇（可关）
   expect([calls.writer, calls.checker, calls.extras]).toEqual([9, 8, 3])
   await ui.press({ key: 'kb-1' }) // 二周目

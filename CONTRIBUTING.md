@@ -7,7 +7,7 @@
 ## 一、写一个剧本包
 
 1. 复制 `packs/_template/` 为 `packs/<你的包 id>/`（id 小写字母开头，只用 `a-z 0-9 - _`）。
-2. 改 `pack.ts`：把每个 `TODO` 换成你的内容，把常量名 `TEMPLATE` 改成你的包名（如 `MY_PACK`）。字段说明见 README 的「剧本包格式」，完整写法参考 `packs/cicada/pack.ts`。
+2. 改 `pack.ts`：把每个 `TODO` 换成你的内容，把常量名 `TEMPLATE` 改成你的包名（如 `MY_PACK`）。字段说明见 [README.zh-CN.md](README.zh-CN.md) 的「写自己的剧本包」（英文见 [README.md](README.md)），完整写法参考 `packs/cicada/pack.ts`。
 3. 在 `packs/index.ts` 里 import 并加进 `BUILTIN`。
 4. 写 `packs/<id>/README.md`（标题、作者、许可、简介；改编作品写出处与改动）和 `packs/<id>/LICENSE`（许可全文）。
 5. 跑校验与测试（见第四节）。

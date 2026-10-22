@@ -1,6 +1,6 @@
 {
   "name": "ai-galgame",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "AI-native visual novel engine: humans write the story pack, the AI writes each scene. Bilingual, keyboard-only, pixel-animal sprites, saves, album, multiple endings. / AI 原生视觉小说引擎",
   "author": { "name": "ai-galgame contributors" },
   "license": "MIT",

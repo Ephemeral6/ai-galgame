@@ -307,3 +307,40 @@ export function shareSummary(story: Story, pack: Pack, lang: Lang, limit = 220):
   return [...text].slice(0, limit - 1).join('') + '…'
 }
 
+
+// ---------- 结局卡：不剧透的分享方格（像 Wordle 那样） ----------
+
+const CARD_KIND: Record<Lang, Record<string, string>> = {
+  zh: { true: '★ 真结局', good: '☆ 好结局', normal: '· 普通结局', bad: '✗ 坏结局', none: '· 结局' },
+  en: { true: '★ True ending', good: '☆ Good ending', normal: '· Normal ending', bad: '✗ Bad ending', none: '· Ending' },
+}
+export const CARD_URL = 'github.com/Ephemeral6/ai-galgame'
+
+/**
+ * 结局卡：只写结局等级，不写结局名和剧情，方便贴出去比较又不剧透。
+ * 包名 · 每日挑战日期 / 结局等级 / 幕数 · 约定兑现方格 · 信物数 · 回退次数 / 她的关系值图标 / 仓库地址。
+ * 没到结局时第二行写「进行到第 n 天」。
+ */
+export function endingCard(story: Story, pack: Pack, lang: Lang): string {
+  const T = packText(pack, lang)
+  const ending = pack.endings.find(e => e.id === story.endingId)
+  const finished = story.phase === 'ending' || !!story.endingId
+  const kind = ending?.kind ?? (ending ? (ending.tier >= 4 ? 'true' : ending.tier >= 3 ? 'good' : ending.tier >= 1 ? 'normal' : 'normal') : 'none')
+  const daily = story.daily ? (lang === 'zh' ? ` · 每日挑战 ${story.daily.slice(5)}` : ` · daily ${story.daily.slice(5)}`) : ''
+  const head = `ai-galgame · ${T(pack.title)}${daily}`
+  const line2 = finished ? CARD_KIND[lang][kind]! : lang === 'zh' ? `进行到第 ${story.day} 天 / ${pack.days}` : `Day ${story.day} of ${pack.days}, in progress`
+  const marks = story.promises.slice(0, 10).map(x => (x.status === 'kept' ? '✓' : x.status === 'broken' ? '✗' : '○')).join('') || '—'
+  const scenes = story.album.length
+  const line3 = lang === 'zh'
+    ? `${scenes} 幕 · 约定 ${marks} · 信物 ${story.keepsakes.length} · 回退 ${story.rewinds} 次`
+    : `${scenes} scenes · promises ${marks} · keepsakes ${story.keepsakes.length} · undos ${story.rewinds}`
+  // 关系值：结局绑定的人，没有就取最亲近的人；图标用她的 meter（非恋爱角色不用心形）
+  const who = ending?.who ?? pack.cast.map(c => c.id).sort((a, b) => (story.heroines[b]?.affection ?? 0) - (story.heroines[a]?.affection ?? 0))[0]
+  const c = pack.cast.find(x => x.id === who)
+  const h = who ? story.heroines[who] : undefined
+  const mt = meterOf(c)
+  const max = pack.gates[4]?.affection ?? 12
+  const full = Math.max(0, Math.min(5, Math.round(((h?.affection ?? 0) / Math.max(1, max)) * 5)))
+  const line4 = c ? mt.full.repeat(full) + mt.empty.repeat(5 - full) : ''
+  return [head, line2, line3, line4, CARD_URL].filter(Boolean).join('\n')
+}

@@ -18,7 +18,7 @@ import { fetchIndex, fetchPack } from './browse'
 import type { CommunityEntry } from './browse'
 import { generatePack, packFromRepo, scanRepo } from './gen'
 import type { GenResult, GenStep } from './gen'
-import { exportFileName, exportRun, shareSummary } from './share'
+import { endingCard, exportFileName, exportRun, shareSummary } from './share'
 import type { ExportFormat } from './share'
 import { PORTRAIT_ROWS, STAGE_ROWS, STAGE_W, cells, keepsakeFrame, portraitFrame, stageFrame } from './art'
 import type { Px } from './art'
@@ -944,6 +944,13 @@ async function shareText($: EngineInterface): Promise<string> {
   return shareSummary(s, await currentPack($, s.pack), st.lang)
 }
 
+/** 结局卡：不剧透的分享方格（结局页按 C；/gal card） */
+async function cardText($: EngineInterface): Promise<string> {
+  const st = await read($, settings)
+  const s = await read($, story)
+  return endingCard(s, await currentPack($, s.pack), st.lang)
+}
+
 /** 社区索引（不调用模型）；被许可白名单挡下的条目不显示，只写调试日志 */
 async function browse($: EngineInterface): Promise<void> {
   const st = await read($, settings)
@@ -1013,7 +1020,7 @@ const TONE_ORDER: Tone[] = ['honest', 'evasive', 'joking', 'committed', 'caring'
 
 export const register: Register = on => {
   on('session.start', async ($, e, next) => {
-    await $.command.register({ name: 'gal', description: 'AI 视觉小说 / AI visual novel', argumentHint: '[new <idea> | repo [path] | export [html|md] | share | browse | cancel | import | validate <path.json>]' })
+    await $.command.register({ name: 'gal', description: 'AI 视觉小说 / AI visual novel', argumentHint: '[new <idea> | repo [path] | export [html|md] | share | card | browse | cancel | import | validate <path.json>]' })
     const st = await $.store.get('settings')
     if (st && typeof st === 'object') await update($, settings, () => ({ ...DEFAULT_SETTINGS, ...(st as Partial<GalSettings>) }))
     const m = await $.store.get('meta')
@@ -1103,6 +1110,7 @@ export const register: Register = on => {
     if (args === 'cancel') { await cancelJob($); return { text: t(st.lang, 'genCancelled') } }
     if (args === 'export' || args.startsWith('export ')) return { text: await doExport($, args.includes('md') ? 'md' : 'html') }
     if (args === 'share') return { text: await shareText($) }
+    if (args === 'card') return { text: await cardText($) }
     if (args === 'browse') {
       await update($, ui, x => ({ ...x, view: 'packs' as View, tab: 1 }))
       await $.ui.open({ id: PANE, title: 'ai-galgame', focus: true })
@@ -1421,6 +1429,7 @@ export const register: Register = on => {
               <>
                 <Text>{L('dailyDone', { ending: tr(resEnd.title, lang, resPack.defaultLang) })}</Text>
                 <Text color={DIM}>{L('dailyShare')} {dailyShare(today, tr(resPack.title, 'en', resPack.defaultLang), tr(resEnd.title, 'en', resPack.defaultLang), res.kind)}</Text>
+                {s.daily === today && s.phase === 'ending' ? endingCard(s, p, lang).split('\n').map((x, i) => <Text key={`dcard${i}`}>{x}</Text>) : null}
               </>
             ) : (
               <Button key="daily-start" hotkey="1" plain onPress={hit(() => void startDaily($))}>{L('dailyStart', { title: tr(dc.pack.title, lang, dc.pack.defaultLang) })}</Button>
@@ -1801,9 +1810,13 @@ export const register: Register = on => {
             { k: 'p', label: `P ${L('album')}`, on: () => void update($, ui, x => ({ ...x, view: 'album' as View, tab: 2, back: 'game' as View })) },
             { k: 'x', label: `X ${L('exportHtml')}`, on: () => void doExport($, 'html') },
             { k: 'm', label: `M ${L('exportMd')}`, on: () => void doExport($, 'md') },
-            { k: 'c', label: `C ${L('shareText')}`, on: () => void shareText($).then(x => $.ui.toast(x)) },
+            { k: 'c', label: `C ${L('endingCardKey')}`, on: () => void cardText($).then(x => $.ui.toast(x)) },
             { k: 't', label: `T ${L('toTitle')}`, on: () => void update($, story, x => ({ ...x, phase: 'title' as const })) },
           ])}
+          <Box flexDirection="column" borderStyle="round" borderColor={DIM} paddingX={1} marginTop={1}>
+            <Text color={DIM}>{L('endingCardHint')}</Text>
+            {endingCard(s, p, lang).split('\n').map((x, i) => <Text key={`card${i}`}>{x}</Text>)}
+          </Box>
           {autoInfo}
         </Box>,
       )

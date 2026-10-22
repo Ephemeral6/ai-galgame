@@ -1,0 +1,125 @@
+name: Story pack submission / 剧本包投稿
+description: Propose a story pack for the repository / 提议把一个剧本包收进仓库
+title: "[pack] "
+labels: ["story-pack", "needs-review"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Open this issue first; a maintainer will confirm before you open a PR. See CONTRIBUTING.md for the format.
+        先开 issue，维护者确认后再提 PR。写法见 CONTRIBUTING.md。
+
+        We accept **original, CC0, CC BY or CC BY-SA** material only. **No NC/ND works, no fan works, no copyrighted commercial works.**
+        只收**原创、CC0、CC BY、CC BY-SA**。**不收 NC/ND、同人、受版权保护的商业作品。**
+  - type: input
+    id: title
+    attributes:
+      label: Pack title (zh / en) / 剧本包标题（中 / 英）
+      placeholder: "最后一班夜车 / The Last Night Bus"
+    validations:
+      required: true
+  - type: input
+    id: pack-id
+    attributes:
+      label: Pack id / 包 id
+      description: "Lowercase, a-z 0-9 - _ ; becomes packs/<id>/"
+      placeholder: "night-bus"
+    validations:
+      required: true
+  - type: textarea
+    id: pitch
+    attributes:
+      label: Premise in 2-3 sentences / 两三句话的故事前提
+      description: "Who is 'I', where, when, and what pressure the days are under. / 「我」是谁、在哪、什么时候、时间压力是什么。"
+    validations:
+      required: true
+  - type: dropdown
+    id: source
+    attributes:
+      label: Origin / 来源
+      options:
+        - Original / 原创
+        - Adaptation of a CC0 work / 改编自 CC0 作品
+        - Adaptation of a CC BY work / 改编自 CC BY 作品
+        - Adaptation of a CC BY-SA work / 改编自 CC BY-SA 作品
+        - Adaptation, other license (explain below) / 改编，其他许可（下面说明）
+    validations:
+      required: true
+  - type: textarea
+    id: source-detail
+    attributes:
+      label: "Adaptations: work, author, license URL, date checked / 改编作品：原作、作者、许可原文链接、核对日期"
+      placeholder: |
+        Work:
+        Author:
+        License text URL: https://
+        Checked on: 2026-11-01
+        What I changed:
+  - type: dropdown
+    id: pack-license
+    attributes:
+      label: License for this pack / 本包的许可
+      description: "Original packs: CC BY 4.0 recommended. CC BY-SA adaptations must stay CC BY-SA. / 原创推荐 CC BY 4.0；BY-SA 改编必须保持 BY-SA。"
+      options:
+        - CC BY 4.0
+        - CC0 1.0
+        - CC BY-SA 4.0
+    validations:
+      required: true
+  - type: input
+    id: size
+    attributes:
+      label: Size / 规模
+      placeholder: "days x slots, romanceable cast, supporting cast, endings, e.g. 5x2, 2+3, 8"
+    validations:
+      required: true
+  - type: dropdown
+    id: languages
+    attributes:
+      label: Languages written in full / 写全了的语言
+      multiple: true
+      options:
+        - 中文 (zh)
+        - English (en)
+    validations:
+      required: true
+  - type: textarea
+    id: ages
+    attributes:
+      label: Main characters and their ages / 主要角色和年龄
+      description: "List 'I' and every romanceable character. No sexual content for anyone under 18; non-romance characters use `romance: false`. / 列出「我」和所有可攻略角色的年龄。未满 18 岁的角色不得有任何性内容；非恋爱角色写 romance: false。"
+    validations:
+      required: true
+  - type: textarea
+    id: validate
+    attributes:
+      label: "Output of `/gal validate <path>` / 校验输出"
+      render: text
+    validations:
+      required: true
+  - type: textarea
+    id: playtest
+    attributes:
+      label: Playtest notes / 试玩记录
+      description: "Which endings did you reach? Any scene where the AI went off the rails? / 打出了哪些结局？有没有 AI 写跑偏的地方？"
+  - type: checkboxes
+    id: license-checklist
+    attributes:
+      label: License checklist (all required) / 许可核对（全部必选）
+      options:
+        - label: "The content is original, or the source license is CC0, CC BY or CC BY-SA and I opened the license text myself. / 内容为原创，或原作许可为 CC0、CC BY、CC BY-SA，且我亲自打开核对过许可原文。"
+          required: true
+        - label: "The license covers the story text, not only code or art. / 许可覆盖剧本文本，而不只是代码或美术。"
+          required: true
+        - label: "It is not a fan work and uses no characters, names, plot or lines from copyrighted commercial works. / 不是同人，也不使用受版权保护的商业作品的角色、名字、剧情或台词。"
+          required: true
+        - label: "No art, music, sound or fonts from the source; sprites are my own pixel drawings. / 不使用原作美术、音乐、音效、字体；立绘是自己画的像素图。"
+          required: true
+        - label: "The `source` field is complete (work, author, license, adaptation, url, and notice if required). / source 字段已写全。"
+          required: true
+        - label: "The pack directory will contain README.md and LICENSE. / 包目录会有 README.md 和 LICENSE。"
+          required: true
+        - label: "No private information about real people; no sexual content involving anyone under 18. / 不涉及真实人物隐私；不含任何涉及未成年人的性内容。"
+          required: true
+        - label: "I agree the pack is published under the license chosen above. / 我同意本包按上面选择的许可发布。"
+          required: true

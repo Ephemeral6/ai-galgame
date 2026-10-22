@@ -1,0 +1,109 @@
+name: Bug report / 问题报告
+description: Something broke or looks wrong / 出错或显示不对
+title: "[bug] "
+labels: ["bug", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting. Please search existing issues first.
+        感谢反馈。提交前请先搜索已有 issue。
+        **Do not paste account emails, API keys or org names.** / **不要贴账号邮箱、API key 或组织名。**
+  - type: input
+    id: cc-version
+    attributes:
+      label: Claude Code version / Claude Code 版本
+      description: Output of `claude --version`
+      placeholder: "2.1.308"
+    validations:
+      required: true
+  - type: input
+    id: plugin-version
+    attributes:
+      label: ai-galgame version / 插件版本
+      description: From `/plugin` or `.claude-plugin/plugin.json`
+      placeholder: "0.3.0"
+    validations:
+      required: true
+  - type: dropdown
+    id: surface
+    attributes:
+      label: Where are you playing? / 在哪里玩
+      options:
+        - Terminal (CLI) / 终端
+        - Desktop app / 桌面版
+        - VS Code extension / VS Code 扩展
+        - Other / 其他
+    validations:
+      required: true
+  - type: input
+    id: terminal
+    attributes:
+      label: OS and terminal / 系统与终端
+      placeholder: "Windows 11 + Windows Terminal, macOS + iTerm2, ..."
+    validations:
+      required: true
+  - type: input
+    id: width
+    attributes:
+      label: Terminal width (columns) / 终端宽度（列）
+      description: "Pane placement depends on width (about 110+ columns puts it beside the chat). / 面板位置取决于宽度。"
+      placeholder: "120"
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area / 哪一部分
+      multiple: true
+      options:
+        - Install / 安装
+        - Pane display or sprites / 面板显示或立绘
+        - Keys / 按键
+        - Story generation / 剧情生成
+        - Autoplay / 自动游玩
+        - Saves, undo, migration / 存档、回退、迁移
+        - Album, keepsakes, endings / 相册、信物、结局
+        - Pack validate or import / 剧本包校验或导入
+        - Language / 语言
+        - Cost or usage / 费用或用量
+        - Other / 其他
+    validations:
+      required: true
+  - type: input
+    id: pack
+    attributes:
+      label: Story pack / 剧本包
+      placeholder: "cicada / band / snow / loop / radio / equalia / mauve / my own"
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce / 复现步骤
+      placeholder: |
+        1. /gal
+        2. New story -> pack ...
+        3. Press ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected vs actual / 期望与实际
+    validations:
+      required: true
+  - type: textarea
+    id: screenshot
+    attributes:
+      label: Screenshot or copied pane text / 截图或面板文字
+      description: "Drag images here. For text, paste inside a code block. / 可拖入图片，文字请放在代码块里。"
+  - type: textarea
+    id: errors
+    attributes:
+      label: Error message / 报错信息
+      render: text
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checks / 确认
+      options:
+        - label: "I installed from the marketplace, or `claude plugin validate` passes on my copy. / 我从市场安装，或本地副本能通过校验。"
+        - label: "The report contains no secrets or personal data. / 报告里没有密钥或个人信息。"
+          required: true

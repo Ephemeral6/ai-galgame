@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Questions, ideas, endings and screenshots / 提问、想法、结局分享
+    url: https://github.com/Ephemeral6/ai-galgame/discussions
+    about: Use Discussions for anything that is not a bug or a pack submission. / 不是 bug 或投稿的内容请发到 Discussions。
+  - name: How to write a story pack / 怎么写剧本包
+    url: https://github.com/Ephemeral6/ai-galgame/blob/main/CONTRIBUTING.md
+    about: Field reference, writing guide and license checklist. / 字段、写作规范和许可清单。

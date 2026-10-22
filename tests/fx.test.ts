@@ -12,6 +12,7 @@ import { CARD_FRAMES, atmoBand, cardFrame, fontText, fxOf, relationGraph, stageD
 import { awayLetter, diaryEntry, letterFrom, nightGossip, portraitOf, tendencies } from '../hooks/native'
 import { BUILTIN } from '../packs/index'
 import { CICADA } from '../packs/cicada/pack'
+import { endingCard } from '../hooks/share'
 import { canSpeak, classifyBash, commitKeepsake, companionLine, workLine } from '../hooks/work'
 
 const P = CICADA
@@ -231,5 +232,26 @@ describe('写作手法层接进引擎', () => {
   test('一幕写完：场景类型记成 lastKind，手法层的标记并进 flags', () => {
     const s = applyScene(freshStory(P, 'zh'), { ...scene(), kind: 'comedy', craftFlags: ['set:yn-interview', 'gag:x'] })
     expect([s.lastKind, s.flags]).toEqual(['comedy', ['set:yn-interview', 'gag:x']])
+  })
+})
+
+describe('结局卡（不剧透的分享方格）', () => {
+  test('只写结局等级、幕数、约定方格、信物、回退和关系值图标，不写结局名和剧情', () => {
+    const s: Story = { ...freshStory(P, 'zh'), phase: 'ending', endingId: 'xiaoman-true', daily: '2026-11-06', rewinds: 1,
+      album: Array.from({ length: 8 }, (_, i) => ({ day: i + 1, slot: 0, heroine: 'xiaoman', text: `秘密剧情 ${i}` })),
+      promises: [{ text: 'a', heroine: 'xiaoman', day: 1, due: 2, status: 'kept' }, { text: 'b', heroine: 'xiaoman', day: 1, due: 2, status: 'kept' }, { text: 'c', heroine: 'zhiyao', day: 1, due: 2, status: 'broken' }],
+      keepsakes: [{ pack: 'cicada', day: 1, heroine: 'xiaoman', title: 'x', desc: '', art: [], palette: {} }, { pack: 'cicada', day: 1, heroine: 'xiaoman', title: 'y', desc: '', art: [], palette: {} }] }
+    s.heroines.xiaoman = { ...s.heroines.xiaoman!, affection: 10 }
+    const card = endingCard(s, P, 'zh')
+    expect(card).toBe(['ai-galgame · 蝉鸣与晚自习 · 每日挑战 11-06', '★ 真结局', '8 幕 · 约定 ✓✓✗ · 信物 2 · 回退 1 次', '♥♥♥♥♡', 'github.com/Ephemeral6/ai-galgame'].join(String.fromCharCode(10)))
+    expect(card).not.toContain('流星落在天台上')
+    expect(card).not.toContain('秘密剧情')
+    expect(endingCard({ ...s, phase: 'plan', endingId: '', daily: '' }, P, 'en')).toContain('Day 1 of 14, in progress')
+  })
+  test('非恋爱角色用她自己的图标', () => {
+    const M = BUILTIN.find(p => p.id === 'mauve')!
+    const s: Story = { ...freshStory(M, 'en'), phase: 'ending', endingId: 'my-prisoner' }
+    s.heroines.wolf = { ...s.heroines.wolf!, affection: 8 }
+    expect(endingCard(s, M, 'en')).toContain('◆◆◆◆◆')
   })
 })
