@@ -67,6 +67,7 @@ Keep scenes short and punchy. Occasional French phrases are welcome ("'tain", "M
   cast: [
     {
       id: 'wolf', name: { en: 'Wolf', zh: '狼' }, short: { en: 'Wolf', zh: '狼' }, color: '#d0352f',
+      romance: false, meter: { label: { en: 'Seen through', zh: '看穿' }, full: '◆', empty: '◇' },
       look: { en: 'a grey wolf with a red scarf and a very confident tail', zh: '戴红围巾的灰狼，尾巴摇得非常自信' },
       voice: {
         en: 'Smooth, chummy, all flattery and "young adults like you and me"; asks questions that sound casual but always circle back to where she is going; signs off with "kay?"; calls Mo\' "you" or "pretty" until she objects. Asides in parentheses reveal his real thoughts only in endings.',
@@ -111,6 +112,7 @@ Keep scenes short and punchy. Occasional French phrases are welcome ("'tain", "M
     },
     {
       id: 'granny', name: { en: 'Granny (Margaret Little)', zh: '外婆（玛格丽特·小）' }, short: { en: 'Granny', zh: '外婆' }, color: '#b07ab8',
+      romance: false, meter: { label: { en: 'Trust', zh: '信任' }, full: '●', empty: '○' },
       look: { en: 'a fluffy white sheep with round dark glasses and a mauve shawl', zh: '一只蓬松的白羊，戴圆框深色眼镜，披紫色披肩' },
       voice: {
         en: 'Sweet, old-fashioned, fond of fairy-tale formulas and TV detective plots; giggles "hihi"; fiercely competitive at Scrabble; calls Mo\' "my little one" and "darling".',
@@ -154,6 +156,7 @@ Keep scenes short and punchy. Occasional French phrases are welcome ("'tain", "M
     },
     {
       id: 'mom', name: { en: 'Mom', zh: '妈妈' }, short: { en: 'Mom', zh: '妈妈' }, color: '#8e6bb0',
+      romance: false, meter: { label: { en: 'Trust', zh: '信任' }, full: '●', empty: '○' },
       look: { en: 'a mauve rabbit in a white apron, one ear always turned toward the door', zh: '系白围裙的紫色兔子，一只耳朵总朝着门口' },
       voice: {
         en: 'Brisk, dry, starts bedtime stories nobody asked for; never raises her voice, just her eyebrows; "young lady", "we\'ll talk about it with your father"; secretly funny.',

@@ -15,7 +15,7 @@ import {
 } from './engine'
 import type { PlanOption } from './engine'
 import { LANGS, helpLines, t } from './i18n'
-import { castOf, chapterOf, dayText, packText, personOf, tr, validatePack } from './pack'
+import { castOf, chapterOf, dayText, meterOf, packText, personOf, tr, validatePack } from './pack'
 import { BUILTIN } from '../packs/index'
 
 const PANE = 'ai-galgame'
@@ -358,9 +358,10 @@ async function show($: EngineInterface, view: View, tab = 0): Promise<void> {
 }
 
 // ---------- 小部件 ----------
-function hearts(n: number, max: number): string {
+/** 关系值：五格，图标来自角色的 meter（恋爱角色默认 ♥ ♡，非恋爱角色如「看穿 ◆◇」「信任 ●○」） */
+function hearts(n: number, max: number, on = '♥', off = '♡'): string {
   const full = Math.max(0, Math.min(5, Math.round((n / Math.max(1, max)) * 5)))
-  return '♥'.repeat(full) + '♡'.repeat(5 - full)
+  return on.repeat(full) + off.repeat(5 - full)
 }
 
 const KIND_COLOR: Record<string, string> = { reply: '#7fd1c7', observe: '#9aa0a6', promise: '#f2c14e' }
@@ -466,10 +467,12 @@ export const register: Register = on => {
           {p.cast.map(c => {
             const hs = s.heroines[c.id]
             if (!hs) return null
+            const mt = meterOf(c)
             return (
               <Text key={`hs-${c.id}`}>
                 <Text color={c.color} bold>{T(c.short)} </Text>
-                <Text color={c.color}>{hearts(hs.affection, maxAff)}</Text>
+                {mt.label ? <Text color={DIM}>{T(mt.label)} </Text> : null}
+                <Text color={c.color}>{hearts(hs.affection, maxAff, mt.full, mt.empty)}</Text>
                 <Text color={DIM}> {T(p.stages[hs.stage])}</Text>
               </Text>
             )
@@ -541,7 +544,7 @@ export const register: Register = on => {
               return (
                 <Button key={`pk-${en.id}`} hotkey={i < 9 ? String(i + 1) : undefined} plain onPress={() => void setSettings($, x => ({ ...x, pack: q.id })).then(() => update($, story, x => ({ ...x, phase: 'title' as const })))}>
                   <Text bold color={cur ? ACCENT : undefined}>{cur ? '▶ ' : '  '}{Q(q.title)}</Text>
-                  <Text color={DIM}>  {Q(q.subtitle)} · {q.cast.length}♥{q.npcs?.length ? ` · ${L('npcs', { n: q.npcs.length })}` : ''} · {q.days}d · {L(`packOrigin_${en.origin}` as Parameters<typeof t>[1])}{q.langs.includes(lang) ? '' : ` · ${q.defaultLang}`}</Text>
+                  <Text color={DIM}>  {Q(q.subtitle)} · {L('castN', { n: q.cast.length })}{q.npcs?.length ? ` · ${L('npcs', { n: q.npcs.length })}` : ''} · {q.days}d · {L(`packOrigin_${en.origin}` as Parameters<typeof t>[1])}{q.langs.includes(lang) ? '' : ` · ${q.defaultLang}`}</Text>
                 </Button>
               )
             })}
@@ -637,7 +640,7 @@ export const register: Register = on => {
               return (
                 <Text key={`end-${x.id}`} wrap="wrap">
                   <Text color={seen ? (x.who ? colorOf(x.who) : ACCENT) : DIM}>{seen ? '★' : '☆'} {seen ? T(x.title) : L('locked')}</Text>
-                  <Text color={DIM}>{x.who ? `  ${shortOf(x.who)}` : ''}{x.kind ? ` · ${L(`end_${x.kind}` as Parameters<typeof t>[1])}` : ''}</Text>
+                  <Text color={DIM}>{x.who ? `  ${shortOf(x.who)}` : ''}{x.who && meterOf(castOf(p, x.who)).label ? ` · ${T(meterOf(castOf(p, x.who)).label)}` : ''}{x.kind ? ` · ${L(`end_${x.kind}` as Parameters<typeof t>[1])}` : ''}</Text>
                 </Text>
               )
             })}

@@ -194,6 +194,26 @@ describe('关系写进提示（只放这一幕相关的人）', () => {
   })
 })
 
+describe('非恋爱角色', () => {
+  test('romance: false 的角色在提示里写明不是恋爱对象，关系值按 meter 的含义写', () => {
+    const mauve = BUILTIN.find(p => p.id === 'mauve')!
+    const st = staticBlock(mauve, 'en')
+    expect(st).toContain('wolf「Wolf」')
+    expect(st.match(/NOT a romance route: "affection" with this character means Seen through/g)?.length).toBe(1)
+    const s = freshStory(mauve, 'en')
+    const o = planOptions(mauve, s, 'en')[0]!
+    expect(sceneDynamic(mauve, s, o, null, '', 'en', META)).toContain('Trust (not romance)')
+    expect(staticBlock(P, 'zh')).not.toContain('NOT a romance route') // 恋爱包不受影响
+    const eq = BUILTIN.find(p => p.id === 'equalia')!
+    expect(eq.cast.every(c => c.romance === false && !!c.meter)).toBe(true)
+  })
+  test('meter 格式错误会报出', () => {
+    const bad = JSON.parse(JSON.stringify(P)) as Pack
+    bad.cast[0]!.meter = { label: '', full: '◆◆' }
+    expect(validatePack(bad).some(e => e.includes('cast[0].meter'))).toBe(true)
+  })
+})
+
 describe('章节关键事件', () => {
   test('相关的人可能在场时，引擎要求这一幕写到关键事件；写完记进 flags，不再重复', () => {
     const s = freshStory(P, 'zh')

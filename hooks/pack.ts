@@ -33,6 +33,12 @@ export function personOf(p: Pack, id: string): Person | undefined {
   return undefined
 }
 
+/** 关系值的显示：图标与含义；没写 meter 的恋爱角色用 ♥ ♡ */
+export function meterOf(c: CastDef | undefined): { full: string; empty: string; label?: L; romance: boolean } {
+  const m = c?.meter
+  return { full: m?.full ?? '♥', empty: m?.empty ?? '♡', label: m?.label, romance: c?.romance !== false }
+}
+
 /** 第 day 天所在的一幕 */
 export function actOf(p: Pack, day: number): ActDef | undefined {
   let a: ActDef | undefined
@@ -139,6 +145,12 @@ export function validatePack(raw: unknown): string[] {
     castIds.add(c.id)
     for (const k of ['name', 'short', 'look', 'voice', 'secret'] as const) need(isL(c[k]), `${at}.${k}: text`)
     if (c.tagline !== undefined) need(isL(c.tagline), `${at}.tagline: text`)
+    if (c.romance !== undefined) need(typeof c.romance === 'boolean', `${at}.romance: true | false`)
+    if (c.meter !== undefined) {
+      const m = c.meter as Record<string, unknown> | null
+      const ch = (x: unknown) => x === undefined || (typeof x === 'string' && [...x].length === 1)
+      need(!!m && typeof m === 'object' && isL(m.label) && ch(m.full) && ch(m.empty), `${at}.meter: { label, full?: one character, empty?: one character }`)
+    }
     need(typeof c.color === 'string' && HEX.test(c.color), `${at}.color: #rrggbb`)
     need(Array.isArray(c.samples) && c.samples.length > 0 && c.samples.every(isL), `${at}.samples: [text, ...]`)
     need(Array.isArray(c.arc) && c.arc.length === 5 && c.arc.every(isL), `${at}.arc: exactly 5 texts`)

@@ -82,7 +82,7 @@ claude plugin install ai-galgame --marketplace Ephemeral6/ai-galgame
 
 | 字段 | 必填 | 写什么 |
 | --- | --- | --- |
-| `cast` | 是 | 可攻略的主角色（1–6）：说话方式、示例台词、秘密、五个阶段的剧情节拍、日常行踪、截止日、像素立绘；可选 `tagline`（不在场时提示里的一行摘要） |
+| `cast` | 是 | 可攻略的主角色（1–6）：说话方式、示例台词、秘密、五个阶段的剧情节拍、日常行踪、截止日、像素立绘；可选 `tagline`（不在场时提示里的一行摘要）；不是恋爱对象的角色（亲人、对手、骗子）写 `romance: false` 和 `meter: { label, full, empty }`，界面显示「信任 ●●○」「看穿 ◆◇」而不是心形，提示里也写明不写恋爱 |
 | `places`、`slots`、`days`、`events`、`fixed` | 是 | 地点、时段、天数、日历事件、固定事件（固定事件的 `cast` 可以有配角） |
 | `endings` | 是 | 结局条件：`minStage`、`minAffection`、`maxAffection`、`maxBroken`、`minBroken`、`minKept`、`keptKey`（兑现某个关键约定）、`minKeepsakes`、`minLoop`（二周目）、`flags`（某个关键事件 / 随机事件发生过）；`kind` 标明真 / 好 / 普通 / 坏；要有一个无条件的兜底结局 |
 | `npcs` | 否 | 配角（0–8）：身份与关系 `role`、说话方式、示例台词、出没地点 `haunts`、可选立绘 |
@@ -165,7 +165,7 @@ Five original packs (CC BY 4.0): *Cicadas & Evening Study* (the flagship: 14 day
 
 ### Write your own pack
 
-Copy `packs/_template/`, fill in characters (voice, sample lines, secret, five-stage beats, routines, deadline, pixel sprite), places, events and endings. Optional fields: `npcs` (supporting characters), `relations` (with `hiddenUntil` for reveals), `acts` (acts with key `beats`, key `promise`s and `hook`s; `chapters` may then be omitted) and `incidents` (random or conditional events with `chance`, `days`, `slots`, `places`, `who`, `need`, `after`). Endings can also use `maxAffection`, `minBroken`, `keptKey`, `flags` and `kind`. All new fields are optional; first-version packs run unchanged. Every text field may be `{ "zh": "…", "en": "…" }`. Play it locally with `/gal validate <path>` and `/gal import <path>` (or drop the JSON into `~/.claude/galgame-packs/`), or contribute it via a PR — see [CONTRIBUTING.md](CONTRIBUTING.md).
+Copy `packs/_template/`, fill in characters (voice, sample lines, secret, five-stage beats, routines, deadline, pixel sprite), places, events and endings. Optional fields: `npcs` (supporting characters), `relations` (with `hiddenUntil` for reveals), `acts` (acts with key `beats`, key `promise`s and `hook`s; `chapters` may then be omitted) and `incidents` (random or conditional events with `chance`, `days`, `slots`, `places`, `who`, `need`, `after`). Characters who aren't love interests (family, rivals, a con man) take `romance: false` plus `meter: { label, full, empty }`: the pane shows e.g. "Trust ●●○" or "Seen through ◆◇" instead of hearts, and the prompt tells the AI not to write romance. Endings can also use `maxAffection`, `minBroken`, `keptKey`, `flags` and `kind`. All new fields are optional; first-version packs run unchanged. Every text field may be `{ "zh": "…", "en": "…" }`. Play it locally with `/gal validate <path>` and `/gal import <path>` (or drop the JSON into `~/.claude/galgame-packs/`), or contribute it via a PR — see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ### AI cost
 

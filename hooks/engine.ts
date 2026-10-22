@@ -6,7 +6,7 @@ import type { EngineInterface, ModelTextBlock } from 'claude-code'
 import type { Actor, BeatDef, CastDef, Choice, EndingDef, HState, IncidentDef, Keepsake, Lang, NpcDef, Pack, RelationDef, Scene, Story, Usage } from '../types'
 import { EXPRS, validKeepsake } from './art'
 import { t } from './i18n'
-import { actOf, allBeats, beatOf, castOf, dayText, npcOf, packText, personOf, tr } from './pack'
+import { actOf, allBeats, beatOf, castOf, dayText, meterOf, npcOf, packText, personOf, tr } from './pack'
 
 export const WRITER = 'sonnet'
 export const CHECKER = 'haiku'
@@ -389,10 +389,19 @@ export function focusMode(p: Pack): boolean {
   return p.cast.length + (p.npcs?.length ?? 0) > FOCUS_ABOVE
 }
 
+/** 非恋爱角色：写进人物设定和一行摘要，让 AI 不写成恋爱对象 */
+function noRomance(p: Pack, c: CastDef, lang: Lang): string {
+  if (meterOf(c).romance) return ''
+  const label = packText(p, lang)(c.meter?.label) || 'trust'
+  return `NOT a romance route: "affection" with this character means ${label}; never write romance, flirtation, crushes or a love-interest framing`
+}
+
 function castEntry(p: Pack, c: CastDef, lang: Lang): string {
   const T = packText(p, lang)
+  const nr = noRomance(p, c, lang)
   return [
     `- id=${c.id}「${T(c.name)}」 look: ${T(c.look)}`,
+    ...(nr ? [`  ${nr}.`] : []),
     `  voice: ${T(c.voice)}`,
     `  samples: ${c.samples.map(x => `「${T(x)}」`).join(' ')}`,
     `  secret (do not reveal before stage 3 "${T(p.stages[3])}"): ${T(c.secret)}`,
@@ -420,7 +429,7 @@ function personEntry(p: Pack, id: string, lang: Lang): string {
 function summaryLines(p: Pack, lang: Lang): string {
   const T = packText(p, lang)
   return [
-    ...p.cast.map(c => `- ${c.id}「${T(c.name)}」: ${T(c.tagline ?? c.look)}`),
+    ...p.cast.map(c => `- ${c.id}「${T(c.name)}」: ${T(c.tagline ?? c.look)}${meterOf(c).romance ? '' : ` (${noRomance(p, c, lang)})`}`),
     ...(p.npcs ?? []).map(n => `- ${n.id}「${T(n.name)}」 (supporting): ${T(n.role)}`),
   ].join('\n')
 }
@@ -499,8 +508,9 @@ export function stateText(p: Pack, s: Story, lang: Lang, focus?: string[]): stri
   return p.cast.map(c => {
     const h = s.heroines[c.id]
     if (!h) return `- ${c.id}: stage 0`
-    if (focus && focusMode(p) && !focus.includes(c.id)) return `- ${c.id} ${T(c.short)}: stage ${h.stage}, affection ${h.affection}, last seen day ${h.lastDay || '-'}`
-    return `- ${c.id} ${T(c.name)}: affection ${h.affection}, stage ${h.stage} "${T(p.stages[h.stage])}" (beat: ${T(c.arc[h.stage])}), mood ${h.mood || 'normal'}, alone-scenes ${h.scenes}, last seen day ${h.lastDay || '-'}`
+    const aff = meterOf(c).romance ? 'affection' : `${T(c.meter?.label) || 'trust'} (not romance)`
+    if (focus && focusMode(p) && !focus.includes(c.id)) return `- ${c.id} ${T(c.short)}: stage ${h.stage}, ${aff} ${h.affection}, last seen day ${h.lastDay || '-'}`
+    return `- ${c.id} ${T(c.name)}: ${aff} ${h.affection}, stage ${h.stage} "${T(p.stages[h.stage])}" (beat: ${T(c.arc[h.stage])}), mood ${h.mood || 'normal'}, alone-scenes ${h.scenes}, last seen day ${h.lastDay || '-'}`
   }).join('\n')
 }
 
@@ -656,7 +666,7 @@ export async function writeEnding($: EngineInterface, p: Pack, s: Story, e: Endi
   const kind = e.kind ? ` [${e.kind} ending]` : ''
   const text = await ask($, WRITER, [{ text: staticBlock(p, lang), cache: true }, {
     text: `Now write the ENDING instead of a scene. Plain prose, no JSON.
-Ending: "${T(e.title)}"${kind} — ${T(e.brief)}${e.who ? ` (with ${T(castOf(p, e.who)?.name)})` : ''}
+Ending: "${T(e.title)}"${kind} — ${T(e.brief)}${e.who ? ` (with ${T(castOf(p, e.who)?.name)})` : ''}${e.who && !meterOf(castOf(p, e.who)).romance ? `\n${noRomance(p, castOf(p, e.who)!, lang)}.` : ''}
 ${focusNotes(p, who, lang)}Final state:
 ${stateText(p, s, lang, who)}
 Promises: ${promises}

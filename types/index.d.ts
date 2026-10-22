@@ -42,6 +42,10 @@ export type CastDef = {
   keepsakeIdeas?: L
   /** 一行摘要：她不在这一幕时，提示里只放这一行（不填就用 look） */
   tagline?: L
+  /** 不是恋爱对象（默认 true 是恋爱线）：false 时 AI 提示写明不写恋爱、暧昧，「好感」按 meter 的意思理解 */
+  romance?: boolean
+  /** 关系值怎么显示：label 是含义（如「信任」「看穿」），full / empty 是满格、空格的单个字符（默认 ♥ ♡） */
+  meter?: { label: L; full?: string; empty?: string }
   sprite: SpriteDef
 }
 

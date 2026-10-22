@@ -100,6 +100,7 @@ const ZH = {
   end_normal: '普通',
   end_bad: '坏',
   npcs: '配角 {n}',
+  castN: '主角色 {n}',
 }
 
 export type UiKey = Exclude<keyof typeof ZH, 'helpLines'>
@@ -202,6 +203,7 @@ const EN: typeof ZH = {
   end_normal: 'normal',
   end_bad: 'bad',
   npcs: '{n} supporting',
+  castN: '{n} main',
 }
 
 const TABLE: Record<Lang, typeof ZH> = { zh: ZH, en: EN }

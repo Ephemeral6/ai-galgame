@@ -47,6 +47,7 @@ export const TEMPLATE: Pack = {
       deadline: { day: 3, text: { zh: 'TODO 截止事件', en: 'TODO deadline event' } },
       keepsakeIdeas: { zh: 'TODO 信物灵感', en: 'TODO keepsake ideas' },
       tagline: { zh: 'TODO 一行摘要（她不在场时提示里只放这一行）', en: 'TODO one-line summary (all the prompt gets when she is not in the scene)' }, // 可选
+      // 不是恋爱对象时（亲人、对手、骗子……）：romance: false, meter: { label: { zh: '信任', en: 'Trust' }, full: '●', empty: '○' },
       sprite: {
         // 14 列宽、4–12 行；'.' 透明；字母在 pal 里取色
         pal: { B: '#8ecae6', b: '#5fa8c9', L: '#e8f6fb', A: '#ffb703' },

@@ -266,3 +266,22 @@ test('导入第一版格式（没有新字段）的剧本包，照常能玩', as
   expect(calls.writerPrompts[0]).toContain('TODO 秘密') // 小包：完整设定仍在缓存块里
   await ui.unmount()
 })
+
+test('非恋爱角色：狼显示「看穿 ◆◇」、外婆和妈妈显示「信任 ●○」，不用心形', async ($, on) => {
+  engineBeneath(on)
+  await $.session.start({ cwd: '/', surface: 'terminal', isInteractive: true })
+  await $.command.run(gal(''))
+  const ui = await $.ui.mount({ ...PANE, surface: 'terminal' })
+  await ui.press({ key: 'menu-packs' })
+  await ui.press({ key: 'pk-mauve' })
+  await ui.press({ key: 'kb-b' })
+  await ui.press({ key: 'menu-new' })
+  expect(await ui.find({ type: 'Text', text: /^狼 看穿 ◇{5}/ })).toBeDefined()
+  expect(await ui.find({ type: 'Text', text: /^外婆 信任 ○{5}/ })).toBeDefined()
+  expect(await ui.find({ type: 'Text', text: /^妈妈 信任 ○{5}/ })).toBeDefined()
+  expect(await ui.find({ type: 'Text', text: /^狼 .*[♥♡]/ })).toBeUndefined()
+  await ui.press({ key: 'kb-p' })
+  await ui.press({ key: 'tab2' }) // 相册 · 结局：标出关系的含义
+  expect(await ui.find({ type: 'Text', text: /狼 · 看穿/ })).toBeDefined()
+  await ui.unmount()
+})

@@ -77,6 +77,7 @@ Content: the original carries warnings (unreality, drugs, alcohol, death, missin
   cast: [
     {
       id: 'crows', name: { en: '7crows', zh: '七鸦' }, short: { en: '7crows', zh: '七鸦' }, color: '#5c6bc0',
+      romance: false, meter: { label: { en: 'Trust', zh: '信任' }, full: '●', empty: '○' },
       look: { en: 'a flock of small black block-pixel crows huddled around one larger crow; later only six', zh: '一群黑色方块像素小乌鸦簇拥着一只大一点的乌鸦；后来只剩六只' },
       voice: {
         en: 'Types in lowercase, short and guarded; long pauses, the typing indicator flickering on and off. Talks about past problems in present tense. Refers to itself as "it" and sometimes as the flock. Communicates mood through poseball animations (leaning over a ledge, huddling, murmuration). Calls Maggie "maggie" or "sleuth".',
@@ -123,6 +124,7 @@ Content: the original carries warnings (unreality, drugs, alcohol, death, missin
     },
     {
       id: 'wood', name: { en: 'normalblockofwood', zh: '普通木块（木头）' }, short: { en: 'wood', zh: '木头' }, color: '#b5834a',
+      romance: false, meter: { label: { en: 'Trust', zh: '信任' }, full: '●', empty: '○' },
       look: { en: 'a plain block-pixel cube of wood grain on two stubby legs, with a crossbow it never fires', zh: '一块木纹方块像素立方体，两条短腿，拿着一把从来没射过的弩' },
       voice: {
         en: 'Lowercase, typos, "lol", "dude", "jeez"; suspicious ("you a fed?"), then oddly eager to tell a long story with every detail. Parrots big ideas in malapropisms ("the epic of girugamesh"). Bristles, swears, backs down when overpowered. Calls Maggie "dude" or "maze guy".',
@@ -167,6 +169,7 @@ Content: the original carries warnings (unreality, drugs, alcohol, death, missin
     },
     {
       id: 'dahlia', name: { en: 'Princess Dahlia (kewpie_faygo)', zh: '达莉娅公主（kewpie_faygo）' }, short: { en: 'Dahlia', zh: '达莉娅' }, color: '#c06bd6',
+      romance: false, meter: { label: { en: 'Trust', zh: '信任' }, full: '●', empty: '○' },
       look: { en: 'a small purple block-pixel dragon with a pink dahlia behind one horn and wings she keeps apologizing for', zh: '一只紫色方块像素小龙，一只角后面别着粉色大丽花，翅膀总是让她不停道歉' },
       voice: {
         en: 'Missing. She reaches Maggie only through traces: archived posts, one-sided replies, chat logs from the rave, room descriptions she wrote, dreams, and perhaps something stranger. In those traces she types soft and lowercase, apologizes for everything ("oop sowwie"), uses tildes and emoticons (~ ^w^ >.>), downplays her own role, and loves everyone a little too hard. In her own kingdom her prose is lush and careful. Calls Maggie "bunny" (from her avatar).',
@@ -212,6 +215,7 @@ Content: the original carries warnings (unreality, drugs, alcohol, death, missin
     },
     {
       id: 'librarian', name: { en: 'Rosalind (the librarian)', zh: '罗莎琳（图书管理员）' }, short: { en: 'Rosalind', zh: '罗莎琳' }, color: '#7f9a8c',
+      romance: false, meter: { label: { en: 'Trust', zh: '信任' }, full: '●', empty: '○' },
       look: { en: 'a grey block-pixel mole in a white mask, eyes creased in a smile you cannot see', zh: '一只戴白口罩的灰色方块像素鼹鼠，眼睛眯起来——那是你看不见的笑' },
       voice: {
         en: 'An original character added for this adaptation. Warm, unhurried, librarian-precise; handles film with bare fingers ("you\'ll only be touching the blank area"). Explains what she knows and admits what she doesn\'t. Fond of things that were never digitized. Calls Maggie "Ms. Maggie" until told not to.',
