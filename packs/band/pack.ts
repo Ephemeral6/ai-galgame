@@ -2,8 +2,10 @@
 // 用到剧本包格式的全部新字段：配角 npcs、人物关系 relations、三幕主线 acts（关键事件与关键约定）、随机事件 incidents、多结局。
 
 import type { Pack } from '../../types'
+import type { CraftFields } from '../../hooks/craft-types'
+import { BAND_CRAFT } from './craft'
 
-export const BAND: Pack = {
+export const BAND: Pack & CraftFields = {
   id: 'band',
   version: '1.0.0',
   defaultLang: 'zh',
@@ -474,4 +476,6 @@ Never: anything Japanese (senpai/kohai, cherry blossoms, shrines, festivals in t
     { zh: '鼓棒在桌沿上敲出一百二十…', en: 'A drumstick taps one-twenty on the table edge...' },
     { zh: '江上的雾又漫上来一点…', en: 'The fog on the river creeps a little higher...' },
   ],
+  // 写作手法层（母题、预写关键场景、共通线与个人线、揭示、日常细节、群像笑料、八卦、人物细节），见 ./craft.ts
+  craft: BAND_CRAFT,
 }

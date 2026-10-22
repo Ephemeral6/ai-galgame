@@ -230,6 +230,8 @@ export type Pack = {
   acts?: ActDef[]
   /** 随机 / 条件事件 */
   incidents?: IncidentDef[]
+  /** 写作手法层：母题、预写关键场景、路线、揭示、日常细节、人物细节（全部可选） */
+  craft?: PackCraft
   /** 5 个阶段名 */
   stages: [L, L, L, L, L]
   /** 阶段门槛：好感 ≥ affection 且单独相处 ≥ scenes 幕；下标 0 为起点 */
@@ -245,6 +247,194 @@ export type Pack = {
   /** 生成中的氛围句 */
   loading: L[]
 }
+
+// ---------- 写作手法层（craft，全部可选；设计见 docs/NARRATIVE-CRAFT.md） ----------
+/** 母题：反复出现的物件或意象；同一个东西在不同关系阶段代表不同的意思 */
+export type MotifDef = {
+  id: string
+  /** 物件或意象本身（一个短名词） */
+  thing: L
+  /** 属于谁（主角色或配角 id）；不填是全剧母题 */
+  who?: string
+  /** 意义随阶段变化：stage 是 0..4，从这一阶段起它代表 text（按 stage 升序） */
+  meanings: { stage: number; text: L }[]
+  /** 最终怎么回收（关键场景、结局里落在它上面） */
+  payoff?: L
+}
+
+/** 预写关键场景里的一句台词。who 是主角色 / 配角 id、'me' 或 'narration'（旁白） */
+export type SetPieceLine = { who: string; text: L }
+
+/** 预写关键场景的选项（可选；不写就由 AI 按 FORMAT 写三个选项） */
+export type SetPieceChoice = {
+  text: L
+  kind: 'reply' | 'observe' | 'promise'
+  effects: Record<string, number>
+  reaction: L
+  promise?: L
+}
+
+/**
+ * 预写关键场景：人写核心台词、调度和留白，AI 只补核心台词之间的衔接。
+ * 高潮、告白、离别这些最容易被 AI 写平的幕，由它保底。
+ */
+export type SetPieceDef = {
+  id: string
+  /** 这一幕的主角色 */
+  who: string
+  title: L
+  /** 场景类型，决定配哪一条写作片段 */
+  kind: SceneKind
+  /**
+   * 触发条件（全部满足才触发；每局只触发一次）。
+   * beat：这个关键事件到期的那一幕由本场景接管；minStage：主角色到达这个阶段；
+   * places / slots / days：只在这些地点、时段、天数；after：先发生过（'beat:<id>' / 'inc:<id>' / 'set:<id>' / 'reveal:<id>'）；
+   * route：只在锁定了这条个人线之后；alone：只在单独相处时
+   */
+  trigger: {
+    beat?: string
+    minStage?: number
+    places?: string[]
+    slots?: number[]
+    days?: [number, number]
+    after?: string[]
+    route?: string
+    alone?: boolean
+  }
+  /** 调度：环境、光线、物件、谁在哪、谁先开口（给 AI 的导演说明） */
+  staging: L
+  /** 人写的核心台词，按出现顺序。AI 必须逐字保留，只能在它们之间加衔接的动作、旁白和不超过两句的过渡台词 */
+  lines: SetPieceLine[]
+  /** 这一幕绝不说出口的话（留白）：让人物绕着它走 */
+  unsaid?: L
+  /** 回收哪个母题（MotifDef.id） */
+  motif?: string
+  /** 预写选项；不写由 AI 写 */
+  choices?: SetPieceChoice[]
+}
+
+/** 场景类型：写作指南按它挑片段 */
+export type SceneKind = 'daily' | 'comedy' | 'conflict' | 'confession' | 'farewell' | 'reveal' | 'climax'
+
+/** 共通线 → 个人线：分叉与锁定 */
+export type RouteDef = {
+  /** 共通线到第几天结束（含这一天）；之后进入个人线 */
+  commonUntil: number
+  /** 共通线的写法：群像为主、每人都要露面、只埋伏笔不揭底 */
+  commonGoal: L
+  /**
+   * 锁定条件：共通线结束那天过完时，阶段 ≥ minStage、好感 ≥ minAffection，且比第二名至少高 margin 的那个人锁定为个人线；
+   * 没有人满足就走「群像线」（不锁定）。
+   */
+  lock: { minStage: number; minAffection: number; margin?: number }
+  /** 每条个人线的走向，以及被冷落的人怎么继续存在（不消失，但退到背景、带着情绪） */
+  branches: { who: string; goal: L; others: L }[]
+  /** 不锁定时（群像线）的走向 */
+  ensemble?: L
+  /** 真相路线：看过这些结局（任一周目）后才开放；揭示由 reveals 里 minLoop / needEndings 的条目承担 */
+  truth?: { needEndings: string[]; who?: string; text: L }
+}
+
+/** 日常质感库：天气、食物、小事；每幕只抽一两条，不要全用 */
+export type TextureDef = {
+  /** 按天：天气和当天的小事 */
+  days?: { day: number; weather?: L; bits: L[] }[]
+  /** 按地点 id 的细节 */
+  places?: Record<string, L[]>
+  /** 任何时候都能用的细节 */
+  any?: L[]
+}
+
+/** 闪回：一小段过去的画面，在条件满足时插进一幕（一两句，像突然想起） */
+export type FlashbackDef = {
+  id: string
+  /** 谁的过去（主角色 / 配角 id，或 'me'） */
+  who: string
+  /** 触发：主角色到达阶段 / 母题在场 / 先发生过 */
+  trigger: { minStage?: number; motif?: string; after?: string[] }
+  text: L
+}
+
+/** 揭示：在某个条件之后公开的真相，会改变前文的意义（重读时意义翻转） */
+export type RevealDef = {
+  id: string
+  /** 触发条件（全部满足）：先发生过 / 某人到达阶段 / 第几周目 / 看过这些结局 */
+  when: { after?: string[]; who?: string; minStage?: number; minLoop?: number; needEndings?: string[] }
+  /** 真相本身（给 AI 写的那一幕用；台词要克制） */
+  truth: L
+  /** 前文里哪些细节因此换了意思：AI 在揭示后的幕里点回其中一条 */
+  reframes: L[]
+}
+
+/** 她的日记（主开发线的「她的视角」功能用） */
+export type DiaryVoice = {
+  /** 文风：句子长短、记什么不记什么、用什么符号 */
+  style: L
+  /** 日记里也不写的事（她连自己都瞒着的） */
+  hides: L
+  /** 各阶段她心里怎么看「我」：与 pack.stages 一一对应 */
+  seesMe: [L, L, L, L, L]
+}
+
+/** 人物塑造的细节：主角色和配角都可以写 */
+export type PersonCraft = {
+  /** 口癖：反复出现的说法 */
+  quirks?: L[]
+  /** 行为习惯：手上在做什么，紧张、说谎、开心时的小动作 */
+  habits?: L[]
+  /** 矛盾点：嘴上和心里、想要和害怕之间的拉扯 */
+  contradiction?: L
+  /** 成长弧：从哪里到哪里（只写方向，不写结果） */
+  growth?: L
+  /** 她写日记的口吻（主角色） */
+  diaryVoice?: DiaryVoice
+  /** 跨周目「既视感」台词种子：二周目起她偶尔说出的、像记得什么的话 */
+  dejaVu?: L[]
+  /** 玩家离开一段时间后她发来消息的语气样本 */
+  awayVoice?: L[]
+}
+
+/** 群像搞笑小段：几个配角（或配角 + 主角色）之间的固定笑料，给日常幕调味 */
+export type GagDef = {
+  id: string
+  /** 参与的人（至少一人在场才用） */
+  who: string[]
+  text: L
+  /** 只在这些地点 */
+  places?: string[]
+}
+
+/** 配角之间的八卦素材（幕后八卦功能用）：谁在说谁，说的是真是假 */
+export type GossipDef = {
+  id: string
+  /** 说的人 */
+  from: string
+  /** 被说的人 */
+  about: string
+  text: L
+  /** 是真话、半真、还是误会（AI 写八卦时据此决定语气） */
+  truth?: 'true' | 'half' | 'false'
+  /** 从第几天起能说 */
+  fromDay?: number
+  /** 先发生过 */
+  after?: string[]
+}
+
+export type PackCraft = {
+  motifs?: MotifDef[]
+  setPieces?: SetPieceDef[]
+  routes?: RouteDef
+  texture?: TextureDef
+  flashbacks?: FlashbackDef[]
+  reveals?: RevealDef[]
+  /** 人物塑造：主角色或配角 id → 细节 */
+  people?: Record<string, PersonCraft>
+  gags?: GagDef[]
+  gossip?: GossipDef[]
+}
+
+/** 合并进 types 之前，内置包用 `Pack & CraftFields` 声明 */
+export type CraftFields = { craft?: PackCraft }
 
 // ---------- 运行状态 ----------
 export type Line = { who: string; text: string }
@@ -295,6 +485,10 @@ export type Scene = {
   atmo?: Atmo
   cues?: StageCue[]
   camera?: Camera
+  /** 这一幕的类型（写作手法层判定；笑泪交替用） */
+  kind?: SceneKind
+  /** 写作手法层要并进 Story.flags 的标记（预写场景、揭示、闪回、笑料） */
+  craftFlags?: string[]
 }
 export type HState = { affection: number; stage: number; scenes: number; mood: string; lastDay: number }
 export type Promise_ = { text: string; heroine: string; day: number; due: number; status: 'open' | 'kept' | 'broken'; made?: string; /** 关键约定：对应的 beat id */ key?: string }
@@ -365,7 +559,8 @@ export type Story = {
   /** 每日挑战的日期（不是挑战局为 ''） */
   daily: string
   /** 关键台词（每幕一句，导出整局时用） */
-  quotes: { day: number; who: string; text: string }[]
+  quotes: { day: number; who: string; text: string }[]  /** 上一幕的类型（笑泪交替用） */
+  lastKind?: SceneKind
 }
 
 export type View = 'game' | 'album' | 'saves' | 'settings' | 'help' | 'packs' | 'graph' | 'feats'

@@ -1,0 +1,440 @@
+// 《防空洞与江雾音乐节》的写作手法层：母题、预写关键场景、共通线与个人线、揭示、闪回、日常细节、群像笑料、八卦、人物细节。
+// 全部原创。字段定义见 hooks/craft-types.ts。
+
+import type { PackCraft } from '../../hooks/craft-types'
+
+export const BAND_CRAFT: PackCraft = {
+  motifs: [
+    { id: 'three-strings', thing: { zh: '那把只剩三根弦的旧贝斯', en: 'the old bass with only three strings' },
+      meanings: [
+        { stage: 0, text: { zh: '凑合用的破琴，一个笑话', en: 'a battered stopgap, a joke' } },
+        { stage: 2, text: { zh: '这支乐队本身：缺一根，还在响', en: 'the band itself: one string short and still sounding' } },
+        { stage: 4, text: { zh: '第四根弦要不要装上，等于留不留下', en: 'whether the fourth string goes on means whether you stay' } },
+      ],
+      payoff: { zh: '装上第四根弦的那一刻', en: 'the moment the fourth string goes on' } },
+    { id: 'pick', who: 'wendi', thing: { zh: '被她咬出牙印的拨片', en: 'a pick with her teeth marks in it' },
+      meanings: [
+        { stage: 0, text: { zh: '她紧张时咬，咬完还嘴硬', en: 'she bites it when nervous, then denies it' } },
+        { stage: 3, text: { zh: '她想说又说不出口的话，都咬在上面了', en: 'everything she can\'t say is bitten into it' } },
+      ] },
+    { id: 'last-line', who: 'wendi', thing: { zh: '新歌的最后一句', en: 'the last line of the new song' },
+      meanings: [
+        { stage: 1, text: { zh: '还没写完的一句歌词', en: 'an unfinished lyric' } },
+        { stage: 2, text: { zh: '她每次都在这里破音', en: 'where her voice cracks every time' } },
+        { stage: 4, text: { zh: '唱给谁，就是选了谁', en: 'whoever it is sung to is the one she chose' } },
+      ],
+      payoff: { zh: '音乐节上，她转身唱完的那一句', en: 'the line she turns to sing at the festival' } },
+    { id: 'tuning', who: 'wendi', thing: { zh: '调弦', en: 'tuning her guitar' },
+      meanings: [
+        { stage: 0, text: { zh: '乐手的习惯', en: 'a player\'s habit' } },
+        { stage: 2, text: { zh: '她心虚的时候才调，其实弦是准的', en: 'she only tunes when guilty; the strings are already in tune' } },
+      ] },
+    { id: 'earplugs', who: 'suzhen', thing: { zh: '耳塞', en: 'earplugs' },
+      meanings: [
+        { stage: 0, text: { zh: '鼓手的职业装备', en: 'standard drummer kit' } },
+        { stage: 2, text: { zh: '她左边那只从来不摘', en: 'she never takes out the left one' } },
+        { stage: 3, text: { zh: '左边那只其实什么都挡不住了', en: 'the left one no longer blocks anything at all' } },
+      ] },
+    { id: 'bpm', who: 'suzhen', thing: { zh: '一百二十', en: 'one-twenty' },
+      meanings: [
+        { stage: 0, text: { zh: '这首歌的速度', en: 'the song\'s tempo' } },
+        { stage: 1, text: { zh: '她和「我」之间的暗号', en: 'a password between her and me' } },
+        { stage: 4, text: { zh: '「你等我」', en: '"Wait for me"' } },
+      ] },
+    { id: 'left-side', who: 'suzhen', thing: { zh: '舞台的左边', en: 'stage left' },
+      meanings: [
+        { stage: 1, text: { zh: '她总站在闻笛右边，左边空着', en: 'she always stands to Wen Di\'s right; the left stays empty' } },
+        { stage: 3, text: { zh: '需要有人站的位置', en: 'a place someone needs to stand' } },
+      ] },
+    { id: 'keys', who: 'liqiao', thing: { zh: '黎雀脖子上的一串钥匙', en: 'the ring of keys at Li Que\'s neck' },
+      meanings: [
+        { stage: 0, text: { zh: '「一把旧锁的」', en: '"for an old lock"' } },
+        { stage: 2, text: { zh: '被说中时她会去摸', en: 'what she touches when you hit a nerve' } },
+        { stage: 3, text: { zh: '防空洞铁门的备用钥匙', en: 'the spare key to the shelter\'s iron door' } },
+      ],
+      payoff: { zh: '挂到「我」脖子上的那一把', en: 'the one she hangs round my neck' } },
+    { id: 'brave', who: 'liqiao', thing: { zh: '「勇敢」这个词', en: 'the word "brave"' },
+      meanings: [
+        { stage: 0, text: { zh: '她的讽刺', en: 'her sarcasm' } },
+        { stage: 3, text: { zh: '她真心夸人时也只会用这个词', en: 'the only word she has for real praise too' } },
+      ] },
+    { id: 'recorder', who: 'chumeng', thing: { zh: '楚檬的录音笔', en: 'Chu Meng\'s voice recorder' },
+      meanings: [
+        { stage: 0, text: { zh: '一个收集口音的怪爱好', en: 'a strange hobby of collecting accents' } },
+        { stage: 2, text: { zh: '她紧张时开开关关，咔哒咔哒', en: 'she clicks it on and off when nervous' } },
+        { stage: 3, text: { zh: '她说不出口的话，先录在里面', en: 'what she can\'t say aloud, she records first' } },
+      ] },
+    { id: 'sound-map', who: 'chumeng', thing: { zh: '手绘的「声音地图」', en: 'the hand-drawn "sound map"' },
+      meanings: [
+        { stage: 1, text: { zh: '一座城的拟声词', en: 'a city written in sound effects' } },
+        { stage: 4, text: { zh: '最后一格留给谁', en: 'whose sound fills the last square' } },
+      ],
+      payoff: { zh: '最后一格', en: 'the last square' } },
+    { id: 'train-boom', thing: { zh: '轻轨钻进楼里的那一声「咚」', en: 'the "boom" of the train entering the building' },
+      meanings: [
+        { stage: 0, text: { zh: '山城的怪景', en: 'a quirk of the hill city' } },
+        { stage: 2, text: { zh: '整栋楼一起打的一拍', en: 'one beat the whole building keeps' } },
+        { stage: 4, text: { zh: '离开或留下时最后听见的声音', en: 'the last sound heard when leaving, or staying' } },
+      ] },
+    { id: 'fog', thing: { zh: '江上的雾', en: 'fog on the river' },
+      meanings: [
+        { stage: 0, text: { zh: '看不清对岸', en: 'the far bank, out of sight' } },
+        { stage: 3, text: { zh: '每个人都藏着一点没说的事', en: 'everyone hiding something unsaid' } },
+        { stage: 4, text: { zh: '雾散了，或者没散', en: 'the fog lifts, or doesn\'t' } },
+      ] },
+  ],
+
+  setPieces: [
+    // 闻笛
+    {
+      id: 'wd-sign', who: 'wendi', kind: 'comedy', motif: 'three-strings',
+      title: { zh: '招到了', en: 'Position Filled' },
+      trigger: { beat: 'b-three-strings' },
+      staging: { zh: '坡上门口，手写的「贝斯手急招」被风掀起一角。她先撕招贴，再开口；整段她都没问「我」愿不愿意。', en: 'Slope\'s door; the handwritten sign flaps in the wind. She tears it down before speaking, and never once asks whether I want to.' },
+      lines: [
+        { who: 'narration', text: { zh: '她把门上的「贝斯手急招」一把撕下来，叠成小方块，塞进「我」的衬衫口袋。', en: 'She tears BASSIST WANTED off the door, folds it into a little square and stuffs it into my shirt pocket.' } },
+        { who: 'wendi', text: { zh: '招到了。', en: 'Position filled.' } },
+        { who: 'me', text: { zh: '我还没说我会。', en: 'I haven\'t said I can play.' } },
+        { who: 'wendi', text: { zh: '三根弦也是贝斯。会数拍子噻？', en: 'Three strings is still a bass. You can count, right?' } },
+        { who: 'me', text: { zh: '……一二三四？', en: '...One, two, three, four?' } },
+        { who: 'wendi', text: { zh: '行。明天十点，防空洞。迟到一分钟，你搬一个音箱。', en: 'Fine. Ten tomorrow, the shelter. Every minute late, you carry an amp.' } },
+      ],
+    },
+    {
+      id: 'wd-chord', who: 'wendi', kind: 'daily', motif: 'tuning',
+      title: { zh: '小三和弦', en: 'The Minor Chord' },
+      trigger: { minStage: 1, places: ['shelter'], slots: [2] },
+      staging: { zh: '夜里的防空洞，一盏吊着的灯泡，拱顶滴水。两人为一个和弦争了很久，已经吵累了。她先开口，最后低头调一根本来就准的弦。', en: 'The shelter at night, one hanging bulb, water dripping from the vault. They have argued over one chord for so long they\'re tired of it. She speaks first, and at the end bends to tune a string that is already in tune.' },
+      lines: [
+        { who: 'wendi', text: { zh: '这里不能是小三和弦。小三太像在哭。', en: 'This can\'t be a minor chord. Minor sounds too much like crying.' } },
+        { who: 'me', text: { zh: '这首歌本来就是在哭。', en: 'This song is crying.' } },
+        { who: 'wendi', text: { zh: '……那也不能让人听出来。', en: '...Then nobody gets to hear it.' } },
+        { who: 'narration', text: { zh: '她低头去拧弦钮。那根弦是准的。', en: 'She bends to turn a tuning peg. The string is already in tune.' } },
+        { who: 'wendi', text: { zh: '行，用你的。……我说的是「行」。', en: 'Fine. We use yours. ...I said "fine".' } },
+      ],
+    },
+    {
+      id: 'wd-letter', who: 'wendi', kind: 'confession', motif: 'last-line',
+      title: { zh: '选不了', en: 'Can\'t Pick' },
+      trigger: { minStage: 3, places: ['rooftop'], alone: true },
+      staging: { zh: '老楼天台，晾着的床单被风鼓起来，脚下整座山城的灯。她递来一张折了四折、角被汗浸软的纸。轻轨从楼里钻出来的那一震，落在最后一句之后。', en: 'The old building\'s rooftop, sheets billowing on the line, the whole hill city lit below. She hands over a paper folded in four, its corner soft with sweat. The shudder of the train leaving the building lands after the last line.' },
+      lines: [
+        { who: 'wendi', text: { zh: '你先看，看完再骂。', en: 'Read it first. Then you can yell.' } },
+        { who: 'me', text: { zh: '北京。', en: 'Beijing.' } },
+        { who: 'wendi', text: { zh: '我想红。也想要你们。……选不了噻。', en: 'I want to make it. And I want you lot. ...Can\'t pick, can I.' } },
+        { who: 'wendi', text: { zh: '你莫说「随你」。你说随我，我就真的走了。', en: 'Don\'t say "up to you". If you say that, I really will go.' } },
+        { who: 'narration', text: { zh: '轻轨从楼里钻出去，整栋楼震了一下，床单落回绳子上。', en: 'The train slides out of the building; the whole block shudders and the sheets drop back onto the line.' } },
+      ],
+      unsaid: { zh: '新歌最后一句写的是谁。', en: 'Who the last line of the new song is about.' },
+    },
+    // 苏枕
+    {
+      id: 'sz-dots', who: 'suzhen', kind: 'daily', motif: 'bpm',
+      title: { zh: '谱子上的点', en: 'Dots on the Chart' },
+      trigger: { minStage: 0, places: ['shelter'], days: [1, 5] },
+      staging: { zh: '白天的防空洞，第一次合排之后。她坐在鼓凳上，用鼓棒在「我」的谱子上一拍点一个点，点得纸都起毛。她几乎不看「我」。', en: 'The shelter by day, after our first run-through. From her drum stool she taps a dot onto my chart for every beat until the paper fuzzes. She hardly looks at me.' },
+      lines: [
+        { who: 'suzhen', text: { zh: '你快了。', en: 'You rushed.' } },
+        { who: 'me', text: { zh: '快多少？', en: 'By how much?' } },
+        { who: 'suzhen', text: { zh: '半拍。', en: 'Half a beat.' } },
+        { who: 'narration', text: { zh: '鼓棒在纸上「笃、笃、笃」，一拍一个点。', en: 'Tock, tock, tock: one dot per beat.' } },
+        { who: 'suzhen', text: { zh: '跟点走。别跟她嗓子走。', en: 'Follow the dots. Not her voice.' } },
+      ],
+    },
+    {
+      id: 'sz-left-ear', who: 'suzhen', kind: 'reveal', motif: 'earplugs',
+      title: { zh: '左边', en: 'Left Side' },
+      trigger: { beat: 'b-left-ear' },
+      staging: { zh: '排练中途，节拍器还在走，鼓声先停了。她把左边的耳塞摘下来放在军鼓上，说话比平时更短。闻笛出去接电话了，防空洞里只剩滴水和节拍器。', en: 'Mid-rehearsal; the click keeps going after the drums stop. She takes out her left earplug and sets it on the snare; her words are even shorter than usual. Wen Di has stepped out to take a call; only the drip and the click remain.' },
+      lines: [
+        { who: 'narration', text: { zh: '节拍器还在「嗒、嗒」地走，鼓声停了。', en: 'The metronome keeps ticking. The drums have stopped.' } },
+        { who: 'suzhen', text: { zh: '左边。', en: 'Left side.' } },
+        { who: 'me', text: { zh: '左边怎么了？', en: 'What about it?' } },
+        { who: 'suzhen', text: { zh: '听不清。半年了。', en: 'Can\'t hear. Six months.' } },
+        { who: 'suzhen', text: { zh: '别告诉她。……她会不去。', en: 'Don\'t tell her. ...She\'d pull out.' } },
+      ],
+      unsaid: { zh: '她怕的是以后再也不能打鼓。', en: 'Her fear of never drumming again.' },
+    },
+    {
+      id: 'sz-right-side', who: 'suzhen', kind: 'confession', motif: 'left-side',
+      title: { zh: '对着右边再说一次', en: 'Say It Again, on the Right' },
+      trigger: { minStage: 3, places: ['rooftop'], alone: true },
+      staging: { zh: '夜里的天台，风从左边吹过来。她摘下左耳的耳塞，把头偏过来让「我」对着那边说话。「我」说的那句话不写出来。', en: 'The rooftop at night, wind from the left. She takes out her left earplug and tilts her head for me to speak into that side. What I say is never written out.' },
+      lines: [
+        { who: 'suzhen', text: { zh: '说句话。左边。', en: 'Say something. Left side.' } },
+        { who: 'narration', text: { zh: '「我」对着她的左耳说了一句话。风很大。', en: 'I say something into her left ear. The wind is loud.' } },
+        { who: 'suzhen', text: { zh: '听不见。', en: 'Can\'t hear.' } },
+        { who: 'narration', text: { zh: '她笑了一下，很短，像一拍里的一个十六分音符。', en: 'She smiles, briefly, like a sixteenth note inside one beat.' } },
+        { who: 'suzhen', text: { zh: '下台以后。对着右边，再说一次。', en: 'After the gig. Say it again. On the right.' } },
+      ],
+      unsaid: { zh: '「我」说的那句话。', en: 'What I said.' },
+    },
+    // 黎雀
+    {
+      id: 'lq-tune', who: 'liqiao', kind: 'conflict', motif: 'brave',
+      title: { zh: 'A 弦低了', en: 'Your A String Is Flat' },
+      trigger: { beat: 'b-old-feud' },
+      staging: { zh: '傍晚的坡上，人挤人。她和闻笛当众呛声，舅舅在吧台后面放下茶壶开始擦杯子。她走之前顺手拧了「我」的弦钮，没看「我」，也没看闻笛。', en: 'Slope at dusk, packed. She and Wen Di trade barbs in front of everyone; behind the bar my uncle sets down the teapot and starts polishing glasses. On her way out she turns my tuning peg without looking at me or at Wen Di.' },
+      lines: [
+        { who: 'liqiao', text: { zh: '你们还缺贝斯？我们缺的是观众。要不要换换？', en: 'Still short a bassist? We\'re short an audience. Want to trade?' } },
+        { who: 'wendi', text: { zh: '黎雀，你莫在这里——', en: 'Li Que, don\'t you dare start here—' } },
+        { who: 'liqiao', text: { zh: '蒋老板家的外甥，你 A 弦低了。', en: 'Slope owner\'s nephew, your A string is flat.' } },
+        { who: 'narration', text: { zh: '她伸手拧了两圈弦钮，钥匙串在她脖子上晃了晃。', en: 'She reaches over and gives the peg two turns; the keys at her neck swing.' } },
+        { who: 'wendi', text: { zh: '谁要你调。', en: 'Nobody asked you.' } },
+        { who: 'liqiao', text: { zh: '不客气。', en: 'You\'re welcome.' } },
+      ],
+    },
+    {
+      id: 'lq-cablecar', who: 'liqiao', kind: 'conflict', motif: 'keys',
+      title: { zh: '缆车上的方向', en: 'Facing the Shelter' },
+      trigger: { minStage: 2, places: ['ferry'], after: ['beat:b-leak'] },
+      staging: { zh: '过江缆车晃到江心，雾贴着玻璃。她一直看着防空洞那个方向，手指勾着脖子上的钥匙。「我」先开口。缆车进站的那一顿落在最后一句后面。', en: 'The cable car sways over mid-river, fog against the glass. She keeps looking toward the shelter, a finger hooked through the keys at her neck. I speak first. The jolt of the car docking lands after her last line.' },
+      lines: [
+        { who: 'me', text: { zh: '不是你，对吧？', en: 'It wasn\'t you. Right?' } },
+        { who: 'liqiao', text: { zh: '你这个问题问得很勇敢。', en: 'That\'s a very brave question.' } },
+        { who: 'liqiao', text: { zh: '是不是我，有什么区别。她想恨一个人，我刚好在。', en: 'What difference does it make. She needs someone to hate, and I happen to be there.' } },
+        { who: 'narration', text: { zh: '缆车进站，「咣」地一顿，钥匙撞在一起响了一声。', en: 'The car docks with a clank; the keys knock together once.' } },
+      ],
+      unsaid: { zh: '她在替谁背锅。', en: 'Whose blame she is carrying.' },
+    },
+    {
+      id: 'lq-receipts', who: 'liqiao', kind: 'reveal', motif: 'keys',
+      title: { zh: '收据', en: 'The Receipts' },
+      trigger: { beat: 'b-rent' },
+      staging: { zh: '打烊后的坡上，椅子倒扣在桌上。舅舅擦同一个杯子擦了十分钟。他什么都没说，只是从柜台底下抽出一沓收据。黎雀的最后一句说得很轻。', en: 'Slope after closing, chairs upended on tables. My uncle has polished the same glass for ten minutes. He says nothing; he just pulls a stack of receipts from under the counter. Li Que\'s last line is very quiet.' },
+      lines: [
+        { who: 'jiangjiu', text: { zh: '……这个杯子，我再擦一下。', en: '...This glass needs another wipe.' } },
+        { who: 'liqiao', text: { zh: '蒋老板，你擦了十分钟了。', en: 'Mr Jiang, you\'ve been wiping it for ten minutes.' } },
+        { who: 'narration', text: { zh: '舅舅放下杯子，从柜台底下抽出一沓收据。最上面一张写着：七号防空洞，六月。', en: 'My uncle sets the glass down and pulls a stack of receipts from under the counter. The top one reads: Shelter No. 7, June.' } },
+        { who: 'liqiao', text: { zh: '……你答应过不说的。', en: '...You promised you wouldn\'t tell.' } },
+        { who: 'liqiao', text: { zh: '我只是想让那个洞里，一直有声音。', en: 'I just wanted that hole in the hill to keep making noise.' } },
+      ],
+    },
+    // 楚檬
+    {
+      id: 'cm-recorder', who: 'chumeng', kind: 'comedy', motif: 'recorder',
+      title: { zh: '低音炮', en: 'Subwoofer' },
+      trigger: { minStage: 0, places: ['ferry', 'lightrail'], days: [1, 5] },
+      staging: { zh: '摇晃的缆车车厢，她把录音笔伸到「我」脸前。缆车一晃，她先护住的是录音笔。', en: 'The swaying cable car; she sticks her recorder in my face. When the car lurches, the first thing she protects is the recorder.' },
+      lines: [
+        { who: 'chumeng', text: { zh: '说句话！随便说！我收集口音！', en: 'Say something! Anything! I collect accents!' } },
+        { who: 'me', text: { zh: '……你好？', en: '...Hello?' } },
+        { who: 'chumeng', text: { zh: '「你好」，外地的，有点紧张，低音很厚——低音炮！你以后就叫低音炮了！', en: '"Hello": out-of-towner, a bit nervous, very thick low end— Subwoofer! That\'s your name now!' } },
+        { who: 'narration', text: { zh: '缆车晃了一下，她两只手捧住的是录音笔。', en: 'The car lurches; both her hands go to the recorder.' } },
+        { who: 'chumeng', text: { zh: '嘘——你听，铁皮在「哐哐」，像有人在敲门。', en: 'Shh, listen. The tin\'s going clang-clang, like someone knocking.' } },
+      ],
+    },
+    {
+      id: 'cm-map', who: 'chumeng', kind: 'daily', motif: 'sound-map',
+      title: { zh: '最后一格', en: 'The Last Square' },
+      trigger: { minStage: 1, places: ['stairs', 'lightrail'] },
+      staging: { zh: '傍晚的梯坎上，她把一张手绘地图摊在石阶上，用两颗石子压住。每一格里写着一个拟声词。只有一格是空的。', en: 'Dusk on the long steps; she spreads a hand-drawn map on a stone step and pins it with two pebbles. Every square holds a sound word. One is empty.' },
+      lines: [
+        { who: 'narration', text: { zh: '梯坎那一格写着「嗒嗒」，轻轨那一格写着「咚」，夜市那一格写着「滋啦」。', en: 'The steps\' square says "tap-tap", the train\'s says "boom", the night market\'s says "sizzle".' } },
+        { who: 'chumeng', text: { zh: '还差最后一格。', en: 'One square left.' } },
+        { who: 'me', text: { zh: '留给什么？', en: 'For what?' } },
+        { who: 'chumeng', text: { zh: '不知道噻。要等它自己响。', en: 'Dunno. Got to wait for it to make a sound by itself.' } },
+        { who: 'narration', text: { zh: '她在空格子旁边画了一个小小的问号，又擦掉了一半。', en: 'She draws a tiny question mark beside the empty square, then rubs half of it out.' } },
+      ],
+    },
+    {
+      id: 'cm-confess', who: 'chumeng', kind: 'confession', motif: 'recorder',
+      title: { zh: '先录好的话', en: 'Recorded in Advance' },
+      trigger: { beat: 'b-confess' },
+      staging: { zh: '收摊后的夜市只剩一盏灯，凉面摊的塑料凳摞起来了。她把录音笔塞进「我」手心，按下播放，自己转过身去收碗。', en: 'The night market after closing, one light left, the noodle stall\'s plastic stools stacked. She presses the recorder into my hand, hits play, and turns away to clear bowls.' },
+      lines: [
+        { who: 'chumeng', text: { zh: '（录音笔里，她自己的声音）是我传的。', en: '(Her own voice, from the recorder) It was me.' } },
+        { who: 'chumeng', text: { zh: '我当面说不出来，就先录好了。', en: 'I couldn\'t say it to your face, so I recorded it first.' } },
+        { who: 'me', text: { zh: '为什么不跟她们说？', en: 'Why not tell them?' } },
+        { who: 'chumeng', text: { zh: '说了，以后防空洞的门……还会给我开吗。', en: 'If I do... will the shelter door ever open for me again.' } },
+        { who: 'narration', text: { zh: '录音笔的红灯一直亮着，她没去按停。', en: 'The recorder\'s red light stays on. She doesn\'t stop it.' } },
+      ],
+      unsaid: { zh: '「我只是想让更多人听见你们」', en: '"I only wanted more people to hear you."' },
+    },
+  ],
+
+  routes: {
+    commonUntil: 5,
+    commonGoal: {
+      zh: '共通线：乐队群像，排练、试演、吃小面、搬音箱；每人只露一个反常（闻笛的电话、苏枕的站位、黎雀的钥匙、楚檬的录音笔）；笑多泪少。',
+      en: 'Common route: the band as an ensemble: rehearsals, the audition, noodles, hauling amps. Each shows one oddity (Wen Di\'s calls, Su Zhen\'s stage position, Li Que\'s keys, Chu Meng\'s recorder). More laughs than tears.',
+    },
+    lock: { minStage: 2, minAffection: 6, margin: 2 },
+    branches: [
+      { who: 'wendi', goal: { zh: '个人线·闻笛：新歌和北京之间的拉扯；和弦、天台、最后一句。', en: 'Wen Di route: torn between the new song and Beijing; chords, the rooftop, the last line.' }, others: { zh: '苏枕照样打鼓，但排练后不再等「我」一起下梯坎；楚檬的地图上少了「我」的一格。', en: 'Su Zhen still drums but no longer waits to walk down the steps with me; Chu Meng\'s map has no square for me.' } },
+      { who: 'suzhen', goal: { zh: '个人线·苏枕：安静的线；节拍、冰粉、左耳；话最少的人慢慢多说一个字。', en: 'Su Zhen route: the quiet route; beats, ice jelly, the left ear; the one with fewest words says one more.' }, others: { zh: '闻笛察觉「我」总站在鼓旁边，排练时更凶了。', en: 'Wen Di notices I always stand by the drums and gets harsher in rehearsal.' } },
+      { who: 'liqiao', goal: { zh: '个人线·黎雀：两支乐队之间；琴行、缆车、钥匙；被冤枉的人怎样不再沉默。', en: 'Li Que route: between two bands; the music shop, the cable car, the keys; how the wrongly blamed stop staying silent.' }, others: { zh: '闻笛把「我」当成叛徒的帮手，见面只说「喂」。', en: 'Wen Di treats me as the traitor\'s accomplice and greets me only with "Hey."' } },
+      { who: 'chumeng', goal: { zh: '个人线·楚檬：整座城的声音；录音、夜市、拆迁；闯了祸的人学会当面认。', en: 'Chu Meng route: the sound of a whole city; recordings, the night market, demolition; the one who messed up learns to own it face to face.' }, others: { zh: '乐队排练少了一个人搬音箱，苏枕敲桌子的次数变多。', en: 'Rehearsals are one amp-hauler short; Su Zhen drums on the table more often.' } },
+    ],
+    ensemble: { zh: '群像线：「我」是把散了的乐队重新拉到一起的那个人；重心在新歌和音乐节，误会由大家一起解开。', en: 'Ensemble route: I\'m the one who pulls the scattered band back together; the weight is on the new song and the festival, and the misunderstandings are untangled by everyone.' },
+    truth: { needEndings: ['wendi-true'], who: 'liqiao', text: { zh: '看过闻笛真结局后，黎雀线才会揭开那把三根弦贝斯的来历。', en: 'After Wen Di\'s true ending, Li Que\'s route reveals where the three-string bass came from.' } },
+  },
+
+  reveals: [
+    {
+      id: 'rv-bass-origin', when: { after: ['beat:b-old-feud'], who: 'liqiao', minStage: 3 },
+      truth: { zh: '那把三根弦的旧贝斯原本是黎雀的。她退队那天把它留在防空洞，琴颈背面贴着她画的小音符，被闻笛用胶布盖住了。', en: 'The old three-string bass was Li Que\'s. She left it in the shelter the day she quit; on the back of the neck is her little drawn music note, which Wen Di covered with tape.' },
+      reframes: [
+        { zh: '第一天黎雀顺手替「我」调准了这把琴', en: 'on the first day Li Que casually tuned this very bass for me' },
+        { zh: '闻笛那句「三根弦也是贝斯」', en: 'Wen Di\'s line "three strings is still a bass"' },
+        { zh: '琴颈背面那块谁也不撕的胶布', en: 'the tape on the back of the neck nobody peels off' },
+      ],
+    },
+    {
+      id: 'rv-brother', when: { after: ['beat:b-letter'], who: 'wendi', minStage: 3 },
+      truth: { zh: '五年前闻川也签过一份类似的意向书，去了，三个月后被退回来；初代乐队就是那时散的。他反对妹妹，是怕她走他的老路。', en: 'Five years ago Wen Chuan signed a similar letter, went, and was sent home three months later; that is when the first line-up fell apart. He opposes his sister because he fears she will walk his road.' },
+      reframes: [
+        { zh: '闻川那句「线没接牢就别通电」', en: 'Wen Chuan\'s "don\'t switch on till the wiring\'s tight"' },
+        { zh: '他记得妹妹的每一首歌，却再没碰过吉他', en: 'he knows every one of her songs and never touches a guitar' },
+        { zh: '是他「翻到」了那封意向书', en: 'that he was the one who "found" the letter' },
+      ],
+    },
+    {
+      id: 'rv-shortlist', when: { after: ['beat:b-confess'], who: 'chumeng' },
+      truth: { zh: '乐队能进新人舞台候选，也是楚檬偷偷投的稿。她闯的祸和她帮的忙，是同一个动作。', en: 'The band only made the newcomers\' shortlist because Chu Meng secretly submitted them. The harm she did and the help she gave were the same act.' },
+      reframes: [
+        { zh: '凌澈说「粉丝数我不看」时看了楚檬一眼', en: 'Ling Che glancing at Chu Meng when she said "I don\'t look at followers"' },
+        { zh: '第一天楚檬一路跟到防空洞门口', en: 'Chu Meng following me all the way to the shelter door on day one' },
+      ],
+    },
+  ],
+
+  flashbacks: [
+    { id: 'fb-offkey', who: 'wendi', trigger: { minStage: 2 }, text: { zh: '小时候的阳台，一个小女孩拿晾衣杆当话筒唱跑了调，哥哥第一个笑，也第一个鼓掌。', en: 'A childhood balcony: a little girl sings off-key into a clothes-pole microphone; her brother is the first to laugh, and the first to clap.' } },
+    { id: 'fb-no-monitor', who: 'suzhen', trigger: { minStage: 2, motif: 'earplugs' }, text: { zh: '半年前的一间小酒吧，没有返送，音箱就架在她左边一米，整晚只看得见闻笛的嘴型。', en: 'A small bar six months ago, no monitors, a speaker a metre to her left; all night she could only follow Wen Di\'s lips.' } },
+    { id: 'fb-founding', who: 'liqiao', trigger: { minStage: 2, motif: 'keys' }, text: { zh: '初中的防空洞口，两个女生用一把借来的钥匙第一次打开铁门，里面的回声大得把她们吓笑了。', en: 'The shelter entrance, middle-school days: two girls open the iron door for the first time with a borrowed key; the echo is so loud it scares them into laughing.' } },
+    { id: 'fb-first-sound', who: 'chumeng', trigger: { minStage: 1 }, text: { zh: '她录下的第一个声音：凉面摊上妈妈拍黄瓜，「啪」的一声。', en: 'The first sound she ever recorded: her mother smashing cucumbers at the noodle stall, thwack.' } },
+    { id: 'fb-me-bass', who: 'me', trigger: { minStage: 1 }, text: { zh: '高一的音乐教室，一把没人要的贝斯，「我」弹了一整个午休，只会一根弦。', en: 'The music room in first year of high school: a bass nobody wanted; I played it a whole lunch break on just one string.' } },
+  ],
+
+  texture: {
+    days: [
+      { day: 1, weather: { zh: '湿热，下午起雾', en: 'humid, fog by afternoon' }, bits: [{ zh: '舅舅家阁楼的床板一翻身就响', en: 'the attic bed creaks whenever I turn over' }] },
+      { day: 2, weather: { zh: '晴，梯坎晒得发烫', en: 'sunny; the stone steps hot to touch' }, bits: [{ zh: '防空洞里比外面凉十度，出来眼镜起雾', en: 'the shelter is ten degrees cooler; glasses fog up on the way out' }] },
+      { day: 3, weather: { zh: '闷，云压得很低', en: 'close, clouds sitting low' }, bits: [{ zh: '小面摊老板问「要不要青菜」，不等回答就放了', en: 'the noodle man asks "greens?" and adds them before you answer' }] },
+      { day: 4, weather: { zh: '晴转阵雨', en: 'sun, then showers' }, bits: [{ zh: '试演前，所有人都在厕所门口排队', en: 'before the audition everyone queues for the toilet' }] },
+      { day: 5, weather: { zh: '大雾，对岸只剩一团光', en: 'thick fog; the far bank just a blur of light' }, bits: [{ zh: '新歌的谱子被滴水打湿了一角', en: 'a corner of the new song\'s chart gets wet from the drip' }] },
+      { day: 6, weather: { zh: '晴，夜里闷', en: 'clear, a stuffy night' }, bits: [{ zh: '手机上的评论刷不完', en: 'the comments under the post won\'t stop' }] },
+      { day: 7, weather: { zh: '小雨', en: 'light rain' }, bits: [{ zh: '鼓皮受潮，声音发闷', en: 'the drumheads go damp and dull' }] },
+      { day: 8, weather: { zh: '阴', en: 'overcast' }, bits: [{ zh: '霓虹渡口的海报贴满了坡上的楼梯', en: 'Neon Ferry posters all the way up Slope\'s stairs' }] },
+      { day: 9, weather: { zh: '暴雨', en: 'downpour' }, bits: [{ zh: '封条上的字被雨泡开了', en: 'the ink on the seal runs in the rain' }] },
+      { day: 10, weather: { zh: '雨后转晴，江水浑黄', en: 'clearing after rain, the river muddy' }, bits: [{ zh: '夜市的棚子拆了一半', en: 'half the night-market awnings already down' }] },
+      { day: 11, weather: { zh: '晴，热', en: 'sunny, hot' }, bits: [{ zh: '琴行老板借出了店里唯一一台好音箱', en: 'the music shop owner lends out the only good amp he has' }] },
+      { day: 12, weather: { zh: '傍晚起雾，越夜越浓', en: 'fog at dusk, thicker by night' }, bits: [{ zh: '最后一晚的凉面多给了一勺辣油', en: 'an extra ladle of chili oil on the last night\'s noodles' }] },
+      { day: 13, weather: { zh: '江风，雾在舞台灯里打转', en: 'river wind; fog swirling in the stage lights' }, bits: [{ zh: '后台的矿泉水被晒得温热', en: 'backstage water bottles warm from the sun' }] },
+    ],
+    places: {
+      shelter: [{ zh: '鸡蛋托吸音棉掉了一块，露出湿墙', en: 'a piece of egg-carton foam has fallen, showing damp wall' }, { zh: '插线板上贴着每根线是谁的', en: 'labels on the power strip say whose cable is whose' }],
+      stairs: [{ zh: '挑夫歇脚时把扁担靠在栏杆上', en: 'a porter leans his shoulder pole on the rail to rest' }, { zh: '冰粉碗是一次性塑料碗，边缘割手', en: 'the ice-jelly bowls are flimsy plastic with sharp rims' }],
+      lightrail: [{ zh: '站台广播先说方言再说普通话', en: 'the platform announcements come in dialect first' }],
+      musicshop: [{ zh: '墙上挂着一把断了琴颈的吉他，标价「不卖」', en: 'a guitar with a broken neck on the wall, priced "not for sale"' }],
+      ferry: [{ zh: '缆车车厢里贴着「请勿摇晃」，所有人都在摇', en: 'a "do not rock" sign in the car, and everyone rocks it' }],
+      livehouse: [{ zh: '地板黏脚，走路「啪嗒」响', en: 'the sticky floor goes "smack" with every step' }],
+      rooftop: [{ zh: '水箱上有人用粉笔写了一首没写完的歌词', en: 'unfinished lyrics chalked on the water tank' }],
+      nightmarket: [{ zh: '辣椒油在锅里「滋啦」一声，整条街都呛', en: 'chili oil hits the wok and the whole street coughs' }],
+    },
+    any: [{ zh: '远处有人在练唢呐，总在同一个地方断', en: 'someone far off practising the suona, always breaking at the same spot' }, { zh: '手机信号在防空洞里只剩一格', en: 'one bar of signal inside the shelter' }],
+  },
+
+  gags: [
+    { id: 'puns', who: ['jiangjiu'], text: { zh: '舅舅讲冷笑话，没人笑，他自己笑完开始擦杯子。', en: 'My uncle tells a terrible pun, nobody laughs, he laughs alone and starts polishing a glass.' }, places: ['livehouse'] },
+    { id: 'solo-off', who: ['heyizhou'], text: { zh: '贺一舟非要比 solo，输了说「明年再来」，赢了也说「明年再来」。', en: 'He Yizhou insists on a solo-off; when he loses he says "next year", when he wins he also says "next year".' } },
+    { id: 'workable', who: ['lingche'], text: { zh: '凌澈的最高评价是「可以」，大家开始争论「可以」和「可以。」哪个更好。', en: 'Ling Che\'s highest praise is "Workable"; the band starts arguing whether "Workable" or "Workable." is better.' } },
+    { id: 'feeding', who: ['supopo', 'suzhen'], text: { zh: '苏婆婆往每个人手里塞冰粉，苏枕默默把自己那碗的花生挑给别人。', en: 'Granny Su presses ice jelly on everyone; Su Zhen silently picks the peanuts out of hers and gives them away.' }, places: ['stairs'] },
+    { id: 'cold-water', who: ['wenchuan'], text: { zh: '闻川板着脸递冰水，一人一瓶，递完说「不是给你们的，买多了」。', en: 'Wen Chuan hands out cold water stone-faced, one each, then says "Not for you. Bought too many."' } },
+    { id: 'shelter-echo', who: ['wendi', 'suzhen'], text: { zh: '防空洞回声太大，闻笛骂人会被骂两遍，苏枕面无表情地说「混响」。', en: 'The shelter echo is so big Wen Di\'s every insult lands twice; Su Zhen deadpans: "Reverb."' }, places: ['shelter'] },
+  ],
+
+  gossip: [
+    { id: 'g-yizhou', from: 'heyizhou', about: 'wendi', truth: 'half', text: { zh: '「闻笛那嗓子，肯定要去选秀的。……我是说，可惜了。」', en: '"Wen Di\'s voice, she\'s bound for a talent show. ...I mean, what a waste."' } },
+    { id: 'g-supopo', from: 'supopo', about: 'suzhen', truth: 'true', fromDay: 3, text: { zh: '「我们枕枕晚上睡觉，左边那只耳朵老是捂着。」', en: '"My Zhen sleeps with her hand over her left ear these days."' } },
+    { id: 'g-jiang', from: 'jiangjiu', about: 'liqiao', truth: 'half', text: { zh: '「黎雀那个娃，嘴巴凶，心是好的。别的我不晓得。」——说完擦杯子。', en: '"That Li Que, sharp tongue, good heart. That\'s all I know." Then he polishes a glass.' } },
+    { id: 'g-chuan', from: 'wenchuan', about: 'wendi', truth: 'true', fromDay: 5, text: { zh: '「她最近半夜还在唱。破音那句，唱了十几遍。」', en: '"She\'s still singing at midnight. That line where she cracks, a dozen times over."' } },
+    { id: 'g-lingche', from: 'lingche', about: 'chumeng', truth: 'true', after: ['beat:b-audition'], text: { zh: '「那个投稿的账号，录音质量是可以的。」', en: '"Whoever submitted that recording: the audio quality was workable."' } },
+    { id: 'g-leak', from: 'heyizhou', about: 'liqiao', truth: 'false', after: ['beat:b-leak'], text: { zh: '「小样是谁传的？反正我们队没人干这种事。……黎雀那天确实不在。」', en: '"Who leaked the demo? Nobody in my band would. ...Li Que wasn\'t around that day, though."' } },
+  ],
+
+  people: {
+    wendi: {
+      quirks: [{ zh: '「行」代替「谢谢」', en: '"Fine" instead of "thanks"' }, { zh: '句尾「噻」「要得」', en: 'ends lines with "right?" / "deal"' }],
+      habits: [{ zh: '心虚时调弦', en: 'tunes when guilty' }, { zh: '咬拨片', en: 'bites her pick' }, { zh: '电话一响就出门接', en: 'steps outside whenever her phone rings' }],
+      contradiction: { zh: '最想被人听见，却不让人听出她在哭', en: 'wants most to be heard, won\'t let anyone hear her cry' },
+      growth: { zh: '从一个人拍板，到问一句「你们怎么想」', en: 'from deciding alone to asking "what do you lot think"' },
+      diaryVoice: {
+        style: { zh: '写在歌词本背面，像歌词：短句、押一半的韵、划掉重写', en: 'on the back of her lyric book, like lyrics: short lines, half-rhymes, crossings-out' },
+        hides: { zh: '北京；她怕自己一个人唱不好', en: 'Beijing; her fear that she can\'t sing well alone' },
+        seesMe: [
+          { zh: '贝斯（会数拍子）', en: 'the bass (can count)' },
+          { zh: '敢跟我吵和弦的人', en: 'the one who dares argue chords with me' },
+          { zh: '最后一句不能让他听见我破音', en: 'he must not hear me crack on the last line' },
+          { zh: '看过那张纸的人', en: 'the one who read the paper' },
+          { zh: '最后一句', en: 'the last line' },
+        ],
+      },
+      dejaVu: [{ zh: '「怪了，这个和弦，你是不是以前就弹给我听过？」', en: '"Weird. That chord, haven\'t you played it for me before?"' }],
+      awayVoice: [{ zh: '「贝斯。人呢。」', en: '"Bass. Where are you."' }, { zh: '「新歌我改了两个字。……你回来再听。」', en: '"I changed two words in the new song. ...Hear it when you\'re back."' }],
+    },
+    suzhen: {
+      quirks: [{ zh: '五个字以内', en: 'five words or fewer' }, { zh: '用数字回答', en: 'answers in numbers' }],
+      habits: [{ zh: '不舒服就敲桌子', en: 'drums on the table when something\'s wrong' }, { zh: '永远站在闻笛右边', en: 'always stands to Wen Di\'s right' }],
+      contradiction: { zh: '节拍最准的人，听不见一半的世界', en: 'the steadiest time-keeper can\'t hear half the world' },
+      growth: { zh: '从一个人硬撑，到让人站在左边', en: 'from coping alone to letting someone stand on her left' },
+      diaryVoice: {
+        style: { zh: '没有句子，只有数字和符号：BPM、次数、一个小点代表一件好事', en: 'no sentences, only numbers and marks: BPM, counts, a dot for each good thing' },
+        hides: { zh: '耳鸣的日子数；她害怕', en: 'how many days the ringing has lasted; that she is scared' },
+        seesMe: [
+          { zh: '四根弦（其实三根）', en: 'Four Strings (actually three)' },
+          { zh: '一百二十', en: 'one-twenty' },
+          { zh: '不能让他知道', en: 'he can\'t know' },
+          { zh: '左边', en: 'left side' },
+          { zh: '（名字）', en: '(his name)' },
+        ],
+      },
+      dejaVu: [{ zh: '「……一百二十。你记得？」', en: '"...One-twenty. You remember?"' }],
+      awayVoice: [{ zh: '「。」', en: '"."' }, { zh: '「一百二十。等。」', en: '"One-twenty. Waiting."' }],
+    },
+    liqiao: {
+      quirks: [{ zh: '「很勇敢」', en: '"very brave"' }, { zh: '夹音乐术语', en: 'music jargon' }],
+      habits: [{ zh: '被说中时摸钥匙', en: 'touches the keys when you hit a nerve' }, { zh: '烫了手也不吭声', en: 'burns her finger without a sound' }],
+      contradiction: { zh: '嘴上最狠，替人做的事最多', en: 'harshest tongue, does the most for others' },
+      growth: { zh: '从默默背锅，到肯说「不是我」', en: 'from quietly taking the blame to saying "it wasn\'t me"' },
+      diaryVoice: {
+        style: { zh: '记账本：日期、金额、一行刻薄的批注', en: 'an account book: dates, amounts, one acid remark per line' },
+        hides: { zh: '房租；她想回去', en: 'the rent; that she wants to go back' },
+        seesMe: [
+          { zh: '蒋老板家的外甥，A 弦低了', en: 'the owner\'s nephew, A string flat' },
+          { zh: '学东西挺快的', en: 'learns fast' },
+          { zh: '唯一问我「不是你吧」的人', en: 'the only one who asked "it wasn\'t you, right?"' },
+          { zh: '小贝斯', en: 'Little Bass' },
+          { zh: '可以分一把钥匙的人', en: 'someone I can share a key with' },
+        ],
+      },
+      dejaVu: [{ zh: '「你这个问题……我好像回答过。勇敢的问题总是重复。」', en: '"That question... I feel like I\'ve answered it. Brave questions repeat."' }],
+      awayVoice: [{ zh: '「你的琴又不准了吧。猜的。」', en: '"Your bass is out of tune again. Just a guess."' }],
+    },
+    chumeng: {
+      quirks: [{ zh: '拟声词开头', en: 'starts with a sound effect' }, { zh: '「低音炮」', en: '"Subwoofer"' }],
+      habits: [{ zh: '紧张时开关录音笔', en: 'clicks the recorder on and off when nervous' }, { zh: '先护录音笔再护自己', en: 'protects the recorder before herself' }],
+      contradiction: { zh: '收集全城的声音，自己的话说不出口', en: 'collects a whole city\'s sounds, can\'t say her own words' },
+      growth: { zh: '从躲在匿名账号后面，到当面开口', en: 'from hiding behind an anonymous account to speaking face to face' },
+      diaryVoice: {
+        style: { zh: '声音日记：每天一个拟声词当标题，下面是录了什么、在哪、几点', en: 'a sound diary: each day titled with one sound word, then what was recorded, where, when' },
+        hides: { zh: '「雾里收音」是她；那段配文不是她写的', en: 'that she is "Heard in the Fog"; that she didn\'t write that caption' },
+        seesMe: [
+          { zh: '低音炮（外地口音，样本一号）', en: 'Subwoofer (out-of-town accent, sample one)' },
+          { zh: '陪我录声音的人', en: 'my recording buddy' },
+          { zh: '不敢见他', en: 'can\'t face him' },
+          { zh: '听过那段录音的人', en: 'the one who heard the confession' },
+          { zh: '最后一格', en: 'the last square' },
+        ],
+      },
+      dejaVu: [{ zh: '「咦，你这句『你好』，我好像已经录过了。」', en: '"Huh, I think I\'ve already recorded your \'hello\'."' }],
+      awayVoice: [{ zh: '「嗡嗡——（这是你不在的声音）」', en: '"Vmmm— (that\'s the sound of you not being here)"' }, { zh: '「今天的雾是『呼——』的。你听得见吗。」', en: '"Today\'s fog goes \'whooo—\'. Can you hear it."' }],
+    },
+    jiangjiu: { quirks: [{ zh: '「莫慌」', en: '"No rush"' }], habits: [{ zh: '保密时擦杯子', en: 'polishes glasses when keeping a secret' }] },
+    wenchuan: { quirks: [{ zh: '工地上的说法', en: 'work-site sayings' }], habits: [{ zh: '递冰水', en: 'hands out cold water' }], contradiction: { zh: '最反对乐队，记得每一首歌', en: 'most against the band, knows every song' } },
+    heyizhou: { quirks: [{ zh: '句句带比较', en: 'everything a comparison' }], habits: [{ zh: '输了笑，笑完加练', en: 'laughs when he loses, then practises' }] },
+    lingche: { quirks: [{ zh: '「可以。」', en: '"Workable."' }], habits: [{ zh: '走路飞快，边走边看表', en: 'walks fast, checking her watch' }] },
+    supopo: { quirks: [{ zh: '「吃了再说」', en: '"Eat first, talk later"' }], habits: [{ zh: '说到外孙女就压低声音', en: 'lowers her voice about her granddaughter' }] },
+  },
+}

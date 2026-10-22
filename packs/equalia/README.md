@@ -44,6 +44,9 @@ itch 页面 "Asset license" 一栏为 "Creative Commons Zero v1.0 Universal"。�
 - 7 个随机小事件（DGSA 卡住、「正在输入」闪烁、迷宫里的机器人接连死去、阅读机卡片、K'Nex 手机支架、喝 Ensure 睡着、前访客回信），均取自原作细节。
 - 三个坏结局（四散、封禁整个 IP 段、寄回海外），为新写，未改变原作主线；所有结局标注类别。仍然不写恋爱。
 
+写作手法层（`packs/equalia/craft.ts`，同样 CC0）：
+- 可选字段 `craft`：母题（挂毯上的涂鸦、九道拱门的「桥」、「正在输入」、玛姬的 notes.txt、缩微胶卷）、各地点的细节、人物口癖与矛盾点、七鸦与图书管理员的日记口吻、一个揭示（挂毯是被回应的邀请）；两个预写关键场景只落在已有关键事件上（「六只，不是七只」「只碰空白的地方」），台词为我们新写。全部取材于原作已有的人物、地点与道具，不新增人物或情节，仍然不写恋爱。
+
 ## 不使用的内容
 
 本包不包含、不引用原作的任何美术、立绘、背景、音乐（包括片尾曲）、字体或界面素材，只基于原作文本改编。
@@ -54,4 +57,4 @@ itch 页面 "Asset license" 一栏为 "Creative Commons Zero v1.0 Universal"。�
 
 Adaptation of *Bridge to eQualia* by Blackle Mori (blackle), https://blackle.itch.io/bteq. The original is a linear kinetic novel (~14.1k words) released under CC0 1.0. License text as verified on 2026-10-22: "CC0 1.0 Universal — To the extent possible under law, Blackle Mori has waived all copyright and related or neighboring rights to this work."
 
-Kept: characters, setting, key mystery beats and tone; a few original lines are quoted as voice samples. Added: a seven-day schedule with places and slots, a five-stage trust system, promises with deadlines, four fixed events, nine endings, an original librarian character, fourth-wall déjà vu, Chinese translation, and new block-pixel sprites. Version 1.1 adds three supporting characters from the original (kloose; balenciaga, the Horny Guild admin; the tracksuit guy, as a remembered figure only), six relations, four acts with nine key beats in the original's order (the key promise to 7crows is our inference), seven small incidents drawn from the original's details, and three new bad endings; all endings are now categorized. No original art, music or fonts are used. Not endorsed by the original author. This pack is released under CC0 1.0, like the original.
+Kept: characters, setting, key mystery beats and tone; a few original lines are quoted as voice samples. Added: a seven-day schedule with places and slots, a five-stage trust system, promises with deadlines, four fixed events, nine endings, an original librarian character, fourth-wall déjà vu, Chinese translation, and new block-pixel sprites. Version 1.1 adds three supporting characters from the original (kloose; balenciaga, the Horny Guild admin; the tracksuit guy, as a remembered figure only), six relations, four acts with nine key beats in the original's order (the key promise to 7crows is our inference), seven small incidents drawn from the original's details, and three new bad endings; all endings are now categorized. No original art, music or fonts are used. Not endorsed by the original author. A craft layer (`packs/equalia/craft.ts`, CC0) adds motifs, place texture, character tics, diary voices, one reveal and two prewritten set pieces on existing beats, with newly written lines and no new characters or plot. This pack is released under CC0 1.0, like the original.

@@ -8,6 +8,7 @@ import type { EngineInterface } from 'claude-code'
 import type { Lang, Pack, Story, Tone, Usage } from '../types'
 import { CHECKER, profileLine, zeroUsage } from './engine'
 import { costOf } from './cost'
+import { awayBrief, diaryBrief, gossipFor } from './craft'
 import { castOf, dayText, meterOf, packText } from './pack'
 
 export const EXTRA_MODEL = CHECKER
@@ -61,7 +62,8 @@ export async function awayLetter($: EngineInterface, p: Pack, s: Story, hours: n
   const r = await haiku($, `You write one short message from a character in the visual novel "${T(p.title)}" to the player-character ("me"), who has been away for about ${Math.round(hours)} real hours.
 Character: ${brief(p, lang, from)}. Relationship stage: ${T(p.stages[s.heroines[from]?.stage ?? 0])}. Story time: ${dayText(p, lang, s.day)}.
 Our recent moments: ${last}.
-2-3 sentences in her voice: what happened while I was gone (small, concrete, in-world), and a light nudge to come back. Do not reveal secrets, do not invent major plot events. Plain text only. ${langLine(lang)}`, 220)
+2-3 sentences in her voice: what happened while I was gone (small, concrete, in-world), and a light nudge to come back. Do not reveal secrets, do not invent major plot events. Plain text only. ${langLine(lang)}
+${awayBrief(p, from, lang, Math.max(1, Math.round(hours / 24)))}`, 220)
   return r.text ? { from, text: r.text.slice(0, 400) } : null
 }
 
@@ -73,11 +75,12 @@ export async function nightGossip($: EngineInterface, p: Pack, s: Story, day: nu
   return haiku($, `Offstage in the visual novel "${T(p.title)}" (${T(p.premise).slice(0, 300)}): it is the night after ${dayText(p, lang, day)}.
 Supporting characters: ${npcs}. Heroines: ${p.cast.map(c => T(c.short)).join(', ')}.
 What I did today: ${today}.
+${gossipFor(p, s, lang, 2).map(g => `Possible material (mark whether it is true, half-true or a misunderstanding): ${g}`).join('\n')}
 Write 1-2 sentences of small-town gossip or something that happened offstage tonight, between supporting characters or about the heroines, that the player did not see. Concrete and in-world; no secrets revealed, no major plot changes. Plain text only. ${langLine(lang)}`, 160)
 }
 
 /** 她的日记：同一天、她的视角，常常重新解读「我」以为的事 */
-export async function diaryEntry($: EngineInterface, p: Pack, s: Story, id: string, day: number, lang: Lang, guide = ''): Promise<Extra> {
+export async function diaryEntry($: EngineInterface, p: Pack, s: Story, id: string, day: number, lang: Lang, guide = diaryBrief(p, s, id, lang)): Promise<Extra> {
   const T = packText(p, lang)
   const c = castOf(p, id)
   const moments = s.album.filter(m => m.heroine === id && m.day === day).map(m => m.text).join(' / ') || 'we did not meet today'

@@ -6,6 +6,8 @@ import type { EngineInterface, ModelTextBlock } from 'claude-code'
 import type { Actor, Atmo, BeatDef, Camera, CastDef, Choice, EndingDef, HState, IncidentDef, Keepsake, Lang, NpcDef, Pack, RelationDef, Scene, StageCue, Story, Tone, Usage } from '../types'
 import { EXPRS, validKeepsake } from './art'
 import { costOf } from './cost'
+import { craftStatic, decideRoute, dejaVuFor, endingCraft, pickCraft, revealedEcho, setPieceBrief, setPieceCast, setPieceChoices, setPieceIntact, spliceSetPiece } from './craft'
+import type { CraftPick } from './craft'
 import { workLine } from './work'
 import type { WorkEvent } from './work'
 import { t } from './i18n'
@@ -209,7 +211,7 @@ export function dueBeat(p: Pack, s: Story, present: string[]): BeatDef | null {
 }
 
 /** 这一幕的上下文：关键事件、随机事件，以及要放完整设定的人 */
-export type SceneCtx = { beat: BeatDef | null; incident: IncidentDef | null; focus: string[] }
+export type SceneCtx = { beat: BeatDef | null; incident: IncidentDef | null; focus: string[]; craft?: CraftPick; lead?: string }
 
 export function sceneContext(p: Pack, s: Story, opt: PlanOption, who: string | null): SceneCtx {
   const inc = incidentHere(p, s, opt) ?? null
@@ -244,10 +246,12 @@ export function applyScene(s: Story, sc: Scene): Story {
   const flags = [...s.flags]
   if (sc.beat && !flags.includes(`beat:${sc.beat}`)) flags.push(`beat:${sc.beat}`)
   if (sc.incident && !flags.includes(`inc:${sc.incident}`)) flags.push(`inc:${sc.incident}`)
+  for (const f of sc.craftFlags ?? []) if (!flags.includes(f)) flags.push(f)
   return {
     ...s, phase: 'scene', scene: sc, reveal: 0, heroines, notes, promises, error: '', after: '', flags, world: [],
     incident: sc.incident && sc.incident === s.incident ? '' : s.incident,
     quotes: keyQuote(s, sc),
+    ...(sc.kind ? { lastKind: sc.kind } : {}),
     facts: sc.fact ? [...s.facts, sc.fact].slice(-40) : s.facts,
     album: [...s.album, { day: s.day, slot: s.slot, heroine: firstHeroine(s, sc) || sc.cast[0]?.id || '', text: sc.summary }].slice(-80),
   }
@@ -335,7 +339,16 @@ export function advanceTime(p: Pack, s: Story, lang: Lang): AdvanceResult {
       notes.push(t(lang, 'actStart', { title: T(now.title) }))
     }
   }
-  const base0: Story = { ...s, day, slot, promises, heroines, phase: 'plan', scene: null, reveal: 0, after: [...broken, ...notes].join('\n'), error: '', incident: '' }
+  let base0: Story = { ...s, day, slot, promises, heroines, phase: 'plan', scene: null, reveal: 0, after: [...broken, ...notes].join('\n'), error: '', incident: '' }
+  // 共通线过完时锁定路线（只影响提示里的走向和指定了路线的关键场景，不改结局判定）
+  if (day !== s.day && day <= p.days) {
+    const route = decideRoute(p, base0)
+    if (route) {
+      const id = route.slice('route:'.length)
+      const note = id === 'ensemble' ? t(lang, 'routeEnsemble') : t(lang, 'routeLocked', { name: T(castOf(p, id)?.short) })
+      base0 = { ...base0, flags: [...base0.flags, route], after: [base0.after, note].filter(Boolean).join('\n') }
+    }
+  }
   const base: Story = { ...base0, incident: day <= p.days ? rollIncident(p, base0) : '' }
   if (day <= p.days) return { story: base, finished: false, looped: false, broken }
   // 最后一天过完：时间循环包在没达到目标结局时回到第 1 天
@@ -522,6 +535,8 @@ ${people}${actsOverview(p, lang)}
 
 [Stages] ${p.stages.map((x, i) => `${i}=${T(x)}`).join(', ')}${wall}${loop}
 
+${craftStatic(p, lang)}
+
 [Output format — for the writer]
 ${FORMAT}`
 }
@@ -579,6 +594,10 @@ export function sceneDynamic(p: Pack, s: Story, opt: PlanOption, who: string | n
   const inc = c.incident
   const incLine = inc ? `\n[Something happens this time] ${T(inc.text)}${inc.who?.length ? ` (brings in ${inc.who.join(', ')})` : ''}\n` : ''
   const present = opt.maybe.length ? `\n[Likely here] ${opt.maybe.join(', ')}` : ''
+  const pk = c.craft
+  const leadId = c.lead ?? who ?? opt.maybe.find(id => !!castOf(p, id)) ?? ''
+  const craftLines = `${pk?.text ? `\n${pk.text}\n` : ''}${pk ? revealedEcho(p, s, lang) : ''}${leadId && Math.max(s.loop, s.cycle) >= 2 ? dejaVuFor(p, s, leadId, lang) : ''}`
+  const finalLine = pk?.setPiece ? `${setPieceBrief(p, pk.setPiece, lang)} ${langRule(lang)}` : `Write this scene following the current stage beat of whoever is present. ${langRule(lang)}`
   const echoes = s.loop >= 2 && s.echoes.length ? `\n[Echoes of a previous playthrough] The characters do not remember it, but now and then one may feel a faint déjà vu ("have we... met somewhere before?") tied to one of these; at most one subtle hint per scene, never a clear memory: ${s.echoes.slice(0, 6).join(' / ')}` : ''
   const prof = profileLine(s)
   const gossip = s.gossip.filter(g => g.day === s.day - 1).map(g => g.text).join(' ')
@@ -586,7 +605,7 @@ export function sceneDynamic(p: Pack, s: Story, opt: PlanOption, who: string | n
   return `[Now] ${dayText(p, lang, s.day)} of ${p.days} · ${T(p.slots[s.slot])} · place: ${opt.place} (${opt.mood})${opt.forced ? ` · fixed event: ${opt.forced}` : ''}
 ${actLine}${today ? `Today: ${today}\n` : ''}${focusNotes(p, c.focus, lang)}[State]
 ${stateText(p, s, lang, c.focus)}${present}${extra}
-${lead}${wall}${cyc}${beatLine}${incLine}
+${lead}${wall}${cyc}${beatLine}${incLine}${craftLines}
 [Established facts — do not contradict]
 ${s.facts.slice(-24).map(f => `- ${f}`).join('\n') || '(none)'}
 [Open promises]
@@ -594,7 +613,7 @@ ${open.map(x => `- day ${x.day} promised ${x.heroine}: ${x.text} (due day ${x.du
 [Notebook: my earlier choices — call one back naturally]
 ${notes.map(n => `- day ${n.day} (${n.heroine}): ${n.text}`).join('\n') || '(none)'}
 ${fix ? `\n[Problems in the previous draft — must fix] ${fix}\n` : ''}
-${meta.world?.length ? `${workLine(meta.world as WorkEvent[])}\n` : ''}${meta.short ? '[Short scene] This is a short scene for a quick break: narration 1-2 sentences, only 2-4 lines of dialogue, still exactly 3 choices.\n' : ''}Write this scene following the current stage beat of whoever is present. ${langRule(lang)}`
+${meta.world?.length ? `${workLine(meta.world as WorkEvent[])}\n` : ''}${meta.short && !pk?.setPiece ? '[Short scene] This is a short scene for a quick break: narration 1-2 sentences, only 2-4 lines of dialogue, still exactly 3 choices.\n' : ''}${finalLine}`
 }
 
 /** 选择倾向的一行摘要：选过 3 次以上才有 */
@@ -606,7 +625,7 @@ export function profileLine(s: Story): string {
 
 export function checkDynamic(p: Pack, s: Story, draft: string, lang: Lang, ctx?: SceneCtx): string {
   const T = packText(p, lang)
-  const must = ctx?.beat ? `\n7. this required event does not happen: ${T(ctx.beat.text)}` : ''
+  const must = `${ctx?.beat ? `\n7. this required event does not happen: ${T(ctx.beat.text)}` : ''}${ctx?.craft?.setPiece ? '\nLines quoted from the author\'s set piece are canon; never ask to change them.' : ''}`
   return `You are now the continuity editor, not the writer. Check this draft scene for hard errors only:
 1. contradicts an established fact; 2. a character's voice clearly wrong; 3. reveals a secret before stage 3, or states a relation marked "keep implicit" too early; 4. wrong language (must follow: ${langRule(lang)}); 5. violates the style taboos; 6. missing JSON fields.${must}
 ${ctx ? focusNotes(p, ctx.focus, lang) : ''}State:
@@ -701,17 +720,29 @@ export async function writeScene($: EngineInterface, p: Pack, s: Story, opt: Pla
   const u = zeroUsage()
   const head: ModelTextBlock = { text: staticBlock(p, lang), cache: true }
   const ctx = sceneContext(p, s, opt, who)
+  // 写作手法层：每幕只挑一次（两次写作尝试共用），预写关键场景的人也要有完整设定
+  const pick = pickCraft(p, s, lang, { place: opt.id, present: [...opt.maybe, ...(who ? [who] : []), ...(ctx.incident?.who ?? [])], beat: ctx.beat, lead: who, endingsSeen: meta.endingsSeen, lastKind: s.lastKind })
+  if (pick.setPiece) for (const id of setPieceCast(pick.setPiece)) if (!ctx.focus.includes(id) && personOf(p, id)) ctx.focus.push(id)
+  ctx.craft = pick
   let fix = ''
   for (let attempt = 0; attempt < 2; attempt++) {
     const draft = await ask($, meta.writer ?? WRITER, [head, { text: sceneDynamic(p, s, opt, who, fix, lang, meta, ctx) }], 1800, u)
     const j = json(draft)
-    const sc = j ? parseScene(p, j, opt.place) : null
+    let sc = j ? parseScene(p, j, opt.place) : null
     if (!sc) { fix = 'The previous reply was not valid JSON or missed fields.'; continue }
+    // 预写关键场景：核心台词缺了就由程序拼回（不重写）；预写选项优先
+    if (pick.setPiece) {
+      if (!setPieceIntact(p, sc, pick.setPiece, lang)) sc = spliceSetPiece(p, sc, pick.setPiece, lang)
+      const pre = setPieceChoices(p, pick.setPiece, lang)
+      if (pre) sc.choices = pre
+    }
     if (attempt === 0) {
       const verdict = json(await ask($, CHECKER, [{ text: checkerBlock(p, lang), cache: true }, { text: checkDynamic(p, s, draft!, lang, ctx) }], 200, u, 'check'))
       if (verdict && verdict.ok === false && typeof verdict.fix === 'string' && verdict.fix) { fix = verdict.fix; continue }
     }
     sc.proactive = !!who
+    sc.kind = pick.kind
+    if (pick.flags.length) sc.craftFlags = pick.flags
     if (ctx.beat) sc.beat = ctx.beat.id
     if (ctx.incident) sc.incident = ctx.incident.id
     return { value: sc, usage: u }
@@ -759,6 +790,7 @@ Promises: ${promises}
 Keepsakes: ${keeps}
 Memories in order:
 ${album}
+${endingCraft(p, s, e.who, lang)}
 Write 10-14 sentences: call back at least three specific memories and the keepsakes, say what became of her secret, include images and a few lines of dialogue. ${T(p.finale)} ${langRule(lang)}`,
   }], 1600, u)
   return { value: text ? text.trim() : null, usage: u }

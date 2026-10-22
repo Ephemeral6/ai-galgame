@@ -6,7 +6,7 @@ import type { EngineInterface } from 'claude-code'
 import type { Scene, Story } from '../types'
 import { stageFrame } from '../hooks/art'
 import { costOf, dateKey } from '../hooks/cost'
-import { applyChoice, applyScene, freshStory, parseDirection, parseScene, planOptions, profileLine, sceneDynamic, staticBlock } from '../hooks/engine'
+import { advanceTime, applyChoice, applyScene, freshStory, parseDirection, parseScene, planOptions, profileLine, sceneDynamic, staticBlock } from '../hooks/engine'
 import { EMPTY_FEATS, achievementsOnFinish, dailyChallenge, dailyShare } from '../hooks/feats'
 import { CARD_FRAMES, atmoBand, cardFrame, fontText, fxOf, relationGraph, stageDirections, themeOf, townMap } from '../hooks/fx'
 import { awayLetter, diaryEntry, letterFrom, nightGossip, portraitOf, tendencies } from '../hooks/native'
@@ -210,5 +210,26 @@ describe('花费、成就、每日挑战', () => {
     expect(dailyChallenge('2026-10-23', BUILTIN)).toEqual(a)
     expect(BUILTIN.includes(a.pack)).toBe(true)
     expect(dailyShare('2026-10-23', 'Cicadas', 'Meteors on the Rooftop', 'true')).toBe('ai-galgame daily 2026-10-23 · Cicadas · Meteors on the Rooftop ★')
+  })
+})
+
+describe('写作手法层接进引擎', () => {
+  const route = P.craft!.routes!
+  test('共通线过完那天锁定路线，在余波里给一行提示；没人领先就是群像线', () => {
+    const s0: Story = { ...freshStory(P, 'zh'), day: route.commonUntil, slot: P.slots.length - 1, phase: 'after' }
+    const lead: Story = { ...s0, heroines: { ...s0.heroines, zhiyao: { ...s0.heroines.zhiyao!, stage: 4, affection: 20 } } }
+    const r = advanceTime(P, lead, 'zh').story
+    expect(r.flags).toContain('route:zhiyao')
+    expect(r.after).toContain('落在了知遥身上')
+    const tie = advanceTime(P, s0, 'zh').story
+    expect(tie.flags).toContain('route:ensemble')
+    expect(advanceTime(P, { ...tie, phase: 'after', slot: P.slots.length - 1 }, 'zh').story.flags.filter(f => f.startsWith('route:')).length).toBe(1)
+  })
+  test('写作指南进缓存的固定块；检查员的固定块不加', () => {
+    expect(staticBlock(P, 'zh')).toContain('[Craft')
+  })
+  test('一幕写完：场景类型记成 lastKind，手法层的标记并进 flags', () => {
+    const s = applyScene(freshStory(P, 'zh'), { ...scene(), kind: 'comedy', craftFlags: ['set:yn-interview', 'gag:x'] })
+    expect([s.lastKind, s.flags]).toEqual(['comedy', ['set:yn-interview', 'gag:x']])
   })
 })

@@ -4,8 +4,10 @@
 // 原作者未参与、未背书本改编。原作美术、音乐、字体一概未使用。
 
 import type { Pack } from '../../types'
+import type { CraftFields } from '../../hooks/craft-types'
+import { EQUALIA_CRAFT } from './craft'
 
-export const EQUALIA: Pack = {
+export const EQUALIA: Pack & CraftFields = {
   id: 'equalia',
   version: '1.1.0',
   defaultLang: 'en',
@@ -535,4 +537,6 @@ Content: the original carries warnings (unreality, drugs, alcohol, death, missin
     { en: 'Process, Maggie. Process...', zh: '流程，玛姬。流程……' },
     { en: 'north, north, north...', zh: '向北，向北，再向北……' },
   ],
+  // 写作手法层（母题、预写关键场景、揭示、日常细节、人物细节等），见 ./craft.ts
+  craft: EQUALIA_CRAFT,
 }

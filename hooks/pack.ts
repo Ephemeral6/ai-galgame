@@ -1,6 +1,7 @@
 // 剧本包：多语言取值、格式校验、按 id 查人物 / 配角 / 章节。
 
 import type { ActDef, BeatDef, CastDef, L, Lang, NpcDef, Pack, SpriteDef } from '../types'
+import { validateCraft } from './craft'
 
 /** 取一段可本地化文本：先要所选语言，再回落到包的默认语言，再回落到任意一种 */
 export function tr(x: L | undefined, lang: Lang, fallback: Lang): string {
@@ -276,6 +277,8 @@ export function validatePack(raw: unknown): string[] {
   }
   const tl = p.features?.timeLoop
   if (tl) need(typeof tl.maxLoops === 'number' && tl.maxLoops >= 1 && typeof tl.minTier === 'number' && isL(tl.text), 'features.timeLoop: { maxLoops ≥ 1, minTier, text }')
+  // 写作手法层（可选）：没有 craft 的包这里是 []
+  err.push(...validateCraft(raw))
   return err
 }
 

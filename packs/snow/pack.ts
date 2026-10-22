@@ -2,8 +2,10 @@
 // 致敬「雪国小镇 / 冬日 / 青梅竹马与离别」这一类恋爱冒险题材，人物与情节全部原创。
 
 import type { Pack } from '../../types'
+import type { CraftFields } from '../../hooks/craft-types'
+import { SNOW_CRAFT } from './craft'
 
-export const SNOW: Pack = {
+export const SNOW: Pack & CraftFields = {
   id: 'snow',
   version: '1.1.0',
   defaultLang: 'zh',
@@ -431,4 +433,6 @@ Never: anything Japanese (senpai/kohai, shrines, festivals in the matsuri sense,
     { zh: '锅炉房的烟囱冒着白气…', en: 'White steam rises from the boiler-house chimney...' },
     { zh: '大喇叭里沙沙地响了一阵…', en: 'The loudspeaker crackles for a while...' },
   ],
+  // 写作手法层（母题、预写关键场景、揭示、日常细节、人物细节等），见 ./craft.ts
+  craft: SNOW_CRAFT,
 }

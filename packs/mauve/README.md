@@ -42,6 +42,7 @@
 10. （1.1 版）新增 6 个随机小事件（SocialBook 半夜通知、外婆的电视声、推销员来电、绕路买冰淇淋、黄油在太阳下变软、爸爸的短信），都发生在原作已有的地点与道具上；爸爸的短信为新增推断。
 11. （1.1 版）新增两个不露骨的坏结局：「没有复仇赛」（失约于外婆）、「手机没收」（失约于妈妈）；所有结局标注了类别（真 / 好 / 普通 / 坏）。原作结局名与文风保持不变；狼仍然只是操纵者，阿紫未成年，不写任何性内容或暴力细节。
 12. （1.1 版）狼、外婆、妈妈标记为非恋爱角色（`romance: false`）：界面上狼显示「看穿 ◆◇」，外婆和妈妈显示「信任 ●○」，不再用心形；提示里写明这几位不是恋爱对象。
+13. （写作手法层，`packs/mauve/craft.ts`）新增可选字段 `craft`：母题（阿紫的眼镜、篮子里的黄油、外婆不锁的门、「苏西」、狼的「好吧？」、妈妈的「很久很久以前」）、各地点的日常细节、两段群像小笑料（外婆的拼字老词、爸爸消息里的句号）、人物口癖与矛盾点、外婆和妈妈的日记口吻；两个预写关键场景，只落在本包已有的关键事件上（「黄瓜片」与「周六的裁决」），核心台词为我们新写，不引用原作句子。全部取材于原作已有的人物、地点与道具，没有新增人物或情节；狼仍然只是操纵者，阿紫未成年，不写恋爱、性内容或暴力细节。本文件同样按 CC BY-SA 4.0 发布。
 
 ---
 
@@ -56,5 +57,7 @@ Only the script text (characters, plot, tone) was adapted. **No original art, mu
 Changes: one afternoon expanded to four days with two time slots; Mom promoted to a full character; trust meters, deadlines, promises and foreshadowing added; the original five endings reworked into nine condition-based endings (four new: an ensemble ending, Saturday Night, and two non-graphic bad endings); the original "VICTIM" ending replaced with a non-graphic close call; Wolf, Granny and Mom are marked as non-romance characters (`romance: false`): the pane shows "Seen through ◆◇" for Wolf and "Trust ●○" for Granny and Mom instead of hearts, and the prompt states they are not love interests; scenes are written live by AI from this outline; Chinese translation is ours.
 
 Version 1.1 additions: three supporting characters taken from the original — Dad (only mentioned in the original, kept off stage here and heard by phone/text; his lines are ours), the police officer ("Agent") of the pepper-spray ending, and the Handov Erzycash orderly of the My Prisoner ending (some lines quoted from the original) — with new block-pixel sprites for the last two; character relations from the original's plot; three acts with seven key beats following the original's scenes, one of them a key promise to Granny (our inference, not in the original) that now gates the Jail Space ending; six small random incidents set in the original's places and props (Dad's text is our addition); ending categories (true / good / normal / bad).
+
+Craft layer (`packs/mauve/craft.ts`, also CC BY-SA 4.0): an optional `craft` field with motifs (Mo's glasses, the pot of butter, Granny's unlocked door, Suzie, Wolf's "kay?", Mom's "Once upon a time"), per-place texture, two small running gags, character tics and contradictions, diary voices for Granny and Mom, and two prewritten set pieces placed only on existing beats (the cucumbers, Saturday's verdict) with newly written core lines — no lines quoted from the original. Everything draws on the original's characters, places and props; no new characters or plot. Wolf remains a manipulator only; Mo' is a minor; no romance, sexual content or graphic violence.
 
 License obligations kept: the attribution notice above is shown with the pack; every change is listed here; this adaptation, including the version 1.1 additions, remains under CC BY-SA 4.0 with the full legal code in `LICENSE`.

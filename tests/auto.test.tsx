@@ -132,8 +132,8 @@ test('自动玩一幕：选地点 → 自动翻句 → 停顿后选选项，理�
   expect([w.pilot, w.writer, w.checker]).toEqual([1, 1, 1])
   expect(await ui.find({ type: 'Text', text: /→ 选 2：想看她会不会说出秘密/ })).toBeDefined()
   expect(await ui.find({ type: 'Text', text: /路上有点堵/ })).toBeUndefined()
-  await w.clock.advance(1500) // 中速：每句 1.5 秒
-  await w.clock.advance(1500)
+  // 中速：每句 1.5 秒（预写关键场景可能多拼进几句作者台词，所以等到最后一句出来为止）
+  for (let i = 0; i < 12 && !(await ui.find({ key: 'c0' })); i++) await w.clock.advance(1500)
   expect(await ui.find({ type: 'Text', text: /路上有点堵/ })).toBeDefined()
   expect(w.pilot).toBe(1) // 选项出现后先停顿
   await w.clock.advance(2000)

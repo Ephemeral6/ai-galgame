@@ -237,3 +237,24 @@ test('音效（默认关）与紧凑排版', async ($, on) => {
   expect(w.audio).toEqual(['assets/sfx/page.wav', 'assets/sfx/choice.wav'])
   await ui.unmount()
 })
+
+test('写作手法层：预写关键场景那一幕仍是 1 次写作 + 1 次检查；作者的核心台词一句不少，检查员不许改；只演一次', async ($, on) => {
+  const w = world(on)
+  const ui = await open($)
+  await ui.press({ key: 'menu-new' })
+  await ui.press({ key: 'go-1' }) // 第 1 天午休去食堂：一诺的预写场景「三个问题一包辣条」
+  expect([w.writer, w.checker]).toEqual([1, 1])
+  const writerPrompt = w.prompts.find(x => x.startsWith('You are writing'))!
+  expect(writerPrompt).toContain('第三题：你昨天在天台待到九点四十')
+  expect(writerPrompt).toContain('[Craft') // 写作指南在缓存块里
+  expect(w.prompts.find(x => x.startsWith('Continuity'))).toContain('canon')
+  await ui.press({ key: 'kb-a' })
+  // 模型没照抄（mock 回的是别的台词）：程序把核心台词拼回去，不重写
+  expect(await ui.find({ type: 'Text', text: /第三题：你昨天在天台待到九点四十/ })).toBeDefined()
+  expect(await ui.find({ type: 'Text', text: /不回答也是一种回答/ })).toBeDefined()
+  await ui.press({ key: 'c0' })
+  await ui.press({ key: 'kb-j' })
+  await ui.press({ key: 'go-0' }) // 下一幕：同一场预写场景不再演
+  expect(w.prompts.filter(x => x.startsWith('You are writing')).at(-1)).not.toContain('第三题：你昨天在天台待到九点四十')
+  await ui.unmount()
+})

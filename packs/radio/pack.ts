@@ -2,8 +2,10 @@
 // 短示例包：4 天、2 个时段、1 个角色；启用打破第四面墙（features.fourthWall）。
 
 import type { Pack } from '../../types'
+import type { CraftFields } from '../../hooks/craft-types'
+import { RADIO_CRAFT } from './craft'
 
-export const RADIO: Pack = {
+export const RADIO: Pack & CraftFields = {
   id: 'radio',
   version: '1.1.0',
   defaultLang: 'zh',
@@ -283,4 +285,6 @@ Never: genuinely threaten, frighten or scold the player; no horror, gore, mental
     { zh: '有人把推子轻轻推了上去…', en: 'Someone eases a fader up...' },
     { zh: '频道那头，好像有人在听…', en: 'On the other end of the frequency, someone seems to be listening...' },
   ],
+  // 写作手法层（母题、预写关键场景、揭示、日常细节、人物细节等），见 ./craft.ts
+  craft: RADIO_CRAFT,
 }

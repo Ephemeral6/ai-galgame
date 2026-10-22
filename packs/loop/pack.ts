@@ -3,8 +3,10 @@
 // 循环由引擎的 features.timeLoop 驱动：到第 7 天结束达不到 tier ≥ 2 的结局，就回到第 1 天（好感清零，伏笔与事实保留）。
 
 import type { Pack } from '../../types'
+import type { CraftFields } from '../../hooks/craft-types'
+import { LOOP_CRAFT } from './craft'
 
-export const LOOP: Pack = {
+export const LOOP: Pack & CraftFields = {
   id: 'loop',
   version: '1.1.0',
   defaultLang: 'zh',
@@ -395,4 +397,6 @@ Taboos: no Japanese elements (senpai/kohai, cherry blossoms, shrines, festivals,
     { zh: '潮水退下去，又涨上来…', en: 'The tide goes out, and comes back in...' },
     { zh: '你好像在哪里见过这一幕…', en: 'You feel you have seen this before...' },
   ],
+  // 写作手法层（母题、预写关键场景、揭示、日常细节、人物细节等），见 ./craft.ts
+  craft: LOOP_CRAFT,
 }

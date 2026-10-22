@@ -3,8 +3,10 @@
 // 人写骨架，AI 填每一幕。
 
 import type { Pack } from '../../types'
+import type { CraftFields } from '../../hooks/craft-types'
+import { CICADA_CRAFT } from './craft'
 
-export const CICADA: Pack = {
+export const CICADA: Pack & CraftFields = {
   id: 'cicada',
   version: '2.0.0',
   defaultLang: 'zh',
@@ -605,4 +607,6 @@ No Japanese school tropes (senpai/kohai, cherry blossoms, shrines, matsuri, yuka
     { zh: '远处有人在喊你的名字…', en: 'Someone far off is calling your name...' },
     { zh: '小卖部的收音机在唱越剧…', en: 'The shop radio is singing Yue opera...' },
   ],
+  // 写作手法层（母题、预写关键场景、共通线与个人线、揭示、日常细节、群像笑料、八卦、人物细节），见 ./craft.ts
+  craft: CICADA_CRAFT,
 }

@@ -3,8 +3,10 @@
 // 只改编了原作的剧本文本（人物、情节、台词风格）；未使用原作的任何美术、音乐、音效或字体。详见同目录 README.md 与 LICENSE。
 
 import type { Pack } from '../../types'
+import type { CraftFields } from '../../hooks/craft-types'
+import { MAUVE_CRAFT } from './craft'
 
-export const MAUVE: Pack = {
+export const MAUVE: Pack & CraftFields = {
   id: 'mauve',
   version: '1.1.0',
   defaultLang: 'en',
@@ -454,4 +456,6 @@ Keep scenes short and punchy. Occasional French phrases are welcome ("'tain", "M
     { en: 'Granny\'s TV is blaring a detective show...', zh: '外婆的电视在大声放侦探剧……' },
     { en: 'Pull out the peg and the latch will fall...', zh: '拉一下门闩，门就开了……' },
   ],
+  // 写作手法层（母题、预写关键场景、揭示、日常细节、人物细节等），见 ./craft.ts
+  craft: MAUVE_CRAFT,
 }
