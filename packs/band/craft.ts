@@ -116,11 +116,11 @@ export const BAND_CRAFT: PackCraft = {
     {
       id: 'wd-letter', who: 'wendi', kind: 'confession', motif: 'last-line',
       title: { zh: '选不了', en: 'Can\'t Pick' },
-      trigger: { minStage: 3, places: ['rooftop'], alone: true },
-      staging: { zh: '老楼天台，晾着的床单被风鼓起来，脚下整座山城的灯。她递来一张折了四折、角被汗浸软的纸。轻轨从楼里钻出来的那一震，落在最后一句之后。', en: 'The old building\'s rooftop, sheets billowing on the line, the whole hill city lit below. She hands over a paper folded in four, its corner soft with sweat. The shudder of the train leaving the building lands after the last line.' },
+      trigger: { minStage: 3, places: ['rooftop'], alone: true, after: ['beat:b-letter'] },
+      staging: { zh: '老楼天台，晾着的床单被风鼓起来，脚下整座山城的灯。闻川摊在桌上的只是意向书第一页；她递来的是最后一页，折了四折、角被汗浸软。轻轨从楼里钻出来的那一震，落在最后一句之后。', en: 'The old building\'s rooftop, sheets billowing on the line, the whole hill city lit below. Wen Chuan only laid out the first page of the letter; what she hands over is the last page, folded in four, its corner soft with sweat. The shudder of the train leaving the building lands after the last line.' },
       lines: [
         { who: 'wendi', text: { zh: '你先看，看完再骂。', en: 'Read it first. Then you can yell.' } },
-        { who: 'me', text: { zh: '北京。', en: 'Beijing.' } },
+        { who: 'me', text: { zh: '北京。……你签了字的。', en: 'Beijing. ...You signed it.' } },
         { who: 'wendi', text: { zh: '我想红。也想要你们。……选不了噻。', en: 'I want to make it. And I want you lot. ...Can\'t pick, can I.' } },
         { who: 'wendi', text: { zh: '你莫说「随你」。你说随我，我就真的走了。', en: 'Don\'t say "up to you". If you say that, I really will go.' } },
         { who: 'narration', text: { zh: '轻轨从楼里钻出去，整栋楼震了一下，床单落回绳子上。', en: 'The train slides out of the building; the whole block shudders and the sheets drop back onto the line.' } },
@@ -158,7 +158,7 @@ export const BAND_CRAFT: PackCraft = {
     {
       id: 'sz-right-side', who: 'suzhen', kind: 'confession', motif: 'left-side',
       title: { zh: '对着右边再说一次', en: 'Say It Again, on the Right' },
-      trigger: { minStage: 3, places: ['rooftop'], alone: true },
+      trigger: { minStage: 3, places: ['rooftop'], alone: true, after: ['beat:b-left-ear'] },
       staging: { zh: '夜里的天台，风从左边吹过来。她摘下左耳的耳塞，把头偏过来让「我」对着那边说话。「我」说的那句话不写出来。', en: 'The rooftop at night, wind from the left. She takes out her left earplug and tilts her head for me to speak into that side. What I say is never written out.' },
       lines: [
         { who: 'suzhen', text: { zh: '说句话。左边。', en: 'Say something. Left side.' } },
@@ -272,10 +272,10 @@ export const BAND_CRAFT: PackCraft = {
 
   reveals: [
     {
-      id: 'rv-bass-origin', when: { after: ['beat:b-old-feud'], who: 'liqiao', minStage: 3 },
+      id: 'rv-bass-origin', when: { after: ['beat:b-old-feud'], who: 'liqiao', minStage: 3, needEndings: ['wendi-true'] },
       truth: { zh: '那把三根弦的旧贝斯原本是黎雀的。她退队那天把它留在防空洞，琴颈背面贴着她画的小音符，被闻笛用胶布盖住了。', en: 'The old three-string bass was Li Que\'s. She left it in the shelter the day she quit; on the back of the neck is her little drawn music note, which Wen Di covered with tape.' },
       reframes: [
-        { zh: '第一天黎雀顺手替「我」调准了这把琴', en: 'on the first day Li Que casually tuned this very bass for me' },
+        { zh: '在坡上第一次见面，黎雀顺手替「我」调准了这把琴', en: 'the first time we met at Slope, Li Que casually tuned this very bass for me' },
         { zh: '闻笛那句「三根弦也是贝斯」', en: 'Wen Di\'s line "three strings is still a bass"' },
         { zh: '琴颈背面那块谁也不撕的胶布', en: 'the tape on the back of the neck nobody peels off' },
       ],
@@ -293,7 +293,7 @@ export const BAND_CRAFT: PackCraft = {
       id: 'rv-shortlist', when: { after: ['beat:b-confess'], who: 'chumeng' },
       truth: { zh: '乐队能进新人舞台候选，也是楚檬偷偷投的稿。她闯的祸和她帮的忙，是同一个动作。', en: 'The band only made the newcomers\' shortlist because Chu Meng secretly submitted them. The harm she did and the help she gave were the same act.' },
       reframes: [
-        { zh: '凌澈说「粉丝数我不看」时看了楚檬一眼', en: 'Ling Che glancing at Chu Meng when she said "I don\'t look at followers"' },
+        { zh: '凌澈那句「那个投稿的账号，录音质量是可以的」', en: 'Ling Che\'s "whoever submitted that recording: the audio quality was workable"' },
         { zh: '第一天楚檬一路跟到防空洞门口', en: 'Chu Meng following me all the way to the shelter door on day one' },
       ],
     },
@@ -347,7 +347,7 @@ export const BAND_CRAFT: PackCraft = {
 
   gossip: [
     { id: 'g-yizhou', from: 'heyizhou', about: 'wendi', truth: 'half', text: { zh: '「闻笛那嗓子，肯定要去选秀的。……我是说，可惜了。」', en: '"Wen Di\'s voice, she\'s bound for a talent show. ...I mean, what a waste."' } },
-    { id: 'g-supopo', from: 'supopo', about: 'suzhen', truth: 'true', fromDay: 3, text: { zh: '「我们枕枕晚上睡觉，左边那只耳朵老是捂着。」', en: '"My Zhen sleeps with her hand over her left ear these days."' } },
+    { id: 'g-supopo', from: 'supopo', about: 'suzhen', truth: 'true', fromDay: 3, after: ['beat:b-left-ear'], text: { zh: '「我们枕枕晚上睡觉，左边那只耳朵老是捂着。」', en: '"My Zhen sleeps with her hand over her left ear these days."' } },
     { id: 'g-jiang', from: 'jiangjiu', about: 'liqiao', truth: 'half', text: { zh: '「黎雀那个娃，嘴巴凶，心是好的。别的我不晓得。」——说完擦杯子。', en: '"That Li Que, sharp tongue, good heart. That\'s all I know." Then he polishes a glass.' } },
     { id: 'g-chuan', from: 'wenchuan', about: 'wendi', truth: 'true', fromDay: 5, text: { zh: '「她最近半夜还在唱。破音那句，唱了十几遍。」', en: '"She\'s still singing at midnight. That line where she cracks, a dozen times over."' } },
     { id: 'g-lingche', from: 'lingche', about: 'chumeng', truth: 'true', after: ['beat:b-audition'], text: { zh: '「那个投稿的账号，录音质量是可以的。」', en: '"Whoever submitted that recording: the audio quality was workable."' } },

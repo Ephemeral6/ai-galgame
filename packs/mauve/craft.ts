@@ -54,12 +54,12 @@ export const MAUVE_CRAFT: PackCraft = {
         { who: 'wolf', text: { en: 'Picked it up on TV. All the young people say it.', zh: '电视里学的。年轻人都这么说。' } },
         { who: 'narration', text: { en: 'A cucumber slice slides off and lands on the pillow. Mo\'s hand closes around the glasses in her pocket.', zh: '一片黄瓜滑下来，掉在枕头上。阿紫的手在口袋里握住了那副眼镜。' } },
       ],
-      unsaid: { en: 'That she already knows.', zh: '她其实已经知道了。' },
+      unsaid: { en: 'How much she has already noticed.', zh: '她到底已经看出了多少。' },
     },
     {
       id: 'mv-verdict', who: 'mom', kind: 'confession', motif: 'once-upon',
       title: { en: 'Speakerphone', zh: '免提' },
-      trigger: { beat: 'verdict', minStage: 2 },
+      trigger: { beat: 'verdict', minStage: 3 },
       staging: { en: 'The kitchen on Saturday evening. Mom at the table, phone face up on speaker; Dad\'s cough comes through first. Mom raises one eyebrow instead of her voice. Short lines, deadpan.', zh: '周六晚上的厨房。妈妈坐在桌边，手机面朝上开着免提，先传出来的是爸爸的一声咳嗽。妈妈只挑眉，不提高嗓门。台词短，冷面。' },
       lines: [
         { who: 'mom', text: { en: 'Sit. Your father is on speaker.', zh: '坐。你爸在免提上。' } },

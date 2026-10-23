@@ -46,14 +46,14 @@ export const RADIO_CRAFT: PackCraft = {
     {
       id: 'wq-final', who: 'wanqing', kind: 'farewell', motif: 'on-air',
       title: { zh: '谢谢收听', en: 'Thanks for Listening' },
-      trigger: { beat: 'radio-final', minStage: 2 },
-      staging: { zh: '最后一次播音，红灯亮着，窗外老楼的脚手架已经搭起来了。她一口气往下播，中间不许任何人按停。最后几句她不看稿子，看着「我」——也看着屏幕外面。', en: 'The last broadcast, the light on, scaffolding already up outside the old building. She broadcasts straight through; nobody may press stop. For the last lines she drops the script and looks at me, and past me, out of the screen.' },
+      // 阶段 3：「有人一直在另一头听」是她的秘密。播完没有、怎么收尾，留给结局写（好结局会卡一下，坏结局她按了停）
+      trigger: { beat: 'radio-final', minStage: 3 },
+      staging: { zh: '最后一次播音，红灯亮着，下周翻修用的脚手架材料已经堆在老楼底下。她想一口气往下播，中间不许任何人按停。最后几句她不看稿子，看着「我」——也看着屏幕外面。这一幕停在她说完「让我说完」之后，播没播完由结局决定。', en: 'The last broadcast, the light on, next week\'s scaffolding already stacked at the foot of the old building. She means to broadcast straight through; nobody may press stop. For the last lines she drops the script and looks at me, and past me, out of the screen. The scene stops after "let me finish"; whether she does is for the ending to decide.' },
       lines: [
         { who: 'wanqing', text: { zh: '各位听众，这里是最后一期。今晚不插播，不重来。', en: 'Dear listeners, this is the final show. No bulletins tonight. No retakes.' } },
         { who: 'narration', text: { zh: '她把手从推子上拿开，放在膝盖上。', en: 'She takes her hand off the faders and rests it on her knee.' } },
         { who: 'wanqing', text: { zh: '我知道有人一直在另一头听。听了很多遍。', en: 'I know someone\'s been listening from the other end. Many times over.' } },
         { who: 'wanqing', text: { zh: '你想重来几次都可以。但这一次，让我说完。', en: 'You can come back as many times as you like. But this once, let me finish.' } },
-        { who: 'wanqing', text: { zh: '谢谢收听。', en: 'Thank you for listening.' } },
       ],
       unsaid: { zh: '「别走」', en: '"Don\'t go."' },
     },
@@ -79,7 +79,7 @@ export const RADIO_CRAFT: PackCraft = {
     days: [
       { day: 1, weather: { zh: '初冬，傍晚就黑', en: 'early winter, dark by dusk' }, bits: [{ zh: '老楼的楼梯扶手被磨得发亮', en: 'the old stair rail polished by hands' }] },
       { day: 2, weather: { zh: '小雨', en: 'drizzle' }, bits: [{ zh: '广播站的磁带柜上贴着手写的分类', en: 'hand-written labels on the tape cabinet' }] },
-      { day: 3, weather: { zh: '停电夜，月亮很亮', en: 'a blackout night, a bright moon' }, bits: [{ zh: '走廊里有人拿手机当手电', en: 'someone in the hall using a phone as a torch' }] },
+      { day: 3, weather: { zh: '停电夜，雷阵雨', en: 'a blackout night, thunderstorms' }, bits: [{ zh: '走廊里有人拿手机当手电', en: 'someone in the hall using a phone as a torch' }] },
       { day: 4, weather: { zh: '晴，冷', en: 'clear, cold' }, bits: [{ zh: '翻修通知贴在楼门口，被风吹掉了一角', en: 'the renovation notice at the door, one corner torn off by the wind' }] },
     ],
     places: {

@@ -386,7 +386,7 @@ Content: the original carries warnings (unreality, drugs, alcohol, death, missin
       beats: [
         { id: 'tapestry', day: 1, by: 1, kind: { en: 'inciting incident', zh: '起因' }, text: { en: 'In the throne room behind a door-less archway, the one surviving tapestry reads "eebeebeebee crew was here". kewpie is unreachable.', zh: '王座厅没有门的拱门后，唯一幸存的挂毯上写着「eebeebeebee crew was here」。kewpie 联系不上。' } },
         { id: 'seven-sites', day: 2, by: 2, kind: { en: 'clue', zh: '线索' }, text: { en: 'DGSA finally returns: kewpie_faygo existed on seven websites and was deleted on all seven; every eQualia citizen but one is gone too.', zh: 'DGSA 终于返回：kewpie_faygo 在七个网站上存在过，七个全被删除；eQualia 的公民除了一个，全都不见了。' } },
-        { id: 'witness', day: 1, by: 3, who: ['crows'], kind: { en: 'first contact', zh: '初次接触' }, text: { en: '7crows, on its upside-down balcony, tells Maggie that kewpie was Princess Dahlia, eQualia\'s only moderator, and says it resigned for "personal reasons". Its typing indicator flickers on and off.', zh: '七鸦在倒置的阳台上告诉玛姬：kewpie 就是 eQualia 唯一的管理员达莉娅公主；说自己是「因个人原因」退出的。它的「正在输入」忽明忽灭。' } },
+        { id: 'witness', day: 1, by: 3, who: ['crows'], places: ['upside', 'gardens'], kind: { en: 'first contact', zh: '初次接触' }, text: { en: '7crows, on its upside-down balcony, tells Maggie that kewpie was Princess Dahlia, eQualia\'s only moderator, and says it resigned for "personal reasons". Its typing indicator flickers on and off.', zh: '七鸦在倒置的阳台上告诉玛姬：kewpie 就是 eQualia 唯一的管理员达莉娅公主；说自己是「因个人原因」退出的。它的「正在输入」忽明忽灭。' } },
       ],
       hook: { en: 'Everyone who knew the Princess has vanished from the internet at once. Whatever did that does not live online.', zh: '认识公主的人同时从互联网上消失了。干这件事的东西，不住在网上。' },
     },
@@ -394,9 +394,9 @@ Content: the original carries warnings (unreality, drugs, alcohol, death, missin
       id: 'offline', from: 3, title: { en: 'II · Off the Internet', zh: '二 · 离开互联网' },
       goal: { en: 'Rising action. The trail leaves the internet: a griefers\' jail, a story about burning a bridge in the woods, and German tracts on microfilm.', zh: '发展。线索离开了互联网：恶意破坏者的牢房、一个在林子里烧掉一座桥的故事、缩微胶卷上的德语小册子。' },
       beats: [
-        { id: 'jail', day: 3, by: 4, who: ['wood', 'balenciaga'], kind: { en: 'reversal', zh: '转折' }, text: { en: 'Behind the iron bars of the Horny Guild jail, wood finally tells the story: the tracksuit guy, the nine woven arches in a glade, the fire, the iPod photos. He knows the word "EBBB" but not what it stands for.', zh: '隔着 Horny Guild 牢房的铁栏，木头终于讲出来：运动服男人、林间空地上九道编织的拱门、那把火、iPod 照片。他知道「EBBB」这个词，却说不出它代表什么。' } },
+        { id: 'jail', day: 3, by: 4, who: ['wood', 'balenciaga'], places: ['jail'], kind: { en: 'reversal', zh: '转折' }, text: { en: 'Behind the iron bars of the Horny Guild jail, wood finally tells the story: the tracksuit guy, the nine woven arches in a glade, the fire, the iPod photos. He knows the word "EBBB" but not what it stands for.', zh: '隔着 Horny Guild 牢房的铁栏，木头终于讲出来：运动服男人、林间空地上九道编织的拱门、那把火、iPod 照片。他知道「EBBB」这个词，却说不出它代表什么。' } },
         { id: 'german-name', day: 4, by: 5, who: ['kloose', 'wood'], kind: { en: 'clue', zh: '线索' }, text: { en: 'Through wood, kloose emails the full name: "Einsatzgruppe zur Begrenzung von Brücken und Bruchstellen". The worst thing that can happen to an internet sleuth: the case has left the internet.', zh: '通过木头转交，kloose 发来了全名：「Einsatzgruppe zur Begrenzung von Brücken und Bruchstellen」。对网络侦探来说最糟的事发生了：案子离开了互联网。' } },
-        { id: 'tracts', day: 3, by: 5, who: ['librarian'], kind: { en: 'revelation', zh: '揭示' }, text: { en: 'On the microfilm reader Maggie finds the EBBB tracts, including a line almost word for word what 7crows said to her: fantasy is too compelling, it makes you make bad decisions.', zh: '在缩微胶卷阅读机上，玛姬找到了 EBBB 的小册子，其中一句几乎和七鸦对她说过的话一字不差：幻想太有说服力，会让你做出坏决定。' } },
+        { id: 'tracts', day: 3, by: 5, who: ['librarian'], slots: [0, 1], places: ['library'], kind: { en: 'revelation', zh: '揭示' }, text: { en: 'On the microfilm reader Maggie finds the EBBB tracts, including a line almost word for word what 7crows said to her: fantasy is too compelling, it makes you make bad decisions.', zh: '在缩微胶卷阅读机上，玛姬找到了 EBBB 的小册子，其中一句几乎和七鸦对她说过的话一字不差：幻想太有说服力，会让你做出坏决定。' } },
       ],
       hook: { en: '7crows quoted the tracts before Maggie ever found them. It has known, this whole time.', zh: '玛姬还没找到小册子，七鸦就已经引用过它们了。它一直都知道。' },
     },
@@ -404,8 +404,8 @@ Content: the original carries warnings (unreality, drugs, alcohol, death, missin
       id: 'bridges', from: 5, title: { en: 'III · The Eschatology of Bridges', zh: '三 · 桥的末世论' },
       goal: { en: 'Crisis. 7crows meets Maggie as six crows, not seven, and confesses its version of the sovereignty party.', zh: '危机。七鸦以六只、而不是七只乌鸦的样子来见玛姬，讲出它版本的主权派对。' },
       beats: [
-        { id: 'six-crows', day: 5, by: 6, who: ['crows'], kind: { en: 'key promise', zh: '关键约定' }, text: { en: 'On the balcony ceiling Maggie counts six crows, not seven. Before it will talk, 7crows asks one thing: if she ever finds anything from Dahlia, she brings it to the six first, whole.', zh: '在阳台的天花板上，玛姬数了一遍：六只，不是七只。七鸦开口之前只求一件事：如果她找到任何达莉娅留下的东西，先完整地带给它们六个。' }, promise: { en: 'promise 7crows to bring it anything Dahlia left behind, first and whole', zh: '答应七鸦：找到达莉娅留下的任何东西，第一时间、完整地带给它' } },
-        { id: 'confession', day: 5, by: 6, who: ['crows'], kind: { en: 'secret revealed', zh: '秘密曝光' }, text: { en: '"the only reason you know ebbb exists at all is because i called them." The lever on its pedestal, the Seventh Crow waking too late, the mod accounts handed over, the friends frozen while the vandals razed the world.', zh: '「你知道 ebbb 存在，唯一的原因是我把他们叫来的。」底座上的拉闸、太晚醒来的第七只乌鸦、交出去的管理员账号、破坏者洗劫世界时被冻住的朋友们。' } },
+        { id: 'six-crows', day: 5, by: 6, who: ['crows'], kind: { en: 'key promise', zh: '关键约定' }, text: { en: 'On the balcony ceiling Maggie counts six crows, not seven. Before it will talk, 7crows asks one thing: whatever she finds out about Dahlia, she tells the six first, exactly as it is, before they fly.', zh: '在阳台的天花板上，玛姬数了一遍：六只，不是七只。七鸦开口之前只求一件事：她查到的任何关于达莉娅的事，都先原原本本告诉它们六个——在它们飞走之前。' }, promise: { en: 'promise 7crows to come back before they fly and tell the six everything she has found about Dahlia, unedited', zh: '答应七鸦：在它们飞走之前回来，把查到的关于达莉娅的一切原原本本告诉它们六个，不删不改' } },
+        { id: 'confession', day: 5, by: 6, who: ['crows'], places: ['upside', 'gardens'], kind: { en: 'secret revealed', zh: '秘密曝光' }, text: { en: '"the only reason you know ebbb exists at all is because i called them." The lever on its pedestal, the Seventh Crow waking too late, the mod accounts handed over, the friends frozen while the vandals razed the world.', zh: '「你知道 ebbb 存在，唯一的原因是我把他们叫来的。」底座上的拉闸、太晚醒来的第七只乌鸦、交出去的管理员账号、破坏者洗劫世界时被冻住的朋友们。' } },
       ],
       hook: { en: 'Dahlia would have forgiven it. A woman like that leaves a message somewhere only royalty would look.', zh: '达莉娅会原谅它的。那样的人，会把话留在只有王室才会去看的地方。' },
     },
@@ -429,7 +429,7 @@ Content: the original carries warnings (unreality, drugs, alcohol, death, missin
   proactiveAfter: 2,
   endings: [
     {
-      id: 'threshold', kind: 'true', tier: 4, minStage: 3,
+      id: 'threshold', kind: 'true', tier: 4, minStage: 3, maxBroken: 0,
       title: { en: 'Threshold People', zh: '门槛上的人' },
       brief: {
         en: 'Everyone trusted Maggie with their truth. She delivers Dahlia\'s letter to 7crows whole, invitation and all, because the six crows asked to choose for themselves; wood sends the bonfire photos and stops repeating the tracts; Rosalind lends her a notebook to read offline. A reply arrives from a brand-new account with a dragon avatar. The case is not "solved", but for once nobody is alone behind the curtains.',
@@ -440,8 +440,8 @@ Content: the original carries warnings (unreality, drugs, alcohol, death, missin
       id: 'crows-true', kind: 'true', who: 'crows', tier: 3, minStage: 4, minAffection: 11, maxBroken: 0, keptKey: 'six-crows',
       title: { en: 'Murmuration', zh: '群飞' },
       brief: {
-        en: 'Maggie gives 7crows the letter, the invitation cut away "like removing the detonator from a bomb", and stays on the balcony while it reads. The six do not ask about the missing strip. They paint one new shape on the sky. Trust ending, close to the original\'s.',
-        zh: '玛姬把信交给七鸦，邀请那一截已经剪掉——「像拆掉炸弹的引信」——然后在阳台上陪它读完。六只乌鸦没有问缺了的那一条。它们在天空上画出一个新的形状。信任结局，最接近原作。',
+        en: 'Because Maggie kept her word and told the six everything before they flew, they come back for the letter. She hands it over whole and stays on the balcony while 7crows reads. The six cut the invitation away themselves, "like removing the detonator from a bomb", and keep the rest. They paint one new shape on the sky. Trust ending, close to the original\'s.',
+        zh: '因为玛姬守约，在它们飞走之前把查到的一切都告诉了它们，六只乌鸦回来取那封信。她把信完整地交出去，在阳台上陪七鸦读完。是它们自己剪掉了邀请那一截——「像拆掉炸弹的引信」——留下了其余的部分。它们在天空上画出一个新的形状。信任结局，最接近原作。',
       },
     },
     {
@@ -469,23 +469,23 @@ Content: the original carries warnings (unreality, drugs, alcohol, death, missin
       },
     },
     {
-      id: 'crows-near', kind: 'normal', who: 'crows', tier: 2, minStage: 3,
+      id: 'crows-near', kind: 'normal', who: 'crows', tier: 2, minStage: 3, maxBroken: 0,
       title: { en: 'A Comforting Story', zh: '一个让人安心的故事' },
       brief: {
-        en: '7crows tells its version and flies off before Maggie can say what she thinks. She is left holding a story she does not believe, and a letter she never found.',
-        zh: '七鸦讲完它的版本，没等玛姬开口就飞走了。她手里只剩一个她不信的故事，和一封她没找到的信。',
+        en: '7crows tells its version and flies off before Maggie can say what she thinks. By the time she finds Dahlia\'s letter, the balcony is empty. She is left holding a story she does not believe, and a letter with no one to read it to.',
+        zh: '七鸦讲完它的版本，没等玛姬开口就飞走了。等她找到达莉娅的信，阳台已经空了。她手里只剩一个她不信的故事，和一封没有人可以念给它听的信。',
       },
     },
     {
-      id: 'dahlia-near', kind: 'normal', who: 'dahlia', tier: 2, minStage: 3,
+      id: 'dahlia-near', kind: 'normal', who: 'dahlia', tier: 2, minStage: 3, maxBroken: 0,
       title: { en: 'Behind the Curtains', zh: '窗帘后面' },
       brief: {
-        en: 'Maggie guesses where the letter must be but the server goes dark before she gets in. In the last dream the curtains move once. She never finds out who was behind them.',
-        zh: '玛姬猜到了信在哪里，但服务器在她进去之前熄灭了。最后一个梦里，窗帘动了一下。她始终不知道后面是谁。',
+        en: 'Maggie finds the letter in the featureless room, but cannot make herself read the invitation before the server goes dark. In the last dream the curtains move once. She never finds out who was behind them.',
+        zh: '玛姬在空白房间里找到了那封信，却没能在服务器熄灭之前读完那份邀请。最后一个梦里，窗帘动了一下。她始终不知道后面是谁。',
       },
     },
     {
-      id: 'wood-near', kind: 'normal', who: 'wood', tier: 2, minStage: 3,
+      id: 'wood-near', kind: 'normal', who: 'wood', tier: 2, minStage: 3, maxBroken: 0,
       title: { en: 'Golden Apple', zh: '金苹果' },
       brief: {
         en: 'wood passes the email along and gets Maggie the name; the guild bans her bot anyway, and the last thing in the cell is the golden apple balenciaga once tossed through the bars. wood logs off without saying goodbye, which is how he says it.',
@@ -504,8 +504,8 @@ Content: the original carries warnings (unreality, drugs, alcohol, death, missin
       id: 'wood-banned', kind: 'bad', who: 'wood', tier: 1, minStage: 1, minBroken: 1,
       title: { en: 'IP Range Banned', zh: '封禁整个 IP 段' },
       brief: {
-        en: 'Maggie let wood down; balenciaga wipes the jail and bans the whole IP range. The German name never arrives, and the only trace of the nine arches stays on an old iPod nobody will ever charge again.',
-        zh: '玛姬让木头失望了；balenciaga 清空牢房，封掉整个 IP 段。德语全名再也没有来，九道拱门唯一的痕迹留在一台没人会再充电的旧 iPod 里。',
+        en: 'Maggie let wood down; balenciaga wipes the jail and bans the whole IP range. The German name sits in her inbox, but she can never ask wood what he saw in the clearing, and the only trace of the nine arches stays on an old iPod nobody will ever charge again.',
+        zh: '玛姬让木头失望了；balenciaga 清空牢房，封掉整个 IP 段。德语全名还躺在她的收件箱里，可她再也没法问木头那天在空地上看到了什么；九道拱门唯一的痕迹留在一台没人会再充电的旧 iPod 里。',
       },
     },
     {

@@ -218,6 +218,15 @@ export function validatePack(raw: unknown): string[] {
           if (b.kind !== undefined) need(isL(b.kind), `${bt}.kind: text`)
           if (b.who !== undefined) need(Array.isArray(b.who) && b.who.every(anyone), `${bt}.who: known ids`)
           if (b.promise !== undefined) { need(isL(b.promise), `${bt}.promise: text`); promiseBeats.add(b.id) }
+          if (b.slots !== undefined) need(Array.isArray(b.slots) && b.slots.length > 0 && b.slots.every(n => Number.isInteger(n) && n >= 0 && n < nSlots), `${bt}.slots: slot indexes`)
+          if (b.places !== undefined) {
+            need(Array.isArray(b.places) && b.places.length > 0 && b.places.every(id => placeIds.has(id)), `${bt}.places: known place ids`)
+            // 最后机会（允许的最后一个时段）时日程要把玩家带过去：至少一个地点那时开放
+            const okSlots = b.slots?.length ? b.slots : [...Array(nSlots).keys()]
+            const lastSlot = Math.max(...okSlots)
+            const pls = (Array.isArray(p.places) ? p.places : []).filter(pl => b.places!.includes(pl.id))
+            need(pls.some(pl => Array.isArray(pl.slots) && pl.slots.includes(lastSlot)), `${bt}.places: none of them is open in slot ${lastSlot} (the last chance)`)
+          }
         }
       }
     }

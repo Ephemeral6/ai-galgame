@@ -163,10 +163,40 @@ export function incidentHere(p: Pack, s: Story, opt: PlanOption): IncidentDef | 
 export type PlanOption = { place: string; mood: string; maybe: string[]; forced?: string; who?: string; id?: string }
 
 export function forcedEvent(p: Pack, s: Story, lang: Lang): PlanOption | null {
-  const f = p.fixed.find(x => x.day === s.day && x.slot === s.slot)
-  if (!f) return null
   const T = packText(p, lang)
-  return { place: T(f.place), mood: T(f.mood), maybe: [...f.cast], forced: T(f.title) }
+  const f = p.fixed.find(x => x.day === s.day && x.slot === s.slot)
+  // 固定事件的地点名和某个地点同名时带上它的 id：限地点的关键事件、预写场景、随机事件才认得出这里
+  const fid = f ? p.places.find(x => T(x.name) === T(f.place))?.id : undefined
+  if (f) return { ...(fid ? { id: fid } : {}), place: T(f.place), mood: T(f.mood), maybe: [...f.cast], forced: T(f.title) }
+  // 限地点的关键事件到了最后机会：日程把玩家带到它的地点
+  const b = allBeats(p).find(x => !!x.places?.length && !s.flags.includes(`beat:${x.id}`) && x.day <= s.day && lastChance(p, s, x))
+  const pl = b ? p.places.find(x => b.places!.includes(x.id) && x.slots.includes(s.slot)) : undefined
+  if (!b || !pl) return null
+  return { id: pl.id, place: T(pl.name), mood: T(pl.mood), maybe: [...(b.who ?? [])], forced: T(b.kind) || T(pl.name) }
+}
+
+/** 关键事件的最后期限（默认 day + 1，不超过总天数） */
+function byOf(p: Pack, b: BeatDef): number {
+  return b.by ?? Math.min(p.days, b.day + 1)
+}
+
+/** 这个时段是不是关键事件的最后机会：by 那天、它允许的最后一个时段 */
+function lastChance(p: Pack, s: Story, b: BeatDef): boolean {
+  const slots = b.slots?.length ? b.slots : p.slots.map((_, i) => i)
+  return s.day === byOf(p, b) && s.slot === Math.max(...slots)
+}
+
+/** 到了或过了最后机会（还没写到）：by 之后，或 by 那天它允许的最后一个时段及以后 */
+function overdue(p: Pack, s: Story, b: BeatDef): boolean {
+  const slots = b.slots?.length ? b.slots : p.slots.map((_, i) => i)
+  return s.day > byOf(p, b) || (s.day === byOf(p, b) && s.slot >= Math.max(...slots))
+}
+
+/** 时段、地点是否合这个关键事件（没写限制就都合） */
+function beatFits(s: Story, b: BeatDef, place: string | undefined): boolean {
+  if (b.slots?.length && !b.slots.includes(s.slot)) return false
+  if (b.places?.length && !(place && b.places.includes(place))) return false
+  return true
 }
 
 /** 冷落 proactiveAfter 天以上、已经熟悉的人，会在每天第二个时段主动来找你（好感最高者优先） */
@@ -197,29 +227,30 @@ export function planOptions(p: Pack, s: Story, lang: Lang): PlanOption[] {
  * 这一幕要写到的关键事件：已到日子、还没发生、相关的人可能在场的第一个；
  * 过了 by 那天（或就在 by 那天的最后一个时段），不论谁在场都要写。
  */
-export function dueBeat(p: Pack, s: Story, present: string[]): BeatDef | null {
-  const lastSlot = s.slot === p.slots.length - 1
+export function dueBeat(p: Pack, s: Story, present: string[], place?: string): BeatDef | null {
   const beats = allBeats(p).filter(b => b.day <= s.day && !s.flags.includes(`beat:${b.id}`)).sort((a, b) => a.day - b.day)
-  for (const b of beats) {
-    if (!b.who?.length || b.who.some(id => present.includes(id))) return b
-  }
-  for (const b of beats) {
-    const by = b.by ?? Math.min(p.days, b.day + 1)
-    if (s.day > by || (s.day === by && lastSlot)) return b
-  }
-  return null
+  const here = beats.filter(b => beatFits(s, b, place) && (!b.who?.length || b.who.some(id => present.includes(id))))
+  // 先写还在期限内、此时此地合适的；过期的留给 alsoBeat 顺带补上，不再挤占后面的时段
+  return here.find(b => s.day <= byOf(p, b)) ?? here[0] ?? beats.find(b => overdue(p, s, b)) ?? null
 }
 
-/** 这一幕的上下文：关键事件、随机事件，以及要放完整设定的人 */
-export type SceneCtx = { beat: BeatDef | null; incident: IncidentDef | null; focus: string[]; craft?: CraftPick; lead?: string }
+/** 另一个已经过期的关键事件：这一幕顺带补上（每幕最多一个），免得它挤占后面的时段或在终局时丢掉 */
+export function alsoBeat(p: Pack, s: Story, main: BeatDef | null): BeatDef | null {
+  // 带约定的关键事件不顺带：顺带补上的只提一两句，不出约定选项，关键约定就丢了；它留给 dueBeat 当主事件
+  return allBeats(p).filter(b => b.day <= s.day && b.id !== main?.id && !b.promise && !s.flags.includes(`beat:${b.id}`) && overdue(p, s, b)).sort((a, b) => a.day - b.day)[0] ?? null
+}
+
+/** 这一幕的上下文：关键事件（及顺带补上的过期事件）、随机事件，以及要放完整设定的人 */
+export type SceneCtx = { beat: BeatDef | null; also?: BeatDef | null; incident: IncidentDef | null; focus: string[]; craft?: CraftPick; lead?: string }
 
 export function sceneContext(p: Pack, s: Story, opt: PlanOption, who: string | null): SceneCtx {
   const inc = incidentHere(p, s, opt) ?? null
   const present = [...opt.maybe, ...(who ? [who] : []), ...(inc?.who ?? [])]
-  const beat = dueBeat(p, s, present)
+  const beat = dueBeat(p, s, present, opt.id)
+  const also = alsoBeat(p, s, beat)
   const ids: string[] = []
   const add = (id: string) => { if (!ids.includes(id) && personOf(p, id)) ids.push(id) }
-  for (const id of [...present, ...(beat?.who ?? [])]) add(id)
+  for (const id of [...present, ...(beat?.who ?? []), ...(also?.who ?? [])]) add(id)
   // 在场主角色的相关配角（最多两位）
   let extra = 0
   for (const r of p.relations ?? []) {
@@ -228,13 +259,18 @@ export function sceneContext(p: Pack, s: Story, opt: PlanOption, who: string | n
       if (castOf(p, x) && ids.includes(x) && npcOf(p, y) && !ids.includes(y) && extra < 2) { add(y); extra++ }
     }
   }
-  return { beat, incident: inc, focus: ids }
+  return { beat, also, incident: inc, focus: ids }
 }
 
 // ---------- 场景落地、选择、推进 ----------
 const firstHeroine = (s: Story, sc: Scene) => sc.cast.find(a => !!s.heroines[a.id])?.id ?? ''
 
-/** 一幕写好后：记见面、单独相处、约定兑现、伏笔回收、事实、相册、关键事件与随机事件 */
+/** 这一幕里可以兑现的约定：对台上的人许下、还开着、没过期、不是这一幕刚许的 */
+export function keepable(s: Story, cast: string[]): Story['promises'] {
+  return s.promises.filter(pr => pr.status === 'open' && cast.includes(pr.heroine) && s.day <= pr.due && pr.made !== sceneKey(s))
+}
+
+/** 一幕写好后：记见面、单独相处、伏笔回收、事实、相册、关键事件与随机事件（约定只在玩家选了「兑现」时才算兑现） */
 export function applyScene(s: Story, sc: Scene): Story {
   const heroines = { ...s.heroines }
   for (const a of sc.cast) {
@@ -242,9 +278,10 @@ export function applyScene(s: Story, sc: Scene): Story {
     if (h) heroines[a.id] = { ...h, lastDay: s.day, scenes: h.scenes + (sc.cast.length === 1 ? 1 : 0) }
   }
   const notes = sc.callback ? s.notes.map(n => (!n.used && sc.callback!.includes(n.text.slice(0, 6)) ? { ...n, used: true } : n)) : s.notes
-  const promises = s.promises.map(pr => (pr.status === 'open' && pr.day < s.day + 1 && sc.cast.some(a => a.id === pr.heroine) && s.day <= pr.due && !(pr.day === s.day && pr.made === sceneKey(s)) ? { ...pr, status: 'kept' as const } : pr))
+  const promises = s.promises
   const flags = [...s.flags]
   if (sc.beat && !flags.includes(`beat:${sc.beat}`)) flags.push(`beat:${sc.beat}`)
+  if (sc.also && !flags.includes(`beat:${sc.also}`)) flags.push(`beat:${sc.also}`)
   if (sc.incident && !flags.includes(`inc:${sc.incident}`)) flags.push(`inc:${sc.incident}`)
   for (const f of sc.craftFlags ?? []) if (!flags.includes(f)) flags.push(f)
   return {
@@ -279,15 +316,26 @@ export function applyChoice(p: Pack, s: Story, c: Choice, lang: Lang): ChoiceRes
     if (h) heroines[id] = { ...h, affection: h.affection + clamp(Math.round(Number(d)) || 0, -2, 2) }
   }
   const notes = [...s.notes, { day: s.day, heroine: lead, text: `${sc.place}：${c.text}`, used: false }].slice(-30)
-  const promises = [...s.promises]
-  // 关键约定记在关键事件涉及的那位主角色名下：领头的人在 beat.who 里就是她，否则取 beat.who 里第一个在场的主角色
+  let promises = [...s.promises]
+  // 兑现：对 keeps（不填就是领头的人）最早到期的那个约定
+  if (c.kind === 'keep') {
+    const target = c.keeps && sc.cast.some(a => a.id === c.keeps) ? c.keeps : lead
+    const pr = keepable(s, [target]).sort((a, b) => a.due - b.due)[0]
+    if (pr) promises = promises.map(x => (x === pr ? { ...x, status: 'kept' as const } : x))
+  }
+  // 关键约定记在关键事件涉及的主角色名下：在场的人里好感最高的（平手时领头的人优先）；都不在场就取其中好感最高的
   const beat = beatOf(p, sc.beat)
   const key = beat?.promise ? beat.id : undefined
-  const onStage = (id: string) => sc.cast.some(a => a.id === id) && !!castOf(p, id)
-  const owner = key && beat?.who?.length && !beat.who.includes(lead) ? (beat.who.find(onStage) ?? lead) : lead
-  if (c.kind === 'promise' && owner && castOf(p, owner)) {
+  const onStage = (id: string) => sc.cast.some(a => a.id === id)
+  const whoCast = (beat?.who ?? []).filter(id => !!castOf(p, id))
+  const aff = (id: string) => s.heroines[id]?.affection ?? 0
+  const best = (ids: string[]) => [...ids].sort((a, b) => aff(b) - aff(a) || Number(b === lead) - Number(a === lead))[0]
+  const owner = key && whoCast.length ? (best(whoCast.filter(onStage)) ?? best(whoCast) ?? lead) : lead
+  // 全剧最后一幕许下的约定没有之后的时段可以兑现，记下来只会在结局前算失约：不记
+  const finalScene = s.day === p.days && s.slot === p.slots.length - 1
+  if (c.kind === 'promise' && owner && castOf(p, owner) && !finalScene) {
     const dl = castOf(p, owner)!.deadline.day
-    promises.push({ text: c.promise || c.text, heroine: owner, day: s.day, due: clamp(dl, s.day + 1, p.days), status: 'open', made: sceneKey(s), ...(key ? { key } : {}) })
+    promises.push({ text: c.promise || c.text, heroine: owner, day: s.day, due: Math.min(clamp(dl, s.day + 1, p.days), p.days), status: 'open', made: sceneKey(s), ...(key ? { key } : {}) })
   }
   const advanced: string[] = []
   for (const ch of p.cast) {
@@ -368,31 +416,39 @@ export function advanceTime(p: Pack, s: Story, lang: Lang): AdvanceResult {
 export function endingMatches(p: Pack, s: Story, e: EndingDef): boolean {
   if (e.minLoop !== undefined && s.loop < e.minLoop) return false
   if (e.flags && !e.flags.every(f => s.flags.includes(f))) return false
-  // 不绑角色的结局：阶段/好感条件对每个角色都要满足（群像结局）
-  if (!e.who) return p.cast.every(c => {
-    const h = s.heroines[c.id]
-    return !!h && (e.minStage === undefined || h.stage >= e.minStage) && (e.minAffection === undefined || h.affection >= e.minAffection)
-      && (e.maxAffection === undefined || h.affection <= e.maxAffection)
-  })
-  const h = s.heroines[e.who]
+  const who = e.who
+  // 不绑角色的结局：阶段/好感条件对每个角色都要满足（群像结局）；约定与信物条件按所有人合计
+  if (!who) {
+    const all = p.cast.every(c => {
+      const h = s.heroines[c.id]
+      return !!h && (e.minStage === undefined || h.stage >= e.minStage) && (e.minAffection === undefined || h.affection >= e.minAffection)
+        && (e.maxAffection === undefined || h.affection <= e.maxAffection)
+    })
+    return all && promiseTermsMet(s, e, s.promises, s.keepsakes.length)
+  }
+  const h = s.heroines[who]
   if (!h) return false
   if (e.minStage !== undefined && h.stage < e.minStage) return false
   if (e.minAffection !== undefined && h.affection < e.minAffection) return false
   if (e.maxAffection !== undefined && h.affection > e.maxAffection) return false
-  const mine = s.promises.filter(x => x.heroine === e.who)
+  return promiseTermsMet(s, e, s.promises.filter(x => x.heroine === who), s.keepsakes.filter(k => k.heroine === who).length)
+}
+
+function promiseTermsMet(s: Story, e: EndingDef, mine: Story['promises'], keepsakes: number): boolean {
   const nBroken = mine.filter(x => x.status === 'broken').length
   if (e.maxBroken !== undefined && nBroken > e.maxBroken) return false
   if (e.minBroken !== undefined && nBroken < e.minBroken) return false
   if (e.minKept !== undefined && mine.filter(x => x.status === 'kept').length < e.minKept) return false
   if (e.keptKey !== undefined && !mine.some(x => x.key === e.keptKey && x.status === 'kept')) return false
-  if (e.minKeepsakes !== undefined && s.keepsakes.filter(k => k.heroine === e.who).length < e.minKeepsakes) return false
+  if (e.minKeepsakes !== undefined && keepsakes < e.minKeepsakes) return false
   return true
 }
 
+/** tier 高者优先；同 tier 时群像结局（不绑角色）优先，再比关联角色的好感 */
 export function pickEnding(p: Pack, s: Story): EndingDef {
-  const aff = (e: EndingDef) => (e.who ? s.heroines[e.who]?.affection ?? 0 : -999)
+  const aff = (e: EndingDef) => (e.who ? s.heroines[e.who]?.affection ?? 0 : 0)
   const ok = p.endings.filter(e => endingMatches(p, s, e))
-  ok.sort((a, b) => b.tier - a.tier || aff(b) - aff(a))
+  ok.sort((a, b) => b.tier - a.tier || Number(!b.who) - Number(!a.who) || aff(b) - aff(a))
   return ok[0] ?? p.endings[p.endings.length - 1]!
 }
 
@@ -506,8 +562,8 @@ function actsOverview(p: Pack, lang: Lang): string {
 }
 
 const FORMAT = `Reply with ONE JSON object only:
-{"title":"scene title","atmo":{"weather":"clear|rain|snow|fog|storm|wind","time":"dawn|day|dusk|night","fx":"rain|snow|fireflies|cicadas|lanterns|meteors|mist|stars|none"},"camera":{"focus":"one small object the camera lingers on, or empty","pause":0},"cast":[{"id":"<cast or supporting id>","expression":"normal|smile|blush|sad|angry|surprised"}],"distance":"near|far","narration":"2-4 sentences","lines":[{"who":"<cast id, supporting id, or me>","text":"..."}],"cues":[{"at":1,"who":"<id on stage>","emote":"!|?|note|...|anger|sweat|heart","move":"enter|exit|approach|turn|face"}],"choices":[{"text":"...","kind":"reply|observe|promise","tone":"honest|evasive|joking|committed|caring|bold","effects":{"<cast id>":1},"promise":"what I promised (promise only)","reaction":"the immediate reaction and close of the scene after this choice, 2-3 sentences, may include one line of dialogue"}],"summary":"one-sentence summary","callback":"which earlier note this scene calls back, or empty","fact":"one concrete new fact this scene establishes"}
-Rules: at most two characters on stage (romanceable or supporting; zero is allowed); 3-7 lines of dialogue; exactly 3 choices with clearly different attitudes, at least one "reply"; "observe" gains a detail and does not change affection; "promise" must fill the promise field; effects range -2..+2 and list only affected romanceable cast ids.
+{"title":"scene title","atmo":{"weather":"clear|rain|snow|fog|storm|wind","time":"dawn|day|dusk|night","fx":"rain|snow|fireflies|cicadas|lanterns|meteors|mist|stars|none"},"camera":{"focus":"one small object the camera lingers on, or empty","pause":0},"cast":[{"id":"<cast or supporting id>","expression":"normal|smile|blush|sad|angry|surprised"}],"distance":"near|far","narration":"2-4 sentences","lines":[{"who":"<cast id, supporting id, or me>","text":"..."}],"cues":[{"at":1,"who":"<id on stage>","emote":"!|?|note|...|anger|sweat|heart","move":"enter|exit|approach|turn|face"}],"choices":[{"text":"...","kind":"reply|observe|promise|keep","tone":"honest|evasive|joking|committed|caring|bold","effects":{"<cast id>":1},"promise":"what I promised (promise only)","keeps":"<cast id> (keep only)","reaction":"the immediate reaction and close of the scene after this choice, 2-3 sentences, may include one line of dialogue"}],"summary":"one-sentence summary","callback":"which earlier note this scene calls back, or empty","fact":"one concrete new fact this scene establishes"}
+Rules: at most two characters on stage (romanceable or supporting; zero is allowed); 3-7 lines of dialogue; exactly 3 choices with clearly different attitudes, at least one "reply"; "observe" gains a detail and does not change affection; "promise" must fill the promise field; "keep" means I actually do what I promised her earlier (only when [Promises I can keep here] lists one; fill "keeps"); effects range -2..+2 and list only affected romanceable cast ids.
 Direction (you are also the director): "atmo" sets the weather, time of day and the ambient particles; "camera.focus" names one object for a close-up, "camera.pause" is the line number after which a silent beat falls (0 = none); "cues" are 0-4 stage directions — "at" is the line number (0 = narration) when it happens: an emote bubble over someone's head, entering or leaving, stepping closer, turning away when shy or hurt, turning back. Use them sparingly, only where they add something. Give every choice a "tone".`
 
 /** 固定不变的部分（前提、文风、人物、分幕、格式）放第一块并打缓存标记，每一幕复用 */
@@ -591,6 +647,12 @@ export function sceneDynamic(p: Pack, s: Story, opt: PlanOption, who: string | n
   const beatLine = b
     ? `\n[Must happen in this scene${b.kind ? ` — ${T(b.kind)}` : ''}] ${T(b.text)}${b.who?.length ? ` (involves ${b.who.join(', ')})` : ''}${b.promise ? `\nOne of the three choices must be a "promise" choice of this kind: ${T(b.promise)}` : ''}\n`
     : ''
+  const al = c.also
+  const alsoLine = al ? `\n[Also, briefly — this already happened offstage or happens in passing; mention it in a sentence or two] ${T(al.text)}${al.who?.length ? ` (involves ${al.who.join(', ')})` : ''}\n` : ''
+  const canKeep = keepable(s, c.focus.filter(id => !!castOf(p, id)))
+  const keepLine = canKeep.length
+    ? `\n[Promises I can keep here] ${canKeep.map(x => `${x.heroine}: ${x.text} (due day ${x.due})`).join('; ')} — if she is on stage, one of the three choices must be a "keep" choice where I actually do it (fill "keeps" with her id).\n`
+    : ''
   const inc = c.incident
   const incLine = inc ? `\n[Something happens this time] ${T(inc.text)}${inc.who?.length ? ` (brings in ${inc.who.join(', ')})` : ''}\n` : ''
   const present = opt.maybe.length ? `\n[Likely here] ${opt.maybe.join(', ')}` : ''
@@ -605,7 +667,7 @@ export function sceneDynamic(p: Pack, s: Story, opt: PlanOption, who: string | n
   return `[Now] ${dayText(p, lang, s.day)} of ${p.days} · ${T(p.slots[s.slot])} · place: ${opt.place} (${opt.mood})${opt.forced ? ` · fixed event: ${opt.forced}` : ''}
 ${actLine}${today ? `Today: ${today}\n` : ''}${focusNotes(p, c.focus, lang)}[State]
 ${stateText(p, s, lang, c.focus)}${present}${extra}
-${lead}${wall}${cyc}${beatLine}${incLine}${craftLines}
+${lead}${wall}${cyc}${beatLine}${alsoLine}${keepLine}${incLine}${craftLines}
 [Established facts — do not contradict]
 ${s.facts.slice(-24).map(f => `- ${f}`).join('\n') || '(none)'}
 [Open promises]
@@ -625,7 +687,7 @@ export function profileLine(s: Story): string {
 
 export function checkDynamic(p: Pack, s: Story, draft: string, lang: Lang, ctx?: SceneCtx): string {
   const T = packText(p, lang)
-  const must = `${ctx?.beat ? `\n7. this required event does not happen: ${T(ctx.beat.text)}` : ''}${ctx?.craft?.setPiece ? '\nLines quoted from the author\'s set piece are canon; never ask to change them.' : ''}`
+  const must = `${ctx?.beat ? `\n7. this required event does not happen: ${T(ctx.beat.text)}` : ''}${ctx?.also ? `\n8. this earlier event is not even mentioned: ${T(ctx.also.text)}` : ''}${ctx?.craft?.setPiece ? '\nLines quoted from the author\'s set piece are canon; never ask to change them.' : ''}`
   return `You are now the continuity editor, not the writer. Check this draft scene for hard errors only:
 1. contradicts an established fact; 2. a character's voice clearly wrong; 3. reveals a secret before stage 3, or states a relation marked "keep implicit" too early; 4. wrong language (must follow: ${langRule(lang)}); 5. violates the style taboos; 6. missing JSON fields.${must}
 ${ctx ? focusNotes(p, ctx.focus, lang) : ''}State:
@@ -655,10 +717,11 @@ export function parseScene(p: Pack, j: Record<string, unknown>, place: string): 
     if (c.effects && typeof c.effects === 'object') for (const [k, v] of Object.entries(c.effects as Record<string, unknown>)) if (ids.includes(k)) eff[k] = clamp(Math.round(Number(v)) || 0, -2, 2)
     return {
       text: String(c.text ?? '…'),
-      kind: c.kind === 'observe' || c.kind === 'promise' ? c.kind : 'reply',
+      kind: c.kind === 'observe' || c.kind === 'promise' || c.kind === 'keep' ? c.kind : 'reply',
       ...(TONE_SET.has(String(c.tone)) ? { tone: c.tone as Tone } : {}),
       effects: eff,
       promise: typeof c.promise === 'string' && c.promise ? c.promise : undefined,
+      ...(c.kind === 'keep' && typeof c.keeps === 'string' && ids.includes(c.keeps) ? { keeps: c.keeps } : {}),
       reaction: typeof c.reaction === 'string' ? c.reaction : '',
     }
   })
@@ -731,11 +794,13 @@ export async function writeScene($: EngineInterface, p: Pack, s: Story, opt: Pla
     let sc = j ? parseScene(p, j, opt.place) : null
     if (!sc) { fix = 'The previous reply was not valid JSON or missed fields.'; continue }
     // 预写关键场景：核心台词缺了就由程序拼回（不重写）；预写选项优先
+    const aiKeep = sc.choices.find(x => x.kind === 'keep')
     if (pick.setPiece) {
       if (!setPieceIntact(p, sc, pick.setPiece, lang)) sc = spliceSetPiece(p, sc, pick.setPiece, lang)
       const pre = setPieceChoices(p, pick.setPiece, lang)
       if (pre) sc.choices = pre
     }
+    sc.choices = withKeep(p, s, sc, aiKeep, lang)
     if (attempt === 0) {
       const verdict = json(await ask($, CHECKER, [{ text: checkerBlock(p, lang), cache: true }, { text: checkDynamic(p, s, draft!, lang, ctx) }], 200, u, 'check'))
       if (verdict && verdict.ok === false && typeof verdict.fix === 'string' && verdict.fix) { fix = verdict.fix; continue }
@@ -744,10 +809,30 @@ export async function writeScene($: EngineInterface, p: Pack, s: Story, opt: Pla
     sc.kind = pick.kind
     if (pick.flags.length) sc.craftFlags = pick.flags
     if (ctx.beat) sc.beat = ctx.beat.id
+    if (ctx.also) sc.also = ctx.also.id
     if (ctx.incident) sc.incident = ctx.incident.id
     return { value: sc, usage: u }
   }
   return { value: null, usage: u }
+}
+
+/**
+ * 台上有人可以兑现约定时，保证选项里有一个「兑现」：AI 写了就用它（预写选项之外补上），没写就由程序补一个。
+ * 没有可兑现的约定时，去掉 AI 多写的「兑现」。
+ */
+export function withKeep(p: Pack, s: Story, sc: Scene, aiKeep: Choice | undefined, lang: Lang): Choice[] {
+  const onStage = sc.cast.map(a => a.id)
+  const can = keepable(s, onStage)
+  const rest = sc.choices.filter(x => x.kind !== 'keep')
+  if (!can.length) return rest.length ? rest : sc.choices
+  const pr = can.sort((a, b) => a.due - b.due)[0]!
+  const ok = aiKeep && (!aiKeep.keeps || can.some(x => x.heroine === aiKeep.keeps)) ? { ...aiKeep, keeps: aiKeep.keeps ?? pr.heroine } : null
+  const who = castOf(p, pr.heroine)
+  const keep: Choice = ok ?? {
+    text: t(lang, 'keepChoice', { text: pr.text }), kind: 'keep', tone: 'committed', effects: who ? { [pr.heroine]: 1 } : {}, keeps: pr.heroine,
+    reaction: t(lang, 'keepReaction', { name: who ? packText(p, lang)(who.short) : '' }),
+  }
+  return [...rest, keep]
 }
 
 /** 画信物：一次调用；不合格再试一次 */

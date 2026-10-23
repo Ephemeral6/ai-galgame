@@ -234,7 +234,6 @@ Keep scenes short and punchy. Occasional French phrases are welcome ("'tain", "M
         { en: 'This will teach this young thug some common sense, for sure.', zh: '这下这个小流氓总该长点记性了。' },
         { en: 'Miss, next time a stranger asks for your grandmother\'s address on SocialBook, you call us first. Then you block him.', zh: '小姐，下次再有陌生人在 SocialBook 上问你外婆的地址，先给我们打电话。然后拉黑他。' },
       ],
-      haunts: { 1: ['hallway'] },
       sprite: {
         pal: { C: '#2d4b8e', Y: '#e8c547', G: '#9aa3b5', g: '#6f788c', O: '#e07a5f', P: '#b07fb8' },
         art: [
@@ -269,7 +268,6 @@ Keep scenes short and punchy. Occasional French phrases are welcome ("'tain", "M
         { en: 'Be reasonable, ma\'am.', zh: '请您配合一下，女士。' },
         { en: 'Miss, you were right, she\'s completely lost her marbles. We\'ll keep her under close surveillance.', zh: '小姐，您说得对，她完全糊涂了。我们会严密看护。' },
       ],
-      haunts: { 1: ['hallway'] },
       sprite: {
         pal: { L: '#7cb342', l: '#558b2f', W: '#f5f5f5', w: '#cfd8dc', R: '#e53935' },
         art: [
@@ -330,7 +328,8 @@ Keep scenes short and punchy. Occasional French phrases are welcome ("'tain", "M
       place: { en: 'Granny\'s Room, No. 173', zh: '外婆的房间（173 号）' },
       mood: { en: 'the door unlocked, the curtains drawn, "Granny" in bed with cucumber slices on her face; Mo\'s glasses in her pocket', zh: '门没锁，窗帘拉着，「外婆」躺在床上，脸上敷着黄瓜片；阿紫的眼镜在口袋里' },
       title: { en: 'What Big Cucumbers You Have', zh: '外婆，你的黄瓜片好大呀' },
-      cast: ['granny', 'wolf'],
+      // 床上的「外婆」是狼；真外婆在衣柜里（或者早有准备、握着苏西等着），所以这里只列狼
+      cast: ['wolf'],
     },
   ],
   acts: [
@@ -339,8 +338,8 @@ Keep scenes short and punchy. Occasional French phrases are welcome ("'tain", "M
       goal: { en: 'Setup. A basket, an eye-roll, a careless status, and a stranger on Wilson Boulevard who says "Hello!".', zh: '开端。一个篮子、一个白眼、一条随手发的动态，和威尔逊大道上一个说「哈喽！」的陌生人。' },
       beats: [
         { id: 'basket', day: 1, by: 1, who: ['mom'], kind: { en: 'setup', zh: '开端' }, text: { en: '"Once upon a time..." "Mooom! I ain\'t so little that you can tell me stories anymore!" Mom sends Mo\' off with an organic cake and a little pot of butter, and Mo\' posts a status with Granny\'s exact address: #173 Wilson Blvd.', zh: '「很久很久以前……」「妈——！我早过了听故事的年纪！」妈妈打发阿紫去送有机米饼和一小罐黄油；阿紫发了一条带外婆门牌号的动态：威尔逊大道 173 号。' } },
-        { id: 'hello', day: 1, by: 2, who: ['wolf'], kind: { en: 'inciting incident', zh: '起因' }, text: { en: 'On the boulevard a stranger says "Hello!", guesses she was made the family errand-runner, flatters her ("young, lively, pretty"), keeps asking where exactly she is going, and invites her to a Friday party: "Add me on SocialBook, Loup3769, kay?"', zh: '大道上一个陌生人说「哈喽！」，一眼猜出她被派去跑腿，夸她「年轻、有活力、漂亮」，追问她到底要去哪，还邀她周五去派对：「加我 SocialBook，Loup3769，好吧？」' } },
-        { id: 'salesman', day: 2, by: 2, who: ['granny'], kind: { en: 'foreshadowing', zh: '伏笔' }, text: { en: 'Over Scrabble, Granny giggles about a charming salesman who phoned about a complete box set of her favourite detective shows. Her door, as always, is unlocked.', zh: '下拼字游戏时，外婆嘻嘻笑着提起一个嘴很甜的推销员，打电话来推销她最爱的侦探剧全集。她的门一如既往没锁。' } },
+        { id: 'hello', day: 1, by: 2, who: ['wolf'], slots: [0], places: ['boulevard', 'icecream'], kind: { en: 'inciting incident', zh: '起因' }, text: { en: 'On the boulevard a stranger says "Hello!", guesses she was made the family errand-runner, flatters her ("young, lively, pretty"), keeps asking where exactly she is going, and invites her to a Friday party: "Add me on SocialBook, Loup3769, kay?"', zh: '大道上一个陌生人说「哈喽！」，一眼猜出她被派去跑腿，夸她「年轻、有活力、漂亮」，追问她到底要去哪，还邀她周五去派对：「加我 SocialBook，Loup3769，好吧？」' } },
+        { id: 'salesman', day: 2, by: 2, who: ['granny'], places: ['granny'], kind: { en: 'foreshadowing', zh: '伏笔' }, text: { en: 'Over Scrabble, Granny giggles about a charming salesman who phoned about a complete box set of her favourite detective shows. Her door, as always, is unlocked.', zh: '下拼字游戏时，外婆嘻嘻笑着提起一个嘴很甜的推销员，打电话来推销她最爱的侦探剧全集。她的门一如既往没锁。' } },
       ],
       hook: { en: 'Somewhere a SocialBook profile with stock-photo pictures has just read #173 Wilson Blvd.', zh: '某个用图库照片当头像的 SocialBook 账号，刚刚读到了「威尔逊大道 173 号」。' },
     },
@@ -349,7 +348,7 @@ Keep scenes short and punchy. Occasional French phrases are welcome ("'tain", "M
       goal: { en: 'Turn. The party address stays "TBA", the friend request waits, and the pieces start to line up for anyone who puts her glasses on.', zh: '转折。派对地址一直「待定」，好友申请等着通过；谁戴上眼镜，谁就能把碎片拼起来。' },
       beats: [
         { id: 'request', day: 3, by: 3, who: ['wolf'], kind: { en: 'temptation', zh: '诱惑' }, text: { en: '"Mo Little wants to be friends on SocialBook" — or doesn\'t. Loup3769 pings about the party, still "TBA", and slips in a detail she only ever posted online.', zh: '「Mo Little 想在 SocialBook 上加你为好友」——或者不加。Loup3769 发来派对消息，地址仍是「待定」，却顺口说出一个她只在网上发过的细节。' } },
-        { id: 'warn-granny', day: 3, by: 3, who: ['granny'], kind: { en: 'key promise', zh: '关键约定' }, text: { en: 'Granny, spry and suspicious-cheerful, shows Mo\' "Suzie" under her pillow and mentions the salesman will "drop by Saturday". Something about it makes Mo\' uneasy.', zh: '外婆灵活得可疑，乐呵呵地给阿紫看枕头底下的「苏西」，说那个推销员「周六顺路过来」。阿紫心里有点不踏实。' }, promise: { en: 'promise Granny to come by Saturday before the salesman and check who is at her door together', zh: '答应外婆周六赶在推销员之前过来，一起看清门外是谁' } },
+        { id: 'warn-granny', day: 3, by: 3, who: ['granny'], slots: [0], places: ['granny'], kind: { en: 'key promise', zh: '关键约定' }, text: { en: 'Friday afternoon at No. 173: Granny, spry and suspicious-cheerful, shows Mo\' "Suzie" under her pillow and mentions the salesman will "drop by Saturday". Something about it makes Mo\' uneasy.', zh: '周五下午在 173 号：外婆灵活得可疑，乐呵呵地给阿紫看枕头底下的「苏西」，说那个推销员「周六顺路过来」。阿紫心里有点不踏实。' }, promise: { en: 'promise Granny to find out tonight who this "salesman" really is and come back to tell her before Saturday', zh: '答应外婆今晚就查清那个「推销员」到底是谁，周六之前回来告诉她' } },
       ],
       hook: { en: 'Saturday afternoon, someone will knock at the first door on the right: "Margaret Little".', zh: '周六下午，会有人敲响右手第一扇门：「玛格丽特·小」。' },
     },
@@ -357,23 +356,23 @@ Keep scenes short and punchy. Occasional French phrases are welcome ("'tain", "M
       id: 'no173', from: 4, title: { en: 'Finale · 173 Wilson Boulevard', zh: '终章 · 威尔逊大道 173 号' },
       goal: { en: 'Climax. The unlocked door, the cucumbers, the glasses, a phone call; then Mom\'s verdict on Saturday night.', zh: '高潮。没锁的门、黄瓜片、眼镜、一个电话；然后是妈妈对周六晚上的裁决。' },
       beats: [
-        { id: 'cucumbers', day: 4, by: 4, who: ['wolf', 'granny'], kind: { en: 'climax', zh: '高潮' }, text: { en: '"Granny" lies in bed with cucumber slices on her face and says "Pull out the peg and the latch will fall, darling." Mo\' must decide: don\'t upset Granny, or put on her glasses, even if she\'s ugly with them.', zh: '「外婆」躺在床上，脸上敷着黄瓜片，说：「拉一下门闩，门就开了，宝贝。」阿紫得决定：别惹外婆不高兴，还是戴上眼镜——哪怕戴着很丑。' } },
-        { id: 'verdict', day: 4, by: 4, who: ['mom'], kind: { en: 'resolution', zh: '收束' }, text: { en: 'Saturday evening in the kitchen, Mom (and Dad, on speaker) give the verdict on the party, depending on what Mo\' tells them about Loup3769.', zh: '周六晚上在厨房，妈妈（和开着免提的爸爸）对派对给出裁决——取决于阿紫把 Loup3769 的事说了多少。' } },
+        { id: 'cucumbers', day: 4, by: 4, who: ['wolf'], slots: [0], places: ['granny'], kind: { en: 'climax', zh: '高潮' }, text: { en: '(The one in bed is Wolf in disguise — id "wolf"; the real Granny is not on stage.) "Granny" lies in bed with cucumber slices on her face and says "Pull out the peg and the latch will fall, darling." Mo\' must decide: don\'t upset Granny, or put on her glasses, even if she\'s ugly with them.', zh: '（床上的是假扮外婆的狼，id 为 wolf；真外婆不在台上。）「外婆」躺在床上，脸上敷着黄瓜片，说：「拉一下门闩，门就开了，宝贝。」阿紫得决定：别惹外婆不高兴，还是戴上眼镜——哪怕戴着很丑。' } },
+        { id: 'verdict', day: 4, by: 4, who: ['mom'], slots: [1], places: ['kitchen'], kind: { en: 'resolution', zh: '收束' }, text: { en: 'Saturday evening in the kitchen, Mom (and Dad, on speaker) give the verdict on the party, depending on what Mo\' tells them about Loup3769.', zh: '周六晚上在厨房，妈妈（和开着免提的爸爸）对派对给出裁决——取决于阿紫把 Loup3769 的事说了多少。' } },
       ],
     },
   ],
   incidents: [
-    { id: 'notif', chance: 0.35, slots: [1], places: ['phone'], who: ['wolf'], text: { en: 'Midnight notification: "Loup3769 liked your status." Then another. Then a message: "party details soon, kay? where r u saturday?"', zh: '半夜通知：「Loup3769 赞了你的动态。」又一条。然后一条私信：「派对细节马上发你，好吧？你周六在哪？」' } },
+    { id: 'notif', chance: 0.35, slots: [1], places: ['phone'], who: ['wolf'], after: ['beat:hello'], text: { en: 'Midnight notification: "Loup3769 liked your status." Then another. Then a message: "party details soon, kay? where r u saturday?"', zh: '半夜通知：「Loup3769 赞了你的动态。」又一条。然后一条私信：「派对细节马上发你，好吧？你周六在哪？」' } },
     { id: 'tv-volume', chance: 0.4, places: ['granny'], text: { en: 'Granny\'s TV is blaring a detective series so loud that every line of dialogue has to be shouted over the murderer\'s confession.', zh: '外婆的电视在放侦探剧，声音大得每句话都得压过凶手的认罪声喊出来。' } },
     { id: 'salesman-call', chance: 0.4, days: [2, 3], places: ['granny'], text: { en: 'The landline rings: the "salesman" again, about the complete box set. Granny says "Oohh, you silver-tongued devil, hehe!" and asks him to call back.', zh: '座机响了：又是那个「推销员」，还是那套全集。外婆说「哎哟，你这张甜嘴，嘻嘻！」让他晚点再打。' } },
-    { id: 'detour', chance: 0.35, days: [1, 3], places: ['icecream'], who: ['wolf'], text: { en: 'The "little detour" for an ice cream: Wolf happens to be on the bench by the kiosk, again, as if he knew.', zh: '为了一个冰淇淋「绕一小段路」：狼又恰好坐在小亭旁的长椅上，好像早知道她会来。' } },
+    { id: 'detour', chance: 0.35, days: [1, 3], places: ['icecream'], who: ['wolf'], after: ['beat:hello'], text: { en: 'The "little detour" for an ice cream: Wolf happens to be on the bench by the kiosk, again, as if he knew.', zh: '为了一个冰淇淋「绕一小段路」：狼又恰好坐在小亭旁的长椅上，好像早知道她会来。' } },
     { id: 'butter', chance: 0.3, slots: [0], places: ['boulevard'], text: { en: 'It is a long, long walk down Wilson Blvd; the little pot of butter in the basket is going soft in the sun.', zh: '威尔逊大道又长又长；篮子里那一小罐黄油在太阳底下开始变软。' } },
     { id: 'dad-text', chance: 0.3, slots: [1], places: ['kitchen'], who: ['dad'], text: { en: 'Dad texts from work: "We will talk about Saturday tonight." Mom reads it over Mo\'s shoulder and raises one eyebrow.', zh: '爸爸下班前发来短信：「周六的事今晚谈。」妈妈从阿紫肩后看了一眼，挑起一边眉毛。' } },
   ],
   proactiveAfter: 1,
   endings: [
     {
-      id: 'three-generations', kind: 'true', tier: 4, minStage: 2, minAffection: 4, maxBroken: 0,
+      id: 'three-generations', kind: 'true', tier: 4, minStage: 2, minAffection: 4, maxBroken: 0, keptKey: 'warn-granny',
       title: { en: 'GOOD ENDING (for the whole family — bad ending for Wolf!) · THREE GENERATIONS', zh: '好结局（全家都好——狼除外！）· 三代同堂' },
       brief: {
         en: 'Mo\' kept her word to Mom and Granny and figured Wolf out in time. Mom, Granny and Mo\' set the trap together: Granny opens the unlocked door with Suzie in hand, Mo\' calls the "Handov Erzycash" nursing home, Mom arrives with the police. Wolf, in Granny\'s nightgown, insists he is "just a young wolf". Mo\' goes to her Saturday party — and blocks Loup3769.',
@@ -389,15 +388,17 @@ Keep scenes short and punchy. Occasional French phrases are welcome ("'tain", "M
       },
     },
     {
-      id: 'jail-space', kind: 'true', who: 'granny', tier: 3, minStage: 4, minAffection: 7, keptKey: 'warn-granny',
+      // 外婆在 8 个时段里最多单独相处 3 次（两个固定事件、狼的两个关键事件、周六晚上的裁决），所以只要求阶段 3
+      id: 'jail-space', kind: 'true', who: 'granny', tier: 3, minStage: 3, minAffection: 6, keptKey: 'warn-granny',
       title: { en: 'GOOD ENDING (...well, bad ending for Wolf!) · JAIL SPACE', zh: '好结局（……对狼来说是坏结局！）· 牢房格' },
       brief: {
-        en: 'The original\'s pepper-spray ending, earned: because Mo\' kept her promise and warned Granny, Granny is ready. "Sir, meet Suzie, my faithful little pepper spray. Suzie, introduce yourself again." Wolf howls twice; the police congratulate Granny on her cool head. Mo\' and Granny finish the Scrabble game while the sirens fade.',
-        zh: '原作的喷雾结局，这次是挣来的：阿紫守约提前提醒了外婆，外婆早有准备。「先生，这位是苏西，我忠实的小防狼喷雾。苏西，再跟先生打个招呼。」狼惨叫两回；警察夸外婆临危不乱。警笛声远去，祖孙俩把那盘拼字游戏下完。',
+        en: 'The original\'s pepper-spray ending, earned: because Mo\' kept her promise and came back on Friday night to tell Granny the "salesman" is Loup3769, Granny is ready. "Sir, meet Suzie, my faithful little pepper spray. Suzie, introduce yourself again." Wolf howls twice; the police congratulate Granny on her cool head. Mo\' and Granny finish the Scrabble game while the sirens fade.',
+        zh: '原作的喷雾结局，这次是挣来的：阿紫守约，周五晚上回来告诉外婆那个「推销员」就是 Loup3769，外婆早有准备。「先生，这位是苏西，我忠实的小防狼喷雾。苏西，再跟先生打个招呼。」狼惨叫两回；警察夸外婆临危不乱。警笛声远去，祖孙俩把那盘拼字游戏下完。',
       },
     },
     {
-      id: 'saturday-night', kind: 'good', who: 'mom', tier: 3, minStage: 4, minAffection: 7, maxBroken: 0,
+      // 同 jail-space：8 个时段里和妈妈单独相处最多 3–4 次，阶段 4 太紧
+      id: 'saturday-night', kind: 'good', who: 'mom', tier: 3, minStage: 3, minAffection: 6, maxBroken: 0,
       title: { en: 'GOOD ENDING · SATURDAY NIGHT', zh: '好结局 · 周六之夜' },
       brief: {
         en: 'Mo\' tells Mom everything about Loup3769 before Saturday. Mom tells her own story at last — no fairy tale this time. They report the account together; Wolf is picked up on the boulevard. Mom drives Mo\' to her party and, at the door, starts "Once upon a time..." — Mo\' rolls her eyes and hugs her anyway.',
@@ -405,15 +406,16 @@ Keep scenes short and punchy. Occasional French phrases are welcome ("'tain", "M
       },
     },
     {
-      id: 'quiet-games', kind: 'normal', who: 'granny', tier: 2, minStage: 2,
+      id: 'quiet-games', kind: 'normal', who: 'granny', tier: 2, minStage: 2, maxBroken: 0,
       title: { en: 'QUIET ENDING · GAMES', zh: '平静结局 · 游戏' },
       brief: {
-        en: 'The original\'s quiet ending: Mo\' hurries to Granny\'s instead of lingering, never adds the stranger ("was he high or something?"), and the afternoon becomes a Scrabble rematch. Wolf is never heard from again — this time. Final line: "Double word score!"',
-        zh: '原作的平静结局：阿紫没在路上逗留，径直去了外婆家，也没加那个陌生人（「他是嗑多了吧？」），下午变成一场拼字游戏复仇赛。狼再也没出现——至少这一次。最后一句：「双倍词分！」',
+        en: 'The original\'s quiet ending: Mo\' never lingers and never adds the stranger ("was he high or something?"). On Saturday the "Granny" in bed sounds wrong from the doorway; Mo\' backs out, finds the real Granny in the wardrobe, and the two of them lock the door from the outside and call the police from the hallway. The rest of the afternoon becomes a Scrabble rematch. Wolf is never heard from again — this time. Final line: "Double word score!"',
+        zh: '原作的平静结局：阿紫没在路上逗留，也没加那个陌生人（「他是嗑多了吧？」）。周六床上那个「外婆」一开口，她在门口就觉得不对，退出来在衣柜里找到真外婆，祖孙俩从外面锁上门、在走廊报了警。下午剩下的时间变成一场拼字游戏复仇赛。狼再也没出现——至少这一次。最后一句：「双倍词分！」',
       },
     },
     {
-      id: 'close-call', kind: 'bad', who: 'wolf', tier: 1, minStage: 2,
+      // 狼的「好感」是看穿度：没看穿（低于「起疑」的门槛）才是险些出事
+      id: 'close-call', kind: 'bad', who: 'wolf', tier: 1, maxAffection: 3, flags: ['beat:cucumbers'],
       title: { en: 'BAD ENDING · CLOSE CALL', zh: '坏结局 · 险些出事' },
       brief: {
         en: 'Replaces the original\'s "VICTIM" ending without anything graphic. Mo\' trusted Loup3769 and never put on her glasses; "Granny" asks her to play her youngster music loud and come closer — Mo\' realizes too late, screams for Mom and bolts into the hallway. Neighbors come running; Wolf escapes through the window with Granny\'s purse and Mo\'s phone (and all her friends\' addresses). Granny is found shaken in the wardrobe. Mo\' sits on the stairs, finally understanding why Mom tells that story.',
@@ -424,8 +426,8 @@ Keep scenes short and punchy. Occasional French phrases are welcome ("'tain", "M
       id: 'no-scrabble', kind: 'bad', who: 'granny', tier: 1, minStage: 1, minBroken: 1,
       title: { en: 'BAD ENDING (for the Scrabble board) · NO REMATCH', zh: '坏结局（对拼字盘来说）· 没有复仇赛' },
       brief: {
-        en: 'Mo\' promised to come early on Saturday and didn\'t. Granny met the "salesman" alone, with Suzie; Wolf fled down the hallway howling, and the police took her statement. Nobody was hurt, but Granny is hurt in a quieter way: she puts the Scrabble box back on the shelf and says "Another time, darling." Non-graphic; a small sad comedy.',
-        zh: '阿紫答应周六早点来，结果没来。外婆一个人、带着苏西见了那位「推销员」；狼嚎叫着逃出走廊，警察给外婆做了笔录。谁都没受伤，可外婆心里有点受伤：她把拼字游戏盒放回架子上，说「下次吧，宝贝。」不露骨，一出有点心酸的小喜剧。',
+        en: 'Mo\' promised to find out who the "salesman" was and come back to tell Granny, and didn\'t. Granny met him alone, with Suzie; Wolf fled down the hallway howling, and the police took her statement. Nobody was hurt, but Granny is hurt in a quieter way: she puts the Scrabble box back on the shelf and says "Another time, darling." Non-graphic; a small sad comedy.',
+        zh: '阿紫答应查清那个「推销员」是谁、回来告诉外婆，结果没回来。外婆一个人、带着苏西见了他；狼嚎叫着逃出走廊，警察给外婆做了笔录。谁都没受伤，可外婆心里有点受伤：她把拼字游戏盒放回架子上，说「下次吧，宝贝。」不露骨，一出有点心酸的小喜剧。',
       },
     },
     {

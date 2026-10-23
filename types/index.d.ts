@@ -96,6 +96,10 @@ export type BeatDef = {
   text: L
   /** 关键约定：这一幕要给出一个这样的「答应」选项；结局可以用 keptKey 要求兑现它 */
   promise?: L
+  /** 只在这些时段发生（不填：任何时段） */
+  slots?: number[]
+  /** 只在这些地点发生（不填：任何地点）。到了最后机会（by 那天的最后一个可用时段），日程会把玩家带到第一个地点 */
+  places?: string[]
 }
 
 /** 一幕（开端、转折、高潮……）：走向、关键事件、结束时的悬念钩子 */
@@ -144,7 +148,7 @@ export type EndingDef = {
   id: string
   title: L
   tier: number
-  /** 关联角色；不填表示群像/普通结局 */
+  /** 关联角色；不填表示群像/普通结局（约定条件按所有人合计；同 tier 平局时群像结局优先） */
   who?: string
   minStage?: number
   minAffection?: number
@@ -458,12 +462,15 @@ export type StageCue = {
 export type Camera = { focus?: string; pause?: number }
 /** 选项透露的态度，用来总结「你在她眼里」 */
 export type Tone = 'honest' | 'evasive' | 'joking' | 'committed' | 'caring' | 'bold'
+/** keep：履行一个还开着的约定（她在场时才会出现；选了才算兑现） */
 export type Choice = {
   text: string
-  kind: 'reply' | 'observe' | 'promise'
+  kind: 'reply' | 'observe' | 'promise' | 'keep'
   tone?: Tone
   effects: Record<string, number>
   promise?: string
+  /** keep：兑现的是对谁的约定（主角色 id） */
+  keeps?: string
   reaction?: string
 }
 export type Scene = {
@@ -480,6 +487,8 @@ export type Scene = {
   proactive?: boolean
   /** 引擎要求这一幕写到的关键事件 id */
   beat?: string
+  /** 顺带补上的、已经过期的关键事件 id */
+  also?: string
   /** 这一幕带上的随机事件 id */
   incident?: string
   atmo?: Atmo

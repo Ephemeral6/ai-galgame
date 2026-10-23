@@ -221,7 +221,7 @@ export const CICADA_CRAFT: PackCraft = {
     {
       id: 'yn-interview', who: 'yinuo', kind: 'comedy', motif: 'pen-cap',
       title: { zh: '三个问题一包辣条', en: 'Three Questions, One Pack of Spicy Sticks' },
-      trigger: { minStage: 0, places: ['canteen', 'classroom'], days: [1, 6] },
+      trigger: { minStage: 0, places: ['canteen', 'classroom'], days: [2, 6] },
       staging: { zh: '食堂排队的长龙里，她举着采访本挤到「我」前面，笔帽咬在嘴里。问题一个比一个离谱，最后一个突然正经。', en: 'In the long canteen queue she squeezes in front of me with her notebook, pen cap between her teeth. Each question wilder than the last; the final one suddenly serious.' },
       lines: [
         { who: 'yinuo', text: { zh: '学长，三个问题，一包辣条。第一题：你对本校番茄炒蛋怎么评价？', en: 'Senior, three questions, one pack of spicy sticks. Question one: your verdict on our tomato-and-egg?' } },
