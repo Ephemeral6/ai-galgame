@@ -108,6 +108,32 @@ describe('约定', () => {
     expect(cs[3]).toEqual(expect.objectContaining({ kind: 'keep', keeps: 'zhiyao', text: '兑现约定：陪她晨跑' }))
     expect(applyChoice(P, s, choice({ kind: 'keep', keeps: 'xiaoman' }), 'zh').story.promises[0]!.status).toBe('open')
     expect(withKeep(P, s, { ...sc, cast: [{ id: 'xiaoman', expression: 'normal' }] }, undefined, 'zh').some(c => c.kind === 'keep')).toBe(false)
+    // 程序补的「兑现」也有她的反应，不是一个光秃秃的「…」
+    expect(cs[3]!.reaction).toContain('知遥')
+  })
+
+  test('最后一天许下的约定也有期限：当天没兑现，结局前算失约', () => {
+    let s = applyScene(at(freshStory(P, 'zh'), P.days, 0), scene(['zhiyao']))
+    s = applyChoice(P, s, choice({ kind: 'promise' }), 'zh').story
+    expect(s.promises[0]!.due).toBe(P.days)
+    const r = advanceTime(P, { ...at(s, P.days, P.slots.length - 1), phase: 'after' }, 'zh')
+    expect([r.finished, r.story.promises[0]!.status]).toEqual([true, 'broken'])
+    // 最后一天早些时候许的，当天后面的时段还能兑现
+    let k = applyScene(at(s, P.days, 1), scene(['zhiyao']))
+    k = applyChoice(P, k, choice({ kind: 'keep', keeps: 'zhiyao' }), 'zh').story
+    expect(k.promises[0]!.status).toBe('kept')
+    // 全剧最后一幕许的，已经没有时段兑现：不记成约定，也就不会算失约
+    let f = applyScene(at(freshStory(P, 'zh'), P.days, P.slots.length - 1), scene(['zhiyao']))
+    f = applyChoice(P, f, choice({ kind: 'promise' }), 'zh').story
+    expect(f.promises).toEqual([])
+  })
+
+  test('带约定的关键事件过期了也不顺带补上：顺带只提一句、不出约定选项', () => {
+    // 全部关键事件都过期，没带约定的都已经写过：剩下的只有带约定的
+    const done = allBeats(P).filter(b => !b.promise).map(b => `beat:${b.id}`)
+    const s = { ...at(freshStory(P, 'zh'), P.days, P.slots.length - 1), flags: done }
+    expect(allBeats(P).some(b => b.promise)).toBe(true)
+    expect(alsoBeat(P, s, null)).toBe(null)
   })
 
   test('过期没兑现：失约、好感 -2', () => {
