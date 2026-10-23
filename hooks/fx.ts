@@ -323,6 +323,61 @@ export function backdrop(kind: Backdrop, a: Atmo | undefined, w: number, h: numb
   return px.map(r => r.map(v => (v === null ? SCREEN : v === LAMP ? v : mix(v, SCREEN, 0.2))))
 }
 
+// ---------- 标题页、结局粒子、生成中的小路 ----------
+/** 标题页：卡片下面一条星空，角色站在同一条草地上。figures 是各人的小头像（透明底） */
+export function titleScene(card: Px[][], figures: Px[][][], w: number, t: number): Px[][] {
+  const fh = Math.max(0, ...figures.map(f => f.length))
+  const h = fh + 4
+  const strip: Px[][] = blank(w, h)
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) strip[y]![x] = y >= h - 2 ? (y === h - 2 ? 0x4f7a3a : 0x3f6a2e) : band4(0x0e1030, 0x2a2f5a, y / Math.max(1, h - 3))
+  for (let i = 0; i < 10; i++) if ((t + i * 2) % 6 < 4) strip[(i * 5) % Math.max(1, h - 4)]![(i * 31 + 7) % w] = 0xe8eaf6
+  const slot = Math.floor(w / Math.max(1, figures.length))
+  figures.forEach((f, i) => {
+    const fw = f[0]?.length ?? 0
+    const x0 = i * slot + Math.floor((slot - fw) / 2)
+    const y0 = h - 1 - f.length // 脚踩在草地第一行
+    f.forEach((row, y) => row.forEach((v, x) => { if (v !== null && strip[y0 + y]) strip[y0 + y]![x0 + x] = v }))
+  })
+  return [...card.map(r => r.slice(0, w).concat(Array(Math.max(0, w - r.length)).fill(null))), ...strip]
+}
+
+/** 结局卡的粒子：true 流星、good 花瓣、normal 萤火、bad 雨；压暗一半，不抢字 */
+export function endFx(kind: string | undefined, w: number, h: number, t: number): Px[][] {
+  const px: Px[][] = blank(w, h)
+  if (kind === 'good') {
+    for (let i = 0; i < 12; i++) {
+      const y = Math.floor((t + i * 5) / 2) % h
+      const x = (i * 13 + Math.round(Math.sin((t + i * 3) / 3) * 2) + w) % w
+      px[y]![x] = mix(i % 2 ? 0xf8bbd0 : 0xf48fb1, SCREEN, 0.4)
+    }
+    return px
+  }
+  const fx = kind === 'true' ? 'meteors' : kind === 'bad' ? 'rain' : 'fireflies'
+  const theme = kind === 'bad' ? '#5b8fd9' : '#c5cae9'
+  for (let y0 = 0; y0 < h; y0 += BAND_H) {
+    const b = atmoBand(fx, theme, w, t + y0)
+    b.forEach((row, y) => row.forEach((v, x) => { if (v !== null && px[y0 + y]) px[y0 + y]![x] = mix(v, SCREEN, 0.5) }))
+  }
+  return px
+}
+
+export const WALK_H = 16
+/** 生成中：一条夜路，小动物从左往右走过去（两帧步伐），路灯一盏盏亮 */
+export function walkFrame(figure: Px[][], w: number, t: number): Px[][] {
+  const h = WALK_H
+  const px: Px[][] = blank(w, h)
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) px[y]![x] = y >= h - 2 ? (y === h - 2 ? 0x6b6f7a : 0x44464f) : band4(0x0e1030, 0x2a2f5a, y / (h - 3))
+  for (let x = 6; x < w; x += 18) {
+    for (let y = 3; y < h - 2; y++) px[y]![x] = 0x5a5d66
+    px[2]![x] = px[2]![x + 1] = (t + x) % 12 < 9 ? LAMP : mix(LAMP, SCREEN, 0.5)
+  }
+  const fw = figure[0]?.length ?? 0
+  const x0 = ((t * 2) % (w + fw)) - fw
+  const bob = t % 2
+  figure.forEach((row, y) => row.forEach((v, x) => { const yy = h - 2 - figure.length + y - bob; if (v !== null && px[yy] && x0 + x >= 0 && x0 + x < w) px[yy]![x0 + x] = v }))
+  return px
+}
+
 /** 把 top 叠在 base 上：top 的透明处露出 base */
 export function over(base: Px[][], top: Px[][]): Px[][] {
   return base.map((row, y) => row.map((v, x) => top[y]?.[x] ?? v))
@@ -385,18 +440,54 @@ export function townMap(places: PlaceDef[], open: Set<string>, labels: Record<st
     const cx = ox + (i % MAP_COLS) * CELL_W + 2
     const cy = Math.floor(i / MAP_COLS) * CELL_H
     const lit = open.has(pl.id)
-    const roof = lit ? ROOFS[hashId(pl.id) % ROOFS.length]! : 0x3a3a46
-    const wall = lit ? 0xe8e0d0 : 0x55555f
-    // 屋顶（3 行，逐行变宽）与墙（5 行）
-    for (let r = 0; r < 3; r++) for (let x = 3 - r; x <= 7 + r; x++) px[cy + r]![cx + x] = roof
-    for (let r = 3; r < 8; r++) for (let x = 0; x <= 10; x++) px[cy + r]![cx + x] = wall
-    if (lit) { const win = (t + i) % 6 < 4 ? 0xffe082 : 0xffca28; px[cy + 4]![cx + 1] = win; px[cy + 4]![cx + 9] = win }
+    // 关着的：整栋压暗、不亮灯
+    const c = (v: number) => (lit ? v : mix(v, 0x2a2833, 0.7))
+    const put = (x: number, y: number, v: number) => { if (px[cy + y] && cx + x >= 0 && cx + x < w) px[cy + y]![cx + x] = c(v) }
+    const rect = (x0: number, y0: number, x1: number, y1: number, v: number | ((x: number, y: number) => number)) => {
+      for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) put(x, y, typeof v === 'number' ? v : v(x, y))
+    }
+    const roof = ROOFS[hashId(pl.id) % ROOFS.length]!
+    const wall = 0xe8e0d0
+    const win = lit && (t + i) % 6 < 4 ? 0xffe082 : 0xffca28
+    const name = typeof pl.name === 'string' ? pl.name : `${pl.name.zh ?? ''} ${pl.name.en ?? ''}`
+    // 每类地点一种外形（11×8）
+    switch (backdropOf(name)) {
+      case 'hall': // 尖顶大屋、宽门
+        for (let r = 0; r < 3; r++) rect(3 - r, r, 7 + r, r, roof)
+        rect(0, 3, 10, 7, wall); rect(4, 5, 6, 7, 0x6e4a32)
+        break
+      case 'shop': // 条纹雨棚
+        rect(0, 2, 10, 3, x => ((x >> 1) % 2 ? 0xe8e0d0 : 0xc0504d))
+        rect(0, 4, 10, 7, 0xd8c8a8); put(1, 5, win); put(9, 5, win)
+        break
+      case 'street': // 路灯 + 小屋
+        rect(0, 1, 0, 7, 0x8a8d96); put(0, 0, lit ? LAMP : 0x8a8d96)
+        rect(2, 3, 10, 3, roof); rect(2, 4, 10, 7, wall); put(3, 5, win); put(9, 5, win)
+        break
+      case 'field': // 树 + 栅栏
+        rect(0, 1, 3, 4, 0x4f7a3a); rect(1, 5, 2, 7, 0x6e4a32)
+        rect(4, 6, 10, 6, 0xd8d0c0); for (let x = 4; x <= 10; x += 2) rect(x, 5, x, 7, 0xd8d0c0)
+        break
+      case 'water': // 灯塔 + 波浪
+        rect(7, 1, 8, 5, 0xe8e0d0); rect(7, 3, 8, 3, 0xc0504d); put(7, 0, lit ? LAMP : 0x8a8d96); put(8, 0, lit ? LAMP : 0x8a8d96)
+        rect(0, 6, 10, 7, (x, y) => ((x + y + t) % 4 === 0 ? 0x8fc1e8 : 0x3d6a9a))
+        break
+      case 'roof': // 高楼，顶上一排栏杆
+        rect(2, 1, 8, 7, 0x7a7f8c); for (let x = 2; x <= 8; x += 2) put(x, 0, 0x9aa0a6)
+        put(3, 3, win); put(7, 3, win); put(3, 5, win); put(7, 5, win)
+        break
+      default: // room：平顶校舍，顶上小钟楼
+        rect(4, 0, 6, 1, roof); put(5, 0, lit ? LAMP : roof)
+        rect(0, 2, 10, 2, roof); rect(0, 3, 10, 7, wall); put(1, 4, win); put(9, 4, win)
+        break
+    }
+    // 按键数字：左下角一块琥珀色小牌子（5×5），房子的外形从上面和右边露出来
     const label = labels[pl.id]
-    if (label) drawText(px, label, cx + 4, cy + 3, lit ? 0x1e1a1a : 0x9aa0a6)
-    // 可能遇见的人：墙下一排彩色小点
-    ;(maybe[pl.id] ?? []).slice(0, 5).forEach((c, j) => { px[cy + 9]![cx + j * 2] = hex(c) })
-    // 路
-    for (let x = 0; x < CELL_W; x++) if ((x + i) % 3 !== 0) px[cy + 10]![cx - 2 + x] = 0x3d3d4a
+    if (label) { rect(0, 3, 4, 7, 0xf2c14e); drawText(px, label, cx + 1, cy + 3, 0x17151f) }
+    // 可能遇见的人：一排彩色小点
+    ;(maybe[pl.id] ?? []).slice(0, 5).forEach((col, j) => { px[cy + 9]![cx + j * 2] = hex(col) })
+    // 路：一条实线
+    for (let x = 0; x < CELL_W; x++) if (cx - 2 + x < w) px[cy + 10]![cx - 2 + x] = 0x3d3d4a
   })
   return px
 }

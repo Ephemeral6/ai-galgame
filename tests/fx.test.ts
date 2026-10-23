@@ -4,11 +4,12 @@ import { describe, expect, test } from 'claude-code/testing'
 import type { EngineInterface } from 'claude-code'
 
 import type { Scene, Story } from '../types'
-import { stageFrame } from '../hooks/art'
+import { portraitFrame, stageFrame } from '../hooks/art'
+import { PX, framed } from '../hooks/theme'
 import { costOf, dateKey } from '../hooks/cost'
 import { advanceTime, applyChoice, applyScene, freshStory, parseDirection, parseScene, planOptions, profileLine, sceneDynamic, staticBlock } from '../hooks/engine'
 import { EMPTY_FEATS, achievementsOnFinish, dailyChallenge, dailyShare } from '../hooks/feats'
-import { CARD_FRAMES, atmoBand, backdrop, backdropOf, backdropTop, cardFrame, fontText, fxOf, over, relationGraph, stageDirections, themeOf, townMap } from '../hooks/fx'
+import { CARD_FRAMES, WALK_H, atmoBand, backdrop, backdropOf, backdropTop, cardFrame, endFx, fontText, fxOf, over, relationGraph, stageDirections, themeOf, titleScene, townMap, walkFrame } from '../hooks/fx'
 import { awayLetter, diaryEntry, letterFrom, nightGossip, portraitOf, tendencies } from '../hooks/native'
 import { BUILTIN } from '../packs/index'
 import { CICADA } from '../packs/cicada/pack'
@@ -127,6 +128,25 @@ describe('像素画面', () => {
       expect([fx, lit(f1) + lit(f2) > 0, JSON.stringify(f1) !== JSON.stringify(f2)]).toEqual([fx, true, true])
     }
     expect(lit(atmoBand('none', '#fff', 76, 1))).toBe(0)
+  })
+
+  test('标题页、结局粒子、生成中的小路、信物画框', () => {
+    const card = cardFrame({ big: 'CICADAS', small: 'AI GALGAME', color: '#f2c14e', accent: '#f8bbd0', style: 'fade' }, 76, CARD_FRAMES, 0)
+    const figs = P.cast.map(c => portraitFrame(c.sprite, 'normal', 1))
+    const ts = titleScene(card, figs, 76, 0)
+    expect(ts.length).toBe(card.length + figs[0]!.length + 4)
+    // 每个人的脚都踩在草地第一行的上一行：那一行里五个人各有像素
+    const feet = ts[ts.length - 3]!
+    const slot = Math.floor(76 / P.cast.length)
+    expect(P.cast.map((_, i) => feet.slice(i * slot, (i + 1) * slot).some(v => v !== null && v !== feet[i * slot])).every(Boolean)).toBe(true)
+    const kinds = ['true', 'good', 'normal', 'bad'].map(k => JSON.stringify(endFx(k, 76, 20, 3)))
+    expect(new Set(kinds).size).toBe(4)
+    expect(JSON.stringify(endFx('bad', 76, 20, 3))).not.toEqual(JSON.stringify(endFx('bad', 76, 20, 4)))
+    const fig = portraitFrame(P.cast[0]!.sprite, 'normal', 1)
+    expect(walkFrame(fig, 76, 0).length).toBe(WALK_H)
+    expect(JSON.stringify(walkFrame(fig, 76, 5))).not.toEqual(JSON.stringify(walkFrame(fig, 76, 6)))
+    const f = framed([[null, 1], [2, null]])
+    expect([f.length, f[0]!.length, f[1]![1], f[0]![0]]).toEqual([4, 4, null, PX.frame])
   })
 
   test('小镇地图：开放的地点亮着、标着按键数字，关着的暗', () => {

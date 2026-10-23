@@ -82,6 +82,13 @@ export function css(n: number): string {
   return `#${n.toString(16).padStart(6, '0')}`
 }
 
+/** 外面加 1 像素的幕框（信物画框用）：宽高各多 2 */
+export function framed(px: Px[][], c: number = PX.frame): Px[][] {
+  const w = (px[0]?.length ?? 0) + 2
+  const edge = Array<Px>(w).fill(c)
+  return [edge, ...px.map(r => [c, ...r, c]), edge.slice()]
+}
+
 /** 像素块自带幕布：透明处填 PX.screen，深浅终端上是同一幅画 */
 export function onScreen(px: Px[][], fill: number = PX.screen): Px[][] {
   return px.map(r => r.map(v => v ?? fill))

@@ -29,11 +29,11 @@ import {
 import type { PlanOption } from './engine'
 import { ACHIEVEMENTS, EMPTY_FEATS, achievementsOnFinish, achievementsOnScene, dailyChallenge, dailyShare, okFeats } from './feats'
 import type { AchievementId, Feats } from './feats'
-import { BAND_H, CARD_FRAMES, DEFAULT_THEME, atmoBand, backdrop, backdropOf, backdropTop, cardFrame, fxOf, mapSize, over, relationGraph, stageDirections, themeOf, tint, townMap } from './fx'
+import { BAND_H, CARD_FRAMES, DEFAULT_THEME, WALK_H, atmoBand, backdrop, backdropOf, backdropTop, cardFrame, endFx, fxOf, mapSize, over, relationGraph, stageDirections, themeOf, tint, titleScene, townMap, walkFrame } from './fx'
 import type { CardSpec } from './fx'
 import { LANGS, helpLines, t } from './i18n'
 import type { UiKey } from './i18n'
-import { FALLBACK, KIND, PX, STATE_CB, TEXT, css, inkOn, onScreen, readable } from './theme'
+import { FALLBACK, KIND, PX, STATE_CB, TEXT, css, framed, inkOn, onScreen, readable } from './theme'
 import type { Bg } from './theme'
 import { AWAY_MS, EXTRA_KEYS, awayLetter, diaryEntry, nightGossip, portraitOf, tendencies } from './native'
 import type { ExtraKey } from './native'
@@ -1562,7 +1562,7 @@ export const register: Register = on => {
         body = mem.length ? [
           ...mem.map((x, i) => (
             <Text key={`mem${i}`} wrap="wrap">
-              <Text dimColor>{dayText(p, lang, x.day)} {T(p.slots[x.slot])}  </Text>
+              <Text dimColor>{dayText(p, lang, x.day)} {T(p.slots[x.slot])} │ </Text>
               <Text color={x.heroine ? colorOf(x.heroine) : undefined}>{x.heroine ? `${shortOf(x.heroine)}  ` : ''}</Text>
               <Text>{x.text}</Text>
             </Text>
@@ -1575,7 +1575,7 @@ export const register: Register = on => {
           <Box flexDirection="row" flexWrap="wrap" gap={2}>
             {ks.slice(-perRow * 2).map((k, i) => (
               <Box key={`ks${i}`} flexDirection="column" width={26}>
-                {Raster ? <Raster key={`ksr${i}`} columns={24} rows={12} cells={cells(onScreen(keepsakeFrame(k)))} /> : null}
+                {Raster ? <Raster key={`ksr${i}`} columns={26} rows={13} cells={cells(framed(onScreen(keepsakeFrame(k))))} /> : null}
                 <Text bold color={colorOf(k.heroine)}>{k.title}</Text>
                 <Text dimColor wrap="wrap">{k.desc}</Text>
               </Box>
@@ -1650,10 +1650,11 @@ export const register: Register = on => {
         <Box flexDirection="column">
           <Box flexDirection="row" gap={2} flexWrap="wrap">
             {tabs.map((x, i) => (
-              <Button key={`tab${i}`} hotkey={String(i + 1)} plain dimColor={tab !== i} onPress={hit(() => void update($, ui, y => ({ ...y, tab: i })))}>{tab === i ? `▶ ${L(x)}` : L(x)}</Button>
+              <Button key={`tab${i}`} hotkey={String(i + 1)} plain dimColor={tab !== i} onPress={hit(() => void update($, ui, y => ({ ...y, tab: i })))}>{tab === i ? <Text inverse bold> ▶ {L(x)} </Text> : L(x)}</Button>
             ))}
           </Box>
-          <Box flexDirection="column" marginTop={1} borderStyle="round" borderDimColor paddingX={1}>{body}</Box>
+          <Text dimColor>{'─'.repeat(Math.max(10, Math.min(cols - 2, 76)))}</Text>
+          <Box flexDirection="column" marginTop={1}>{body}</Box>
           {keyBar([
             mine && s.album.length > 0 && { k: 'x', label: L('exportHtml'), on: () => void doExport($, 'html') },
             mine && s.album.length > 0 && { k: 'm', label: L('exportMd'), on: () => void doExport($, 'md') },
@@ -1681,29 +1682,41 @@ export const register: Register = on => {
       ]
       const menu = items.map((x, i) => ({ ...x, k: String(i + 1) }))
       const cw = Math.max(40, Math.min(96, cols - 4))
-      const titleCard = card(`title-${p.id}`, { big: tr(p.title, 'en', p.defaultLang), small: 'AI GALGAME', color: css(PX.accent), accent: css(PX.accent2), style: 'fade' }, cw)
+      // 标题卡 + 一条星空草地，角色站在同一条地面上，合成一块像素画
+      const spec: CardSpec = { big: tr(p.title, 'en', p.defaultLang), small: 'AI GALGAME', color: css(PX.accent), accent: css(PX.accent2), style: 'fade' }
+      const figs = p.cast.slice(0, 6)
+      const figures = figs.map((c, i) => portraitFrame(c.sprite, i % 2 ? 'normal' : 'smile', 1))
+      const id = `title-${p.id}`
+      const t0 = startOf(id)
+      const sceneH = titleScene(cardFrame(spec, cw, CARD_FRAMES, 0), figures, cw, 0).length
+      const titleArt = Raster && !compact
+        ? raster(`card-${id}`.slice(0, 60), cw, sceneH, tt => titleScene(cardFrame(spec, cw, anim ? tt - t0 : CARD_FRAMES, tt), figures, cw, tt))
+        : null
+      const slotW = Math.floor(cw / Math.max(1, figs.length))
+      // 次要菜单（相册、成就、设置、帮助）并成一行
+      const minor = new Set(['album', 'feats', 'settings', 'help'])
       return finishRender(
         <Box flexDirection="column" alignItems="center">
           {jobBanner}
-          {titleCard}
-          <Box flexDirection="column" alignItems="center" borderStyle="double" borderColor={TX.accent} paddingX={3} marginTop={titleCard ? 0 : 1}>
+          {titleArt}
+          {titleArt ? (
+            <Box flexDirection="row" width={cw}>
+              {figs.map(c => <Box key={`pt-${c.id}`} width={slotW} justifyContent="center"><Text color={colorOf(c.id)} bold>{T(c.short)}</Text></Box>)}
+            </Box>
+          ) : null}
+          <Box flexDirection="column" alignItems="center" marginTop={1}>
             <Text bold color={TX.accent}>{T(p.title)}</Text>
             <Text dimColor>{T(p.subtitle)}</Text>
           </Box>
-          {Raster && !compact ? (
-            <Box flexDirection="row" gap={2} marginTop={1} flexWrap="wrap" justifyContent="center">
-              {p.cast.slice(0, 6).map((c, i) => (
-                <Box key={`pt-${c.id}`} flexDirection="column" alignItems="center">
-                  <Raster key={`portrait-${c.id}`} columns={14} rows={PORTRAIT_ROWS} cells={cells(onScreen(portraitFrame(c.sprite, i % 2 ? 'normal' : 'smile', 1)))} />
-                  <Text color={colorOf(c.id)} bold>{T(c.name)}</Text>
-                </Box>
-              ))}
-            </Box>
-          ) : null}
           <Box flexDirection="column" marginTop={1}>
-            {menu.map(x => (
+            {menu.filter(x => !minor.has(x.id)).map(x => (
               <Button key={`menu-${x.id}`} hotkey={x.k} variant={x.primary ? 'primary' : undefined} plain={x.primary ? undefined : true} onPress={hit(x.on)}>{x.label}</Button>
             ))}
+            <Box flexDirection="row" gap={2} flexWrap="wrap">
+              {menu.filter(x => minor.has(x.id)).map(x => (
+                <Button key={`menu-${x.id}`} hotkey={x.k} plain dimColor onPress={hit(x.on)}>{x.label}</Button>
+              ))}
+            </Box>
           </Box>
           {keyBar([autoKey])}
           {autoInfo}
@@ -1722,10 +1735,15 @@ export const register: Register = on => {
 
     // ---------- 生成中 ----------
     if (s.phase === 'loading') {
+      // 等待时一条夜路，小动物走过去；谁走由天数和时段轮换（状态里不记目的地）
+      const walker = p.cast[(s.day + s.slot) % Math.max(1, p.cast.length)]
+      const fig = walker ? portraitFrame(walker.sprite, 'normal', 1) : null
+      const walk = canStage && fig ? raster('loading', stageW, WALK_H, tt => walkFrame(fig, stageW, tt)) : null
       return finishRender(
         <Box flexDirection="column">
           {header}
-          <Box marginY={1} paddingX={2}><Text dimColor italic>{s.loadingText}</Text></Box>
+          {walk}
+          <Box marginY={1} paddingX={1}><Text dimColor italic>{s.loadingText}</Text></Box>
           {autoInfo}
           {watchInfo}
         </Box>,
@@ -1797,14 +1815,21 @@ export const register: Register = on => {
       const cPx = end?.who ? rawColor(end.who) : css(PX.accent)
       const big = end?.kind === 'true' ? 'TRUE END' : end?.kind === 'good' ? 'GOOD END' : end?.kind === 'bad' ? 'BAD END' : end?.kind === 'normal' ? 'NORMAL END' : 'THE END'
       const cw = Math.max(40, Math.min(76, cols - 4))
+      // 结局卡：淡入后只留粒子（true 流星、good 花瓣、normal 萤火、bad 雨）
+      const endId = `end-${p.id}-${s.endingId}-${s.loop}`
+      const endSpec: CardSpec = { big, small: end ? tr(end.title, 'en', p.defaultLang) : '', color: cPx, accent: css(PX.accent), style: 'fade' }
+      const e0 = startOf(endId)
+      const endCard = Raster && !compact
+        ? raster(`card-${endId}`.slice(0, 60), cw, cardFrame(endSpec, cw, CARD_FRAMES, 0).length, tt => {
+          const cf = cardFrame(endSpec, cw, anim ? tt - e0 : CARD_FRAMES, tt)
+          return anim && tt - e0 < CARD_FRAMES ? cf : over(endFx(end?.kind, cw, cf.length, tt), cf)
+        })
+        : null
       return finishRender(
         <Box flexDirection="column">
-          {card(`end-${p.id}-${s.endingId}-${s.loop}`, { big, small: end ? tr(end.title, 'en', p.defaultLang) : '', color: cPx, accent: css(PX.accent), style: 'fade' }, cw)}
-          <Box flexDirection="column" alignItems="center" borderStyle="double" borderColor={c} paddingX={2}>
-            <Text dimColor>{L('endingHead')}</Text>
-            <Text bold color={c}>{end ? T(end.title) : ''}</Text>
-          </Box>
-          <Box marginTop={1} paddingX={1}><Text wrap="wrap">{s.ending}</Text></Box>
+          {endCard}
+          <Text><Text dimColor>{L('endingHead')} · </Text><Text bold color={c}>{end ? T(end.title) : ''}</Text></Text>
+          <Box borderStyle="round" borderColor={c} paddingX={1}><Text wrap="wrap">{s.ending}</Text></Box>
           <Text dimColor>{L('endingsSeen', { a: seenCount, b: p.endings.length })} · {L('clears', { n: pm.clears })}</Text>
           {keyBar([
             { k: '1', label: L('newGamePlus', { n: s.loop + 1 }), dim: false, on: () => void newGame($, s.loop + 1) },
@@ -1814,8 +1839,8 @@ export const register: Register = on => {
             { k: 'c', label: L('endingCardKey'), on: () => void cardText($).then(x => $.ui.toast(x)) },
             { k: 't', label: L('toTitle'), on: () => void update($, story, x => ({ ...x, phase: 'title' as const })) },
           ])}
-          <Box flexDirection="column" borderStyle="round" borderDimColor paddingX={1} marginTop={1}>
-            <Text dimColor>{L('endingCardHint')}</Text>
+          <Box flexDirection="column" marginTop={1}>
+            <Text dimColor>─── {L('endingCardHint')} ───</Text>
             {endingCard(s, p, lang).split('\n').map((x, i) => <Text key={`card${i}`}>{x}</Text>)}
           </Box>
           {autoInfo}
