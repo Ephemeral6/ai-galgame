@@ -8,7 +8,7 @@ import { stageFrame } from '../hooks/art'
 import { costOf, dateKey } from '../hooks/cost'
 import { advanceTime, applyChoice, applyScene, freshStory, parseDirection, parseScene, planOptions, profileLine, sceneDynamic, staticBlock } from '../hooks/engine'
 import { EMPTY_FEATS, achievementsOnFinish, dailyChallenge, dailyShare } from '../hooks/feats'
-import { CARD_FRAMES, atmoBand, backdrop, backdropOf, cardFrame, fontText, fxOf, over, relationGraph, stageDirections, themeOf, townMap } from '../hooks/fx'
+import { CARD_FRAMES, atmoBand, backdrop, backdropOf, backdropTop, cardFrame, fontText, fxOf, over, relationGraph, stageDirections, themeOf, townMap } from '../hooks/fx'
 import { awayLetter, diaryEntry, letterFrom, nightGossip, portraitOf, tendencies } from '../hooks/native'
 import { BUILTIN } from '../packs/index'
 import { CICADA } from '../packs/cicada/pack'
@@ -96,14 +96,26 @@ describe('像素画面', () => {
     expect(cardFrame({ ...spec, big: 'DAY 3 OF THE LONG SUMMER', layout: 'inline' as const }, 40, CARD_FRAMES, 0).length).toBeGreaterThan(14)
   })
 
-  test('舞台背景板：地名推出种类；整块不透明；立绘叠在上面', () => {
-    expect(['教学楼天台', '镇广播站', '江边夜市', '江雾音乐节 · 新人舞台', '江边', '操场', '老街', '天文社', 'Featureless Room'].map(backdropOf))
-      .toEqual(['roof', 'room', 'shop', 'hall', 'water', 'field', 'street', 'room', 'room'])
+  test('舞台背景板：地名推出种类，中英文地名结果一致；英文只按整词匹配', () => {
+    expect(['教学楼天台', '镇广播站', '江边夜市', '江雾音乐节 · 新人舞台', '江边', '操场', '老街', '天文社'].map(backdropOf))
+      .toEqual(['roof', 'room', 'shop', 'hall', 'water', 'field', 'street', 'room'])
+    expect(['Town Broadcast Room', 'County Radio Station', 'Outside the Shelter Door', 'Slope (live bar)', 'Ice-Lantern Fair', 'Seawall'].map(backdropOf))
+      .toEqual(['room', 'room', 'street', 'hall', 'water', 'water'])
+    const differ = BUILTIN.flatMap(p => [...p.places.map(x => x.name), ...p.fixed.map(x => x.place)])
+      .filter(n => typeof n !== 'string' && n.zh && n.en && backdropOf(n.zh) !== backdropOf(n.en))
+      .map(n => typeof n === 'string' ? n : `${n.zh} ${backdropOf(n.zh!)} / ${n.en} ${backdropOf(n.en!)}`)
+    expect(differ).toEqual([])
+  })
+
+  test('舞台背景板：氛围带底色接上背景板第一行；立绘叠在上面；随时段变', () => {
     const st = stageFrame(P, [{ id: 'xiaoman', expression: 'normal' }], 'near', 0)
     for (const k of ['room', 'hall', 'street', 'shop', 'field', 'water', 'roof'] as const) {
-      const bd = backdrop(k, { time: 'night' }, 76, st.length, 0)
-      const both = over(bd, st)
-      expect([k, lit(bd), both.flat().filter((v, i) => st.flat()[i] !== null && v !== st.flat()[i]).length]).toEqual([k, 76 * st.length, 0])
+      for (const time of ['day', 'dusk'] as const) {
+        const bd = backdrop(k, { time }, 76, st.length, 0)
+        expect([k, time, bd[0]![1]]).toEqual([k, time, backdropTop(k, { time })])
+      }
+      const both = over(backdrop(k, { time: 'night' }, 76, st.length, 0), st)
+      expect([k, both.flat().filter((v, i) => st.flat()[i] !== null && v !== st.flat()[i]).length]).toEqual([k, 0])
     }
     expect(JSON.stringify(backdrop('street', { time: 'night' }, 76, 30, 0))).not.toEqual(JSON.stringify(backdrop('street', { time: 'day' }, 76, 30, 0)))
   })

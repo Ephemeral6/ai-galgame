@@ -1240,7 +1240,7 @@ export const register: Register = on => {
       const chars: { ch: string; color?: string }[] = []
       for (let d = 1; d <= p.days; d++) {
         const ev = p.events.some(x => x.day === d) || p.fixed.some(x => x.day === d)
-        chars.push(d < s.day ? { ch: '▪' } : d === s.day ? { ch: '◉', color: theme } : ev ? { ch: '◆', color: C.event } : { ch: '·' })
+        chars.push(d < s.day ? { ch: '▪' } : d === s.day ? { ch: '◉', color: readable(theme, BG) } : ev ? { ch: '◆', color: C.event } : { ch: '·' })
       }
       return <Text>{chars.map((c, i) => <Text key={`cal${i}`} color={c.color} dimColor={!c.color}>{c.ch}</Text>)}</Text>
     }
@@ -1879,7 +1879,7 @@ export const register: Register = on => {
           keyBar([{ k: 'j', label: `▼ ${L('cont')}`, dim: false, on: () => void advance($) }])
         ) : !done ? (
           keyBar([
-            { k: 'j', label: `▼ ${L('next')}`, dim: false, on: () => void nextLine($) },
+            { k: 'j', label: L('next'), dim: false, on: () => void nextLine($) },
             { k: 'a', label: L('all'), on: () => void revealAll($) },
           ])
         ) : (

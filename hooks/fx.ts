@@ -194,16 +194,17 @@ export function atmoBand(fx: NonNullable<Atmo['fx']>, theme: string, w: number, 
 // ---------- 舞台背景板 ----------
 export type Backdrop = 'room' | 'hall' | 'street' | 'shop' | 'field' | 'water' | 'roof'
 
-// 顺序有讲究：「江边灯会与天台」先算天台，「镇广播站」先算室内，「江边夜市」先算店铺，「江雾音乐节 · 新人舞台」先算舞台
+// 顺序有讲究：「江边灯会与天台」先算天台，「王座厅」先算大厅，「镇广播站」先算室内，「江边夜市」先算店铺。
+// 英文只按整词匹配（「Broadcast」里有 road），中英两边各管各的地名，结果要一致
 const BACKDROP_RULES: [RegExp, Backdrop][] = [
-  [/天台|rooftop/i, 'roof'],
-  [/门前|铁门/, 'street'],
-  [/广播|教室|图书馆|房间|厨房|走廊|楼道|补习|补课|会议室|浴池|锅炉|特藏|牢房|防空洞/, 'room'],
-  [/小卖部|供销社|铺|小亭|店|夜市|琴行|shop|store|stall|kiosk|market/i, 'shop'],
-  [/食堂|礼堂|livehouse|音乐节|舞台|王座|大厅|canteen|stage|festival|throne/i, 'hall'],
-  [/江|河|海|码头|港|湖|冰场|灯塔|堤|river|harbou?r|sea|lake|pier|lighthouse/i, 'water'],
-  [/操场|球场|体育场|广场|花园|field|court|stadium|square|garden|park/i, 'field'],
-  [/街|大道|梯|站|缆车|公交|路|桥|street|boulevard|steps|station|bus|road|platform/i, 'street'],
+  [/天台|\brooftop\b/i, 'roof'],
+  [/门前|铁门|\bdoor\b/i, 'street'],
+  [/食堂|礼堂|livehouse|音乐节|舞台|王座|大厅|\b(canteen|stage|festival|throne|hall|live bar)\b/i, 'hall'],
+  [/广播|教室|图书馆|房间|厨房|走廊|楼道|补习|补课|会议室|浴池|锅炉|特藏|牢房|防空洞|\b(broadcast|radio|booth|room|classroom|library|club|kitchen|hallway|stairwell|cram|bathhouse|boiler|collections|cell|shelter)\b/i, 'room'],
+  [/小卖部|供销社|铺|小亭|店|夜市|琴行|\b(shop|store|stall|kiosk|market)\b/i, 'shop'],
+  [/江|河|海|码头|港|湖|冰场|灯塔|堤|\b(river|riverside|harbou?r|sea|seawall|lake|pier|lighthouse|frozen|ice-lantern)\b/i, 'water'],
+  [/操场|球场|体育场|广场|花园|\b(field|court|stadium|square|gardens?|park)\b/i, 'field'],
+  [/街|大道|梯|站|缆车|公交|路|桥|\b(street|boulevard|steps|station|bus|road|platform)\b/i, 'street'],
 ]
 
 /** 按地名（中英都可）推背景种类；都不中就当室内 */
@@ -230,10 +231,14 @@ function band4(a: number, b: number, k: number): number {
   return mix(a, b, Math.round(Math.max(0, Math.min(1, k)) * 4) / 4)
 }
 
-/** 氛围带的底色：室外接天空顶色，室内是墙色，和舞台拼成一幅 */
+/** 背景板最上一行的底色（压暗前）：室外是天空顶色，室内、大厅是各自的墙色 */
+function topOf(kind: Backdrop, top: number): number {
+  return kind === 'hall' ? mix(0x4a4458, top, 0.2) : kind === 'room' ? mix(0x6b5a4e, top, 0.25) : top
+}
+
+/** 氛围带的底色：和背景板最上一行同色（同样压暗 20%），拼成一幅 */
 export function backdropTop(kind: Backdrop, a: Atmo | undefined): number {
-  const [top] = skyOf(a)
-  return OUTDOOR.includes(kind) ? top : mix(mix(0x6b5a4e, top, 0.25), SCREEN, 0.2)
+  return mix(topOf(kind, skyOf(a)[0]), SCREEN, 0.2)
 }
 
 /**
@@ -257,7 +262,7 @@ export function backdrop(kind: Backdrop, a: Atmo | undefined, w: number, h: numb
   }
   switch (kind) {
     case 'room': case 'hall': {
-      const wall = kind === 'hall' ? mix(0x4a4458, top, 0.2) : mix(0x6b5a4e, top, 0.25)
+      const wall = topOf(kind, top)
       fill(0, 0, w, g, wall)
       fill(0, g - 3, w, g, mix(wall, 0x000000, 0.18)) // 墙裙
       if (kind === 'room') {
