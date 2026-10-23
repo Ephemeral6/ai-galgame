@@ -336,7 +336,7 @@ export function titleScene(card: Px[][], figures: Px[][][], w: number, t: number
     const fw = f[0]?.length ?? 0
     const x0 = i * slot + Math.floor((slot - fw) / 2)
     const y0 = h - 1 - f.length // 脚踩在草地第一行
-    f.forEach((row, y) => row.forEach((v, x) => { if (v !== null && strip[y0 + y]) strip[y0 + y]![x0 + x] = v }))
+    f.forEach((row, y) => row.forEach((v, x) => { if (v !== null && strip[y0 + y] && x0 + x >= 0 && x0 + x < w) strip[y0 + y]![x0 + x] = v }))
   })
   return [...card.map(r => r.slice(0, w).concat(Array(Math.max(0, w - r.length)).fill(null))), ...strip]
 }
@@ -369,7 +369,9 @@ export function walkFrame(figure: Px[][], w: number, t: number): Px[][] {
   for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) px[y]![x] = y >= h - 2 ? (y === h - 2 ? 0x6b6f7a : 0x44464f) : band4(0x0e1030, 0x2a2f5a, y / (h - 3))
   for (let x = 6; x < w; x += 18) {
     for (let y = 3; y < h - 2; y++) px[y]![x] = 0x5a5d66
-    px[2]![x] = px[2]![x + 1] = (t + x) % 12 < 9 ? LAMP : mix(LAMP, SCREEN, 0.5)
+    const lamp = (t + x) % 12 < 9 ? LAMP : mix(LAMP, SCREEN, 0.5)
+    px[2]![x] = lamp
+    if (x + 1 < w) px[2]![x + 1] = lamp
   }
   const fw = figure[0]?.length ?? 0
   const x0 = ((t * 2) % (w + fw)) - fw
@@ -485,7 +487,7 @@ export function townMap(places: PlaceDef[], open: Set<string>, labels: Record<st
     const label = labels[pl.id]
     if (label) { rect(0, 3, 4, 7, 0xf2c14e); drawText(px, label, cx + 1, cy + 3, 0x17151f) }
     // 可能遇见的人：一排彩色小点
-    ;(maybe[pl.id] ?? []).slice(0, 5).forEach((col, j) => { px[cy + 9]![cx + j * 2] = hex(col) })
+    ;(maybe[pl.id] ?? []).slice(0, 5).forEach((col, j) => { if (cx + j * 2 < w) px[cy + 9]![cx + j * 2] = hex(col) })
     // 路：一条实线
     for (let x = 0; x < CELL_W; x++) if (cx - 2 + x < w) px[cy + 10]![cx - 2 + x] = 0x3d3d4a
   })

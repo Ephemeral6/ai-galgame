@@ -135,7 +135,7 @@ describe('像素画面', () => {
     const figs = P.cast.map(c => portraitFrame(c.sprite, 'normal', 1))
     const ts = titleScene(card, figs, 76, 0)
     expect(ts.length).toBe(card.length + figs[0]!.length + 4)
-    // 每个人的脚都踩在草地第一行的上一行：那一行里五个人各有像素
+    // 头像帧最下面留一行透明，看得见的脚落在草地正上方一行：那一行里五个人各有像素
     const feet = ts[ts.length - 3]!
     const slot = Math.floor(76 / P.cast.length)
     expect(P.cast.map((_, i) => feet.slice(i * slot, (i + 1) * slot).some(v => v !== null && v !== feet[i * slot])).every(Boolean)).toBe(true)
@@ -145,6 +145,16 @@ describe('像素画面', () => {
     const fig = portraitFrame(P.cast[0]!.sprite, 'normal', 1)
     expect(walkFrame(fig, 76, 0).length).toBe(WALK_H)
     expect(JSON.stringify(walkFrame(fig, 76, 5))).not.toEqual(JSON.stringify(walkFrame(fig, 76, 6)))
+    // 窄屏、人多时也不越界：每一行都正好 w 个像素，没有写到数组外面的键
+    const six = [...figs, figs[0]!]
+    const rowsOk = (px: (number | null)[][], w: number) => px.every(r => r.length === w && Object.keys(r).length === w)
+    const bad: string[] = []
+    for (const w of [30, 40, 45, 50, 60, 61, 79]) {
+      if (!rowsOk(titleScene(cardFrame({ big: 'CICADAS', color: '#fff', accent: '#fff', style: 'fade' }, w, CARD_FRAMES, 0), six, w, 0), w)) bad.push(`title ${w}`)
+      if (!rowsOk(walkFrame(portraitFrame(P.cast[0]!.sprite, 'normal', 1), w, 0), w)) bad.push(`walk ${w}`)
+      if (!rowsOk(townMap(P.places, new Set(P.places.map(x => x.id)), {}, Object.fromEntries(P.places.map(x => [x.id, ['#ffffff', '#ffffff', '#ffffff', '#ffffff', '#ffffff']])), w, 0), w)) bad.push(`map ${w}`)
+    }
+    expect(bad).toEqual([])
     expect(['dark', 'light', 'light-daltonized', 'dark-ansi', 'auto', '', 3].map(bgOfTheme)).toEqual(['dark', 'light', 'light', 'dark', null, null, null])
     const f = framed([[null, 1], [2, null]])
     expect([f.length, f[0]!.length, f[1]![1], f[0]![0]]).toEqual([4, 4, null, PX.frame])
