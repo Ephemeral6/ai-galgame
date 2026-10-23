@@ -27,6 +27,8 @@ All notable changes to this project are listed here. The format follows [Keep a 
 - Every ending of every bundled pack can now be reached (several in band, mauve, radio, equalia, snow, loop and cicada could not). Ending texts agree with the fixed scenes, secrets no longer leak before their reveal, timelines are consistent. Details in `docs/PLOT-AUDIT-2026-10-23.md`.
 - Set pieces and reveals that could never fire: radio's roof scene, mauve's verdict scene and salesman reveal, cicada's two confession scenes.
 - Pixel drawing no longer writes outside its canvas at narrow widths.
+- A promise made on the last day has a deadline and can be broken; one made in the very last scene, which nothing could keep, is not recorded. The "keep" choice the engine adds now has a reaction instead of a bare "…". An overdue beat with a key promise is no longer folded into another scene as an aside, where no promise choice is offered.
+- The pane scrolls to its end as new lines, the choices and the aftermath appear, so a long scene in a short terminal no longer leaves the choices out of reach.
 - snow's boiler-room beat and equalia's microfilm beat had their last chance taken by a fixed scene, so a player who missed them lost the beat (and in snow the key promise for Donghe's true ending).
 - Beats on fixed-scene days are now limited to the fixed scene's slot, so climaxes no longer fire in the morning somewhere else.
 - snow and loop: English names now match throughout; character notes and relations no longer state secrets before their stage.
