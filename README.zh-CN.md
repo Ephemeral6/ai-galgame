@@ -8,6 +8,7 @@
 人写故事骨架，Claude 现场写每一幕。你只按数字键。
 
 [![GitHub stars](https://img.shields.io/github/stars/Ephemeral6/ai-galgame?style=flat&logo=github)](https://github.com/Ephemeral6/ai-galgame/stargazers)
+[![CI](https://github.com/Ephemeral6/ai-galgame/actions/workflows/ci.yml/badge.svg)](https://github.com/Ephemeral6/ai-galgame/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Claude Code 插件](https://img.shields.io/badge/Claude%20Code-%E6%8F%92%E4%BB%B6%20%2F%20mod-D97757)](#安装)
 [![语言](https://img.shields.io/badge/%E8%AF%AD%E8%A8%80-%E4%B8%AD%E6%96%87%20%7C%20English-green)](README.md)
@@ -207,6 +208,10 @@ claude plugin test <本仓库目录>       # 运行 tests/：日程、约定、�
 ```
 
 代码结构：`hooks/craft.ts` 写作手法层，`hooks/register.tsx` 界面与状态（含存档迁移、自动游玩排程、边等边玩、后台任务），`hooks/engine.ts` 剧情引擎（纯函数与模型调用），`hooks/fx.ts` 画面效果（像素字体、标题卡、氛围带、演出、地图、关系网），`hooks/art.ts` 像素立绘，`hooks/pilot.ts` 自动游玩与「顺其自然」的决策，`hooks/native.ts` AI 原生机制（消息、八卦、日记、画像），`hooks/work.ts` 写代码事件与陪伴台词，`hooks/cost.ts` 花费估算，`hooks/feats.ts` 成就与每日挑战，`hooks/gen.ts` 生成剧本包，`hooks/share.ts` 导出与结局卡，`hooks/browse.ts` 社区，`hooks/pack.ts` 剧本包校验与多语言，`hooks/i18n.ts` 界面文案，`assets/sfx/` 音效，`community/` 社区索引，`demo/` 录屏脚本，`packs/` 剧本包，`types/index.d.ts` 类型与状态契约。
+
+## 社区
+
+提问、结局分享和截图发到 [Discussions](https://github.com/Ephemeral6/ai-galgame/discussions)；bug 和剧本包投稿发到 [Issues](https://github.com/Ephemeral6/ai-galgame/issues)。提 PR 前读 [CONTRIBUTING.md](CONTRIBUTING.md)，发言前读[行为准则](CODE_OF_CONDUCT.md)。安全问题按 [SECURITY.md](SECURITY.md) 私下报告。每个版本的改动见 [CHANGELOG.md](CHANGELOG.md)。
 
 ## 许可与版权
 

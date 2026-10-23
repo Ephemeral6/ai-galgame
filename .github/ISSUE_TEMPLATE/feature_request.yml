@@ -1,0 +1,38 @@
+name: Feature request / 功能建议
+description: A new mechanic, UI change or tool for the engine. / 引擎的新玩法、界面改动或工具。
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Story ideas and pack requests go to Discussions; pack submissions use the pack template.
+        剧情点子和想要的剧本包请发到 Discussions；投稿剧本包请用投稿模板。
+  - type: textarea
+    id: problem
+    attributes:
+      label: What would you like to do? / 你想做到什么？
+      description: The situation in the game where you missed it. / 在游戏里什么时候觉得缺了它。
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposal / 建议的做法
+      description: Keys, screens or pack fields involved, if you have an idea. / 如果有想法，写涉及的按键、界面或剧本包字段。
+  - type: dropdown
+    id: cost
+    attributes:
+      label: Extra model calls? / 需要额外的模型调用吗？
+      options:
+        - No / 不需要
+        - Yes, optional and off by default / 需要，可选且默认关闭
+        - Not sure / 不确定
+    validations:
+      required: true
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checks / 确认
+      options:
+        - label: I searched existing issues and discussions. / 我搜过现有的 issue 和讨论。
+          required: true

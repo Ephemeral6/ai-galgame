@@ -8,6 +8,7 @@
 Humans write the story skeleton. Claude writes every scene live. You just press 1, 2, 3.
 
 [![GitHub stars](https://img.shields.io/github/stars/Ephemeral6/ai-galgame?style=flat&logo=github)](https://github.com/Ephemeral6/ai-galgame/stargazers)
+[![CI](https://github.com/Ephemeral6/ai-galgame/actions/workflows/ci.yml/badge.svg)](https://github.com/Ephemeral6/ai-galgame/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Claude Code plugin](https://img.shields.io/badge/Claude%20Code-plugin%20%2F%20mod-D97757)](#install)
 [![Languages](https://img.shields.io/badge/languages-English%20%7C%20%E4%B8%AD%E6%96%87-green)](README.zh-CN.md)
@@ -166,6 +167,10 @@ claude plugin test <this repo>       # tests/ with every model call mocked
 ```
 
 Layout: `hooks/register.tsx` UI and state (migration, autoplay, play-while-you-wait, background jobs); `hooks/engine.ts` story engine; `hooks/craft.ts` writing layer; `hooks/fx.ts` pixel effects; `hooks/art.ts` sprites; `hooks/pilot.ts` autoplay decisions; `hooks/native.ts` AI-native extras; `hooks/work.ts` coding events and companion lines; `hooks/cost.ts` cost estimate; `hooks/feats.ts` achievements and daily challenge; `hooks/gen.ts` pack generation; `hooks/share.ts` export and ending card; `hooks/browse.ts` community; `hooks/pack.ts` validation; `hooks/i18n.ts` UI text; `assets/sfx/` sounds; `community/` index; `demo/` recording scripts; `packs/` story packs; `types/index.d.ts` types and state contract.
+
+## Community
+
+Questions, endings and screenshots go to [Discussions](https://github.com/Ephemeral6/ai-galgame/discussions); bugs and pack submissions to [Issues](https://github.com/Ephemeral6/ai-galgame/issues). Read [CONTRIBUTING.md](CONTRIBUTING.md) before a PR and the [code of conduct](CODE_OF_CONDUCT.md) before posting. Report security problems privately, as [SECURITY.md](SECURITY.md) describes. Changes per release are in [CHANGELOG.md](CHANGELOG.md).
 
 ## License
 
