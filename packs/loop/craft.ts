@@ -153,11 +153,12 @@ export const LOOP_CRAFT: PackCraft = {
 
   reveals: [
     {
-      id: 'rv-slip-writer', when: { after: ['beat:loop-slip'], who: 'wanlan', minStage: 2 },
+      // 阶段 3：「我来之前已经点了很多轮」就是她的秘密（循环的真相）
+      id: 'rv-slip-writer', when: { after: ['beat:loop-slip'], who: 'wanlan', minStage: 3 },
       truth: { zh: '每晚那张点歌条是晚澜写的，点给爷爷。她在「我」来之前已经点了很多轮。', en: 'The request slip every night is Wanlan\'s, for her grandfather. She was sending it for many loops before I came.' },
       reframes: [
         { zh: '叶棠念署名栏时那一下停顿', en: 'Ye Tang\'s pause at the signature line' },
-        { zh: '晚澜第一次见面就说「你上次不是这么说的」', en: 'Wanlan saying "that\'s not what you said last time" at our first meeting' },
+        { zh: '晚澜第一次看「我」签名时那个像等了很久、又怕它来的表情', en: 'the look on Wanlan\'s face the first time she watched me sign, as if she had waited for it a long time and feared it' },
       ],
     },
     {
@@ -206,12 +207,12 @@ export const LOOP_CRAFT: PackCraft = {
     { id: 'g-aunt', from: 'aunt', about: 'wanlan', truth: 'true', text: { zh: '「符伯走了以后，那妹仔天天上灯塔，一坐一下午。」', en: '"Since old Fu passed, that girl\'s up the lighthouse every day, all afternoon."' } },
     { id: 'g-amah', from: 'amah', about: 'yetang', truth: 'half', text: { zh: '「她最近念天气预报，念着念着就停了。」', en: '"Lately she stops halfway through the weather report."' } },
     { id: 'g-chenba', from: 'chenba', about: 'chendu', truth: 'true', fromDay: 3, text: { zh: '「她补的网比我补的密。……别跟她讲。」', en: '"Her nets are tighter than mine. ...Don\'t tell her."' } },
-    { id: 'g-me', from: 'aunt', about: 'me', truth: 'half', text: { zh: '「阿弟这礼拜怪怪的，好像什么都提前知道。」', en: '"The boy\'s been odd this week, like he knows everything in advance."' } },
+    { id: 'g-me', from: 'aunt', about: 'me', truth: 'half', text: { zh: '「阿弟这礼拜怪怪的，一天往灯塔跑三趟，魂都丢在那上头了。」', en: '"The boy\'s been odd this week, up to the lighthouse three times a day, like he left his soul up there."' } },
   ],
 
   people: {
     wanlan: {
-      quirks: [{ zh: '用潮汐和天气说事', en: 'speaks in tides and weather' }, { zh: '「你上次不是这么说的」', en: '"That\'s not what you said last time"' }],
+      quirks: [{ zh: '用潮汐和天气说事', en: 'speaks in tides and weather' }, { zh: '「你上次不是这么说的」（第 2 轮起）', en: '"That\'s not what you said last time" (from cycle 2)' }],
       habits: [{ zh: '报时间精确到分钟', en: 'states times to the minute' }, { zh: '摸灯塔扶手上的一道刻痕', en: 'touches a notch on the lighthouse rail' }],
       contradiction: { zh: '最想让这一周结束，又最怕它结束', en: 'wants the week to end, dreads that it will' },
       growth: { zh: '从一个人重复，到愿意写下最后一行', en: 'from repeating alone to being willing to write the last line' },
