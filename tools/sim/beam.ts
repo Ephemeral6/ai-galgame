@@ -169,5 +169,5 @@ for (const t of targets) {
     }
     if (found) { console.log(`✔ ${t} (loop ${loop}, ${((Date.now() - t0) / 1000).toFixed(1)}s)`); for (const st of found.path) console.log('   ' + st); break }
   }
-  if (!found) console.log(`✘ ${t} 束宽 ${WIDTH} 未找到；终局最小距离 ${best}`)
+  if (!found) { console.log(`✘ ${t} 束宽 ${WIDTH} 未找到；终局最小距离 ${best}`); process.exitCode = 1 }
 }
