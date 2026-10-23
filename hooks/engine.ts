@@ -331,7 +331,9 @@ export function applyChoice(p: Pack, s: Story, c: Choice, lang: Lang): ChoiceRes
   const aff = (id: string) => s.heroines[id]?.affection ?? 0
   const best = (ids: string[]) => [...ids].sort((a, b) => aff(b) - aff(a) || Number(b === lead) - Number(a === lead))[0]
   const owner = key && whoCast.length ? (best(whoCast.filter(onStage)) ?? best(whoCast) ?? lead) : lead
-  if (c.kind === 'promise' && owner && castOf(p, owner)) {
+  // 全剧最后一幕许下的约定没有之后的时段可以兑现，记下来只会在结局前算失约：不记
+  const finalScene = s.day === p.days && s.slot === p.slots.length - 1
+  if (c.kind === 'promise' && owner && castOf(p, owner) && !finalScene) {
     const dl = castOf(p, owner)!.deadline.day
     promises.push({ text: c.promise || c.text, heroine: owner, day: s.day, due: Math.min(clamp(dl, s.day + 1, p.days), p.days), status: 'open', made: sceneKey(s), ...(key ? { key } : {}) })
   }

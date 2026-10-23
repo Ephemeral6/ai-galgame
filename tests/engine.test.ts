@@ -118,6 +118,14 @@ describe('约定', () => {
     expect(s.promises[0]!.due).toBe(P.days)
     const r = advanceTime(P, { ...at(s, P.days, P.slots.length - 1), phase: 'after' }, 'zh')
     expect([r.finished, r.story.promises[0]!.status]).toEqual([true, 'broken'])
+    // 最后一天早些时候许的，当天后面的时段还能兑现
+    let k = applyScene(at(s, P.days, 1), scene(['zhiyao']))
+    k = applyChoice(P, k, choice({ kind: 'keep', keeps: 'zhiyao' }), 'zh').story
+    expect(k.promises[0]!.status).toBe('kept')
+    // 全剧最后一幕许的，已经没有时段兑现：不记成约定，也就不会算失约
+    let f = applyScene(at(freshStory(P, 'zh'), P.days, P.slots.length - 1), scene(['zhiyao']))
+    f = applyChoice(P, f, choice({ kind: 'promise' }), 'zh').story
+    expect(f.promises).toEqual([])
   })
 
   test('带约定的关键事件过期了也不顺带补上：顺带只提一句、不出约定选项', () => {
