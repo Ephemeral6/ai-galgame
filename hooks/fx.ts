@@ -100,26 +100,35 @@ function wrap(s: string, width: number, scale: number, n: number): string[] {
 }
 
 // ---------- 标题卡（开场、每章、结局） ----------
-export type CardSpec = { big: string; small?: string; color: string; accent: string; style: 'fade' | 'wipe' }
+/** layout: 'inline' 时大字和小字排在同一行（DAY 卡用，矮一截）；排不下就退回上下两行 */
+export type CardSpec = { big: string; small?: string; color: string; accent: string; style: 'fade' | 'wipe'; layout?: 'stack' | 'inline' }
 export const CARD_FRAMES = 6
 
 /** 一张卡；step 是从出现起的第几帧（0..CARD_FRAMES，之后静止，只剩星点闪烁） */
 export function cardFrame(spec: CardSpec, w: number, step: number, t: number): Px[][] {
   const big0 = fontText(spec.big)
   const scale = textWidth(big0, 2) <= w - 6 ? 2 : 1
-  const bigLines = wrap(big0, w - 6, scale, 2)
-  const small = wrap(fontText(spec.small ?? ''), w - 6, 1, 2)
-  const h = 4 + bigLines.length * 6 * scale + small.length * 7
+  const small0 = fontText(spec.small ?? '')
+  const inlineW = textWidth(big0, scale) + (small0 ? 6 + textWidth(small0, 1) : 0)
+  const inline = spec.layout === 'inline' && inlineW <= w - 6
+  const bigLines = inline ? [big0] : wrap(big0, w - 6, scale, 2)
+  const small = inline ? [] : wrap(small0, w - 6, 1, 2)
+  const h = inline ? 4 + 5 * scale : 4 + bigLines.length * 6 * scale + small.length * 7
   const px = blank(w, h)
   const color = hex(spec.color)
   const accent = hex(spec.accent)
+  if (inline) {
+    const x0 = Math.floor((w - inlineW) / 2)
+    drawText(px, big0, x0, 2, color, scale)
+    if (small0) drawText(px, small0, x0 + textWidth(big0, scale) + 6, 2 + 5 * scale - 5, accent, 1)
+  }
   const dim = mix(accent, 0x101018, 0.6)
   // 细边框与四角星点
   for (let x = 1; x < w - 1; x++) { px[0]![x] = dim; px[h - 1]![x] = dim }
   for (let y = 1; y < h - 1; y++) { px[y]![0] = dim; px[y]![w - 1] = dim }
   for (const [x, y] of [[0, 0], [w - 1, 0], [0, h - 1], [w - 1, h - 1]] as const) px[y]![x] = (t % 6 < 3) ? accent : dim
   let y = 2
-  for (const line of bigLines) { drawText(px, line, Math.floor((w - textWidth(line, scale)) / 2), y, color, scale); y += 6 * scale }
+  if (!inline) for (const line of bigLines) { drawText(px, line, Math.floor((w - textWidth(line, scale)) / 2), y, color, scale); y += 6 * scale }
   for (const line of small) { drawText(px, line, Math.floor((w - textWidth(line, 1)) / 2), y + 1, accent, 1); y += 7 }
   // 过渡：淡入（由暗到亮）或擦入（从左往右，前沿一列亮白）
   const k = Math.min(1, step / CARD_FRAMES)
@@ -180,6 +189,138 @@ export function atmoBand(fx: NonNullable<Atmo['fx']>, theme: string, w: number, 
       break
   }
   return px
+}
+
+// ---------- 舞台背景板 ----------
+export type Backdrop = 'room' | 'hall' | 'street' | 'shop' | 'field' | 'water' | 'roof'
+
+// 顺序有讲究：「江边灯会与天台」先算天台，「镇广播站」先算室内，「江边夜市」先算店铺，「江雾音乐节 · 新人舞台」先算舞台
+const BACKDROP_RULES: [RegExp, Backdrop][] = [
+  [/天台|rooftop/i, 'roof'],
+  [/门前|铁门/, 'street'],
+  [/广播|教室|图书馆|房间|厨房|走廊|楼道|补习|补课|会议室|浴池|锅炉|特藏|牢房|防空洞/, 'room'],
+  [/小卖部|供销社|铺|小亭|店|夜市|琴行|shop|store|stall|kiosk|market/i, 'shop'],
+  [/食堂|礼堂|livehouse|音乐节|舞台|王座|大厅|canteen|stage|festival|throne/i, 'hall'],
+  [/江|河|海|码头|港|湖|冰场|灯塔|堤|river|harbou?r|sea|lake|pier|lighthouse/i, 'water'],
+  [/操场|球场|体育场|广场|花园|field|court|stadium|square|garden|park/i, 'field'],
+  [/街|大道|梯|站|缆车|公交|路|桥|street|boulevard|steps|station|bus|road|platform/i, 'street'],
+]
+
+/** 按地名（中英都可）推背景种类；都不中就当室内 */
+export function backdropOf(place: string): Backdrop {
+  return BACKDROP_RULES.find(([re]) => re.test(place))?.[1] ?? 'room'
+}
+
+const SKY: Record<NonNullable<Atmo['time']>, [number, number]> = {
+  dawn: [0x3b2e5a, 0xf2a7a0], day: [0x5aa7e0, 0xbfe3f2], dusk: [0x2a2350, 0xf2a65a], night: [0x0e1030, 0x2a2f5a],
+}
+const SCREEN = 0x17151f
+const LAMP = 0xffd27a
+const OUTDOOR: Backdrop[] = ['street', 'shop', 'field', 'water', 'roof']
+
+/** 天空上下两色：按时段，阴雨雪雾再压灰一点 */
+function skyOf(a: Atmo | undefined): [number, number] {
+  const [top, bot] = SKY[a?.time ?? 'day']
+  const grey = a?.weather && a.weather !== 'clear' && a.weather !== 'wind' ? 0.35 : 0
+  return [mix(top, 0x6b7280, grey), mix(bot, 0x9aa3ad, grey)]
+}
+
+/** 天空渐变量化成 4 档，控制 Raster 的色对数 */
+function band4(a: number, b: number, k: number): number {
+  return mix(a, b, Math.round(Math.max(0, Math.min(1, k)) * 4) / 4)
+}
+
+/** 氛围带的底色：室外接天空顶色，室内是墙色，和舞台拼成一幅 */
+export function backdropTop(kind: Backdrop, a: Atmo | undefined): number {
+  const [top] = skyOf(a)
+  return OUTDOOR.includes(kind) ? top : mix(mix(0x6b5a4e, top, 0.25), SCREEN, 0.2)
+}
+
+/**
+ * 舞台背景板：天空或墙、远景、地面。立绘的脚落在倒数第 2 行，地面占底部 4 行。
+ * 只有窗灯、水面反光、星星随 t 动；整体往幕布色压 20%，让立绘更突出。
+ */
+export function backdrop(kind: Backdrop, a: Atmo | undefined, w: number, h: number, t: number): Px[][] {
+  const px: Px[][] = blank(w, h)
+  const [top, bot] = skyOf(a)
+  const night = a?.time === 'night'
+  const g = h - 4 // 地面第一行
+  const put = (x: number, y: number, c: number) => { if (y >= 0 && y < h && x >= 0 && x < w) px[y]![x] = c }
+  const fill = (x0: number, y0: number, x1: number, y1: number, c: number | ((x: number, y: number) => number)) => {
+    for (let y = Math.max(0, y0); y < Math.min(h, y1); y++) for (let x = Math.max(0, x0); x < Math.min(w, x1); x++) put(x, y, typeof c === 'number' ? c : c(x, y))
+  }
+  const sky = (y1: number) => fill(0, 0, w, y1, (_, y) => band4(top, bot, y / Math.max(1, y1 - 1)))
+  const stars = (y1: number) => { if (night) for (let i = 0; i < 14; i++) if ((t + i * 2) % 6 < 4) put((i * 29) % w, (i * 7) % Math.max(1, y1), 0xe8eaf6) }
+  const skyline = (base: number, tall: number, c: number) => {
+    for (let x = 0; x < w; x++) { const hh = tall - ((x >> 3) * 7 % 5); fill(x, base - hh, x + 1, base, c) }
+    for (let x = 0; x < w; x++) if ((x >> 3) % 2 === 0 && x % 3 === 1 && (night || a?.time === 'dusk')) put(x, base - 3, (t + x) % 9 < 7 ? LAMP : mix(LAMP, c, 0.5))
+  }
+  switch (kind) {
+    case 'room': case 'hall': {
+      const wall = kind === 'hall' ? mix(0x4a4458, top, 0.2) : mix(0x6b5a4e, top, 0.25)
+      fill(0, 0, w, g, wall)
+      fill(0, g - 3, w, g, mix(wall, 0x000000, 0.18)) // 墙裙
+      if (kind === 'room') {
+        // 两扇窗，窗里是天空
+        for (const wx of [6, w - 24]) {
+          fill(wx, 3, wx + 18, 14, (_, y) => band4(top, bot, (y - 3) / 10))
+          if (night) for (let i = 0; i < 3; i++) if ((t + i) % 5 < 3) put(wx + 3 + i * 6, 5 + (i % 2) * 3, 0xe8eaf6)
+          const frame = 0xe8dcc8
+          fill(wx - 1, 2, wx + 19, 3, frame); fill(wx - 1, 14, wx + 19, 15, frame)
+          fill(wx - 1, 2, wx, 15, frame); fill(wx + 18, 2, wx + 19, 15, frame); fill(wx + 9, 2, wx + 10, 15, frame)
+        }
+        fill(0, g, w, h, (x, y) => ((x + y * 3) % 12 === 0 ? 0x6e4a32 : 0x8a5d3e)) // 木地板
+      } else {
+        // 顶上一排吊灯，地面是打磨过的深色地板
+        for (let x = 4; x < w; x += 12) { fill(x, 0, x + 1, 2, 0x2a2633); fill(x - 1, 2, x + 2, 3, (t + x) % 10 < 8 ? LAMP : mix(LAMP, wall, 0.4)) }
+        fill(0, g, w, h, (x, y) => (y === g ? 0x5a5266 : (x + y) % 2 ? 0x3a3445 : 0x342f3e))
+      }
+      break
+    }
+    case 'street':
+      sky(g); stars(g - 8)
+      skyline(g, 11, mix(top, 0x000000, 0.45))
+      fill(0, g, w, h, (x, y) => (y === g ? 0x6b6f7a : y === g + 2 && x % 6 < 3 ? 0x8a8d96 : 0x44464f))
+      break
+    case 'shop': {
+      sky(g); stars(6)
+      // 店面：条纹雨棚、货架、柜台
+      fill(0, 7, w, 10, (x) => ((x >> 2) % 2 ? 0xe8e0d0 : 0xc0504d))
+      fill(0, 10, w, g, 0x5a4636)
+      for (let y = 12; y < g - 3; y += 4) fill(2, y, w - 2, y + 1, 0x8a6a4e)
+      for (let x = 3; x < w - 3; x += 3) put(x, 11 + ((x * 7) % 3) * 4, [0xf79646, 0x9bbb59, 0x4bacc6, 0xffd27a][x % 4]!)
+      fill(0, g - 3, w, g, 0x7a5a42) // 柜台
+      fill(0, g, w, h, (x, y) => (y === g ? 0x6b6f7a : 0x44464f))
+      break
+    }
+    case 'field':
+      sky(g - 3); stars(g - 8)
+      for (let x = 0; x < w; x++) fill(x, g - 6 + Math.round(Math.sin(x / 3) * 1.5), x + 1, g - 3, mix(0x2e4a2a, top, 0.2)) // 远处树影
+      fill(0, g - 3, w, h, (x, y) => ((x >> 2) % 2 ? 0x4f7a3a : 0x46703a))
+      fill(0, g - 1, w, g, 0xd8d8d0) // 白线
+      break
+    case 'water': {
+      const wy = g - 9
+      sky(wy); stars(wy - 2)
+      skyline(wy, 4, mix(top, 0x000000, 0.5)) // 对岸
+      fill(0, wy, w, g, (x, y) => ((x + y * 5 + t) % 13 === 0 ? mix(bot, 0xffffff, 0.3) : band4(0x2b4f7a, 0x3d6a9a, (y - wy) / 9)))
+      fill(0, g, w, h, (x, y) => (y === g ? 0x8a8d96 : (x + y) % 5 ? 0x5a5d66 : 0x4e515a)) // 石堤
+      break
+    }
+    case 'roof':
+      sky(g - 5); stars(g - 8)
+      skyline(g - 5, 5, mix(top, 0x000000, 0.4))
+      fill(0, g - 5, w, g, mix(top, 0x000000, 0.55))
+      for (let x = 0; x < w; x++) { put(x, g - 5, 0x9aa0a6); if (x % 4 === 0) fill(x, g - 5, x + 1, g, 0x9aa0a6) } // 栏杆
+      fill(0, g, w, h, (x, y) => ((x + y * 2) % 7 ? 0x5a5a66 : 0x4e4e5a))
+      break
+  }
+  return px.map(r => r.map(v => (v === null ? SCREEN : v === LAMP ? v : mix(v, SCREEN, 0.2))))
+}
+
+/** 把 top 叠在 base 上：top 的透明处露出 base */
+export function over(base: Px[][], top: Px[][]): Px[][] {
+  return base.map((row, y) => row.map((v, x) => top[y]?.[x] ?? v))
 }
 
 // ---------- 演出指令 ----------

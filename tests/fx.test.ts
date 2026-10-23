@@ -8,7 +8,7 @@ import { stageFrame } from '../hooks/art'
 import { costOf, dateKey } from '../hooks/cost'
 import { advanceTime, applyChoice, applyScene, freshStory, parseDirection, parseScene, planOptions, profileLine, sceneDynamic, staticBlock } from '../hooks/engine'
 import { EMPTY_FEATS, achievementsOnFinish, dailyChallenge, dailyShare } from '../hooks/feats'
-import { CARD_FRAMES, atmoBand, cardFrame, fontText, fxOf, relationGraph, stageDirections, themeOf, townMap } from '../hooks/fx'
+import { CARD_FRAMES, atmoBand, backdrop, backdropOf, cardFrame, fontText, fxOf, over, relationGraph, stageDirections, themeOf, townMap } from '../hooks/fx'
 import { awayLetter, diaryEntry, letterFrom, nightGossip, portraitOf, tendencies } from '../hooks/native'
 import { BUILTIN } from '../packs/index'
 import { CICADA } from '../packs/cicada/pack'
@@ -83,6 +83,29 @@ describe('像素画面', () => {
     expect(cardFrame(spec, 60, CARD_FRAMES + 5, 0)).toEqual(c)
     const fade = cardFrame({ ...spec, style: 'fade' }, 60, 1, 0)
     expect(lit(fade)).toBe(lit(c)) // 淡入：像素都在，颜色暗
+  })
+
+  test('DAY 卡 inline：大字小字同一行、矮一截，字不重画；排不下退回上下两行', () => {
+    const spec = { big: 'DAY 3', small: 'ACT II', color: '#ffffff', accent: '#f2c14e', style: 'wipe' as const }
+    const stack = cardFrame(spec, 76, CARD_FRAMES, 0)
+    const inline = cardFrame({ ...spec, layout: 'inline' as const }, 76, CARD_FRAMES, 0)
+    expect(inline.length).toBe(14)
+    expect(inline.length).toBeLessThan(stack.length)
+    // 边框以外的亮像素：inline 和上下两行画的是同一批字
+    expect(lit(inline) - 2 * (76 + 14) + 4).toBe(lit(stack) - 2 * (76 + stack.length) + 4)
+    expect(cardFrame({ ...spec, big: 'DAY 3 OF THE LONG SUMMER', layout: 'inline' as const }, 40, CARD_FRAMES, 0).length).toBeGreaterThan(14)
+  })
+
+  test('舞台背景板：地名推出种类；整块不透明；立绘叠在上面', () => {
+    expect(['教学楼天台', '镇广播站', '江边夜市', '江雾音乐节 · 新人舞台', '江边', '操场', '老街', '天文社', 'Featureless Room'].map(backdropOf))
+      .toEqual(['roof', 'room', 'shop', 'hall', 'water', 'field', 'street', 'room', 'room'])
+    const st = stageFrame(P, [{ id: 'xiaoman', expression: 'normal' }], 'near', 0)
+    for (const k of ['room', 'hall', 'street', 'shop', 'field', 'water', 'roof'] as const) {
+      const bd = backdrop(k, { time: 'night' }, 76, st.length, 0)
+      const both = over(bd, st)
+      expect([k, lit(bd), both.flat().filter((v, i) => st.flat()[i] !== null && v !== st.flat()[i]).length]).toEqual([k, 76 * st.length, 0])
+    }
+    expect(JSON.stringify(backdrop('street', { time: 'night' }, 76, 30, 0))).not.toEqual(JSON.stringify(backdrop('street', { time: 'day' }, 76, 30, 0)))
   })
 
   test('氛围带：每种粒子都画得出来，而且会动', () => {
