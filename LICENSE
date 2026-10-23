@@ -19,9 +19,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
----
-
-This MIT license covers the engine: hooks/, types/, tests/ and packs/index.ts.
-Each story pack under packs/<id>/ is licensed separately; see the LICENSE and
-README.md in that folder (CC BY 4.0, CC BY-SA 4.0 or CC0 1.0).

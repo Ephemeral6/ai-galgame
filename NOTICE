@@ -1,0 +1,12 @@
+ai-galgame
+Copyright (c) 2026 ai-galgame contributors
+
+The MIT license in LICENSE covers the engine: hooks/, types/, tests/,
+tools/ and packs/index.ts.
+
+Each story pack under packs/<id>/ is licensed separately; see the LICENSE
+and README.md in that folder (CC BY 4.0, CC BY-SA 4.0 or CC0 1.0).
+packs/mauve is an adaptation of "Le Petit Chaperon Mauve / Little Mauve
+Riding Hood" (2015) by bosinpai, licensed under CC BY-SA 4.0, and stays
+under CC BY-SA 4.0. packs/equalia is an adaptation of "Bridge to eQualia"
+by Blackle Mori, dedicated to the public domain under CC0 1.0.

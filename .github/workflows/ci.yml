@@ -1,0 +1,41 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # The oldest version the README promises is 2.1.287; CI runs the version the tests were last run on.
+  CLAUDE_CODE_VERSION: 2.1.309
+  DISABLE_AUTOUPDATER: 1
+  CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC: 1
+
+jobs:
+  check:
+    name: validate + test (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install Claude Code
+        run: npm install -g @anthropic-ai/claude-code@${{ env.CLAUDE_CODE_VERSION }}
+      # Neither command needs an account or an API key: tests mock every model call.
+      - name: Validate plugin
+        run: claude plugin validate .
+      - name: Run tests
+        run: claude plugin test .
