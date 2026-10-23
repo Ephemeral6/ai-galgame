@@ -522,7 +522,7 @@ export function relationGraph(p: Pack, s: Story, deltas: Record<string, number>,
   const heroines = p.cast
   heroines.forEach((c, i) => {
     const a = -Math.PI / 2 + (i / heroines.length) * Math.PI * 2
-    nodes.push({ id: c.id, x: Math.round(cx + Math.cos(a) * (w * 0.3)), y: Math.round(cy + Math.sin(a) * (h * 0.36)), color: hex(c.color), size: 3 })
+    nodes.push({ id: c.id, x: Math.round(cx + Math.cos(a) * (w * 0.3)), y: Math.round(cy + Math.sin(a) * (h * 0.36)), color: hex(c.color), size: 5 })
   })
   const npcs = p.npcs ?? []
   npcs.forEach((n, i) => {
@@ -549,12 +549,15 @@ export function relationGraph(p: Pack, s: Story, deltas: Record<string, number>,
     if (d && t % 2 === 0) color = d > 0 ? 0xffffff : 0xff5252
     line(px, cx, cy, N.x, N.y, color, st >= 2 ? 1 : 3 - st, 0)
   }
+  // 主角色是 5×5 的小脸（圆角、两只眼睛），配角和「我」是小方块
+  const FACE = ['.xxx.', 'xxxxx', 'xexex', 'xxxxx', '.xxx.']
   for (const n of nodes) {
     for (let a = 0; a < n.size; a++) for (let b = 0; b < n.size; b++) {
       const y = n.y - Math.floor(n.size / 2) + a, x = n.x - Math.floor(n.size / 2) + b
-      if (px[y] && x >= 0 && x < w) px[y]![x] = n.color
+      const f = n.size === 5 ? FACE[a]![b] : 'x'
+      if (f !== '.' && px[y] && x >= 0 && x < w) px[y]![x] = f === 'e' ? 0x17151f : n.color
     }
-    if (npcOf(p, n.id) === undefined && n.id !== 'me' && (deltas[n.id] ?? 0) !== 0 && t % 2 === 0 && px[n.y - 2]) px[n.y - 2]![n.x] = 0xffffff
+    if (npcOf(p, n.id) === undefined && n.id !== 'me' && (deltas[n.id] ?? 0) !== 0 && t % 2 === 0 && px[n.y - 3]) px[n.y - 3]![n.x] = 0xffffff
   }
   return { px, nodes }
 }

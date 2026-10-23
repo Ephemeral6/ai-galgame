@@ -18,8 +18,8 @@ export type Bg = 'dark' | 'light'
 
 /** 文字层。括号外的说明见 VISUAL-REDESIGN §3.2-B；对比度深底对 #1e1e1e、浅底对 #ffffff，均 ≥ 4.5 */
 export const TEXT = {
-  dark: { accent: '#f2c14e', kept: '#81c784', broken: '#ef8a8a', event: '#f0a070', info: '#9fc5e8', me: '#7fd1c7' },
-  light: { accent: '#8a5a00', kept: '#2e7d32', broken: '#c62828', event: '#b23c17', info: '#2f6db5', me: '#00796b' },
+  dark: { accent: '#f2c14e', me: '#7fd1c7' },
+  light: { accent: '#8a5a00', me: '#00796b' },
 } as const
 
 /** 选项类型色：只做芯片底（字色走 inkOn）。cb 是 Okabe–Ito 色盲配色；图标也各不相同 */
@@ -30,6 +30,18 @@ export const KIND = {
 
 /** 色盲配色下文字层的状态色（Okabe–Ito），深底用 */
 export const STATE_CB = { kept: '#009e73', broken: '#d55e00', event: '#e69f00', info: '#56b4e9' } as const
+
+/**
+ * 默认配色下的状态色用 Claude Code 的主题键：跟着玩家的主题（深、浅、色盲、ANSI）自动换，
+ * 不靠我们猜底色。TEXT 里的十六进制只剩强调色和「我」在用
+ */
+export const STATE_KEYS = { kept: 'success', broken: 'error', event: 'warning', info: 'suggestion' } as const
+
+/** /config 里 theme 一行的值 → 深浅。取值集合类型里没写（VISUAL-REDESIGN §5-2），名字里带 light 的算浅色 */
+export function bgOfTheme(v: unknown): Bg | null {
+  if (typeof v !== 'string' || !v || /auto|system/i.test(v)) return null
+  return /light/i.test(v) ? 'light' : 'dark'
+}
 
 /** 角色没写颜色时的退路 */
 export const FALLBACK = '#cccccc'

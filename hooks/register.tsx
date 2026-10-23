@@ -33,7 +33,7 @@ import { BAND_H, CARD_FRAMES, DEFAULT_THEME, WALK_H, atmoBand, backdrop, backdro
 import type { CardSpec } from './fx'
 import { LANGS, helpLines, t } from './i18n'
 import type { UiKey } from './i18n'
-import { FALLBACK, KIND, PX, STATE_CB, TEXT, css, framed, inkOn, onScreen, readable } from './theme'
+import { FALLBACK, KIND, PX, STATE_CB, STATE_KEYS, TEXT, bgOfTheme, css, framed, inkOn, onScreen, readable } from './theme'
 import type { Bg } from './theme'
 import { AWAY_MS, EXTRA_KEYS, awayLetter, diaryEntry, nightGossip, portraitOf, tendencies } from './native'
 import type { ExtraKey } from './native'
@@ -1010,8 +1010,16 @@ function hearts(n: number, max: number, on = '♥', off = '♡'): string {
 }
 
 const KIND_ICON: Record<string, string> = { reply: '❝', observe: '◎', promise: '✦', keep: '✔' }
-// 终端深浅还读不到（VISUAL-REDESIGN §5-2），先按深色
-const BG: Bg = 'dark'
+// 终端深浅：session.start、/gal 时从 /config 的 theme 推一次（模块变量，画面板时只读）；推不出按深色
+let detectedBg: Bg | null = null
+async function detectBg($: EngineInterface): Promise<void> {
+  try {
+    const row = (await $.config.list()).find(r => r.key === 'theme')
+    detectedBg = bgOfTheme(row?.value)
+  } catch {
+    detectedBg = null
+  }
+}
 const TONE_ORDER: Tone[] = ['honest', 'evasive', 'joking', 'committed', 'caring', 'bold']
 
 export const register: Register = on => {
@@ -1025,6 +1033,7 @@ export const register: Register = on => {
     if (okFeats(f)) await update($, feats, () => f)
     await loadExtraPacks($)
     await migrate($)
+    await detectBg($)
     return next(e)
   })
 
@@ -1069,6 +1078,7 @@ export const register: Register = on => {
 
   on('command.run', { command: 'gal' }, async ($, e) => {
     await migrate($)
+    await detectBg($)
     const st = await read($, settings)
     const args = e.args.trim()
     if (args.startsWith('validate')) {
@@ -1160,9 +1170,10 @@ export const register: Register = on => {
     const compact = st.layout === 'compact' || (st.layout !== 'full' && cols < 80)
     const anim = st.anim !== false
     const Raster = RasterEl
+    const BG: Bg = st.bg === 'dark' || st.bg === 'light' ? st.bg : detectedBg ?? 'dark'
     const TX = TEXT[BG]
     const cb = st.palette === 'cb'
-    const C = { ...(cb ? KIND.cb : KIND.default), ...(cb ? STATE_CB : TX) }
+    const C = { ...(cb ? KIND.cb : KIND.default), ...(cb ? STATE_CB : STATE_KEYS) }
     const stageW = Math.min(STAGE_W, cols - 4)
     const canStage = !!Raster && stageW >= 60
     const nextLayers: Layer[] = []
@@ -1247,6 +1258,10 @@ export const register: Register = on => {
 
     const maxAff = p.gates[4]?.affection ?? 12
     const costText = L('costLine', { run: usd(s.usage.cost ?? 0), today: usd(spentToday) })
+    // 分隔线：设置、存档、剧本、成就这几屏用它代替圆角框
+    const rule = '─'.repeat(Math.max(10, Math.min(cols - 2, 76)))
+    // 当前标签：inverse 芯片；其余标签由按钮的 dimColor 变暗
+    const tabChip = (cur: boolean, label: string) => (cur ? <Text inverse bold> ▶ {label} </Text> : label)
     // 顶栏：两行、无边框，下面一根主题色分隔线。剧情里只列在场的人和这一幕好感变了的人
     const onStage = new Set(inScene ? s.scene!.cast.map(a => a.id) : [])
     const header = (
@@ -1316,6 +1331,7 @@ export const register: Register = on => {
           row('set-map', '4', L('mapSet'), onOff(st.map !== false), () => void setSettings($, x => ({ ...x, map: x.map === false }))),
           row('set-layout', '5', L('layout'), L(`layout_${st.layout ?? 'auto'}` as UiKey), () => void setSettings($, x => ({ ...x, layout: cyc(['auto', 'compact', 'full'] as const, x.layout ?? 'auto') }))),
           row('set-palette', '6', L('palette'), L(`palette_${st.palette ?? 'default'}` as UiKey), () => void setSettings($, x => ({ ...x, palette: x.palette === 'cb' ? 'default' : 'cb' }))),
+          row('set-bg', '0', L('bgSet'), L(`bg_${st.bg ?? 'auto'}` as UiKey), () => void setSettings($, x => ({ ...x, bg: cyc(['auto', 'dark', 'light'] as const, x.bg ?? 'auto') })), detectedBg ? L('bgDetected', { bg: L(`bg_${detectedBg}` as UiKey) }) : undefined),
           row('set-voice', '7', L('voice'), onOff(st.voice), () => void setSettings($, x => ({ ...x, voice: !x.voice }))),
           row('set-sfx', '8', L('sfx'), onOff(st.sfx), () => void setSettings($, x => ({ ...x, sfx: !x.sfx }))),
           row('set-short', '9', L('short'), onOff(st.short), () => void setSettings($, x => ({ ...x, short: !x.short }))),
@@ -1353,7 +1369,7 @@ export const register: Register = on => {
           <Text bold color={TX.accent}>{L('settings')}{ao.on ? <Text dimColor> · {L('autoBadge')}</Text> : null}</Text>
           <Box flexDirection="row" gap={2} flexWrap="wrap">
             {SECS.map((k, i) => (
-              <Button key={`sec${i}`} hotkey={SEC_KEYS[i]} plain dimColor={sec !== i} onPress={() => void update($, ui, x => ({ ...x, tab: i }))}>{sec === i ? '▶ ' : ''}{L(k)}</Button>
+              <Button key={`sec${i}`} hotkey={SEC_KEYS[i]} plain dimColor={sec !== i} onPress={() => void update($, ui, x => ({ ...x, tab: i }))}>{tabChip(sec === i, L(k))}</Button>
             ))}
           </Box>
           <Box flexDirection="column" marginTop={1}>{body}</Box>
@@ -1423,7 +1439,7 @@ export const register: Register = on => {
               return <Text key={`ach-${id}`} color={got ? TX.accent : undefined} dimColor={!got}>{got ? '★' : '☆'} {L(`ach_${id}` as UiKey)}<Text dimColor>  {L(`achd_${id}` as UiKey)}</Text></Text>
             })}
           </Box>
-          <Box flexDirection="column" marginTop={1} borderStyle="round" borderDimColor paddingX={1}>
+          <Box flexDirection="column" marginTop={1}><Text dimColor>{rule}</Text>
             <Text bold>{L('dailyTitle')} · {today}</Text>
             <Text dimColor wrap="wrap">{L('dailyHint')}</Text>
             {res && resPack && resEnd ? (
@@ -1448,7 +1464,7 @@ export const register: Register = on => {
         <Box flexDirection="column">
           <Box flexDirection="row" gap={2}>
             <Button key="pk-tab0" hotkey="l" plain dimColor onPress={hit(() => void update($, ui, x => ({ ...x, tab: 0 })))}>{L('packs')}</Button>
-            <Text bold color={TX.accent}>▶ {L('community')}</Text>
+            <Text>{tabChip(true, L('community'))}</Text>
           </Box>
           {jobBanner}
           {jb.kind === 'browse' ? <Text color={C.info}>⟳ {L('communityLoading')}</Text> : null}
@@ -1474,7 +1490,7 @@ export const register: Register = on => {
       return finishRender(
         <Box flexDirection="column">
           <Box flexDirection="row" gap={2}>
-            <Text bold color={TX.accent}>▶ {L('packs')}</Text>
+            <Text>{tabChip(true, L('packs'))}</Text>
             <Button key="pk-tab1" hotkey="c" plain dimColor onPress={hit(() => { void update($, ui, x => ({ ...x, tab: 1 })); if (!jb.entries.length) void browse($) })}>{L('community')}</Button>
           </Box>
           {jobBanner}
@@ -1491,7 +1507,7 @@ export const register: Register = on => {
               )
             })}
           </Box>
-          <Box flexDirection="column" marginTop={1} borderStyle="round" borderDimColor paddingX={1}>
+          <Box flexDirection="column" marginTop={1}><Text dimColor>{rule}</Text>
             <Text bold>{T(p.title)}</Text>
             {p.source === 'original'
               ? <Text dimColor>{L('original')} · {p.author}</Text>
@@ -1525,10 +1541,10 @@ export const register: Register = on => {
       return finishRender(
         <Box flexDirection="column">
           <Box flexDirection="row" gap={2}>
-            <Button key="mode-save" hotkey="w" plain dimColor={view.saveMode !== 'save'} onPress={hit(() => void update($, ui, x => ({ ...x, saveMode: 'save' as const })))}>{view.saveMode === 'save' ? '▶ ' : ''}{L('modeSave')}</Button>
-            <Button key="mode-load" hotkey="r" plain dimColor={view.saveMode !== 'load'} onPress={hit(() => void update($, ui, x => ({ ...x, saveMode: 'load' as const })))}>{view.saveMode === 'load' ? '▶ ' : ''}{L('modeLoad')}</Button>
+            <Button key="mode-save" hotkey="w" plain dimColor={view.saveMode !== 'save'} onPress={hit(() => void update($, ui, x => ({ ...x, saveMode: 'save' as const })))}>{tabChip(view.saveMode === 'save', L('modeSave'))}</Button>
+            <Button key="mode-load" hotkey="r" plain dimColor={view.saveMode !== 'load'} onPress={hit(() => void update($, ui, x => ({ ...x, saveMode: 'load' as const })))}>{tabChip(view.saveMode === 'load', L('modeLoad'))}</Button>
           </Box>
-          <Box flexDirection="column" marginTop={1} borderStyle="round" borderDimColor paddingX={1}>
+          <Box flexDirection="column" marginTop={1}><Text dimColor>{rule}</Text>
             {[0, ...SAVE_SLOTS].map((n, i) => {
               const f = files[i] ?? null
               const label = n === 0 ? L('auto') : L('slot', { n })
@@ -1650,7 +1666,7 @@ export const register: Register = on => {
         <Box flexDirection="column">
           <Box flexDirection="row" gap={2} flexWrap="wrap">
             {tabs.map((x, i) => (
-              <Button key={`tab${i}`} hotkey={String(i + 1)} plain dimColor={tab !== i} onPress={hit(() => void update($, ui, y => ({ ...y, tab: i })))}>{tab === i ? <Text inverse bold> ▶ {L(x)} </Text> : L(x)}</Button>
+              <Button key={`tab${i}`} hotkey={String(i + 1)} plain dimColor={tab !== i} onPress={hit(() => void update($, ui, y => ({ ...y, tab: i })))}>{tabChip(tab === i, L(x))}</Button>
             ))}
           </Box>
           <Text dimColor>{'─'.repeat(Math.max(10, Math.min(cols - 2, 76)))}</Text>

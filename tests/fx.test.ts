@@ -5,7 +5,7 @@ import type { EngineInterface } from 'claude-code'
 
 import type { Scene, Story } from '../types'
 import { portraitFrame, stageFrame } from '../hooks/art'
-import { PX, framed } from '../hooks/theme'
+import { PX, bgOfTheme, framed } from '../hooks/theme'
 import { costOf, dateKey } from '../hooks/cost'
 import { advanceTime, applyChoice, applyScene, freshStory, parseDirection, parseScene, planOptions, profileLine, sceneDynamic, staticBlock } from '../hooks/engine'
 import { EMPTY_FEATS, achievementsOnFinish, dailyChallenge, dailyShare } from '../hooks/feats'
@@ -145,6 +145,7 @@ describe('像素画面', () => {
     const fig = portraitFrame(P.cast[0]!.sprite, 'normal', 1)
     expect(walkFrame(fig, 76, 0).length).toBe(WALK_H)
     expect(JSON.stringify(walkFrame(fig, 76, 5))).not.toEqual(JSON.stringify(walkFrame(fig, 76, 6)))
+    expect(['dark', 'light', 'light-daltonized', 'dark-ansi', 'auto', '', 3].map(bgOfTheme)).toEqual(['dark', 'light', 'light', 'dark', null, null, null])
     const f = framed([[null, 1], [2, null]])
     expect([f.length, f[0]!.length, f[1]![1], f[0]![0]]).toEqual([4, 4, null, PX.frame])
   })
