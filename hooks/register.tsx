@@ -449,14 +449,24 @@ async function goTo($: EngineInterface, opt: PlanOption, who: string | null): Pr
   await unlock($, achievementsOnScene(f), st.lang)
 }
 
+/**
+ * 新台词、选项、余波都加在面板最下面。内容比窗口高时它们落在窗口外，
+ * 而数字热键只对整个在窗口里的按钮生效（实机 45 行高的终端里选项按不到），所以滚到底。
+ */
+function toEnd($: EngineInterface): void {
+  void $.ui.scroll({ in: PANE, to: 'end' }).catch(() => {})
+}
+
 async function nextLine($: EngineInterface): Promise<void> {
   const s = await update($, story, x => ({ ...x, reveal: x.reveal + 1 }))
+  toEnd($)
   const line = s.scene?.lines[s.reveal - 1]
   if (line) speak($, await read($, settings), line.text)
 }
 
 async function revealAll($: EngineInterface): Promise<void> {
   await update($, story, x => ({ ...x, reveal: 999 }))
+  toEnd($)
 }
 
 async function choose($: EngineInterface, c: Choice): Promise<void> {
@@ -467,6 +477,7 @@ async function choose($: EngineInterface, c: Choice): Promise<void> {
   await snapshot($)
   const r = applyChoice(p, s, c, st.lang)
   await update($, story, () => r.story)
+  toEnd($)
   sfx($, st, 'choice')
   await touchSeen($)
   if (!(await overBudget($))) for (const id of r.keepsakeFor) void makeKeepsake($, p, id, st.lang)
