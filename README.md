@@ -15,8 +15,7 @@ Humans write the story skeleton. Claude writes every scene live. You just press 
 [![Story packs](https://img.shields.io/badge/story%20packs-7-purple)](#bundled-story-packs)
 [![Packs: CC licensed](https://img.shields.io/badge/packs-CC%20BY%20%2F%20CC0%20%2F%20BY--SA-lightgrey)](#license)
 
-<!-- Main demo: record docs/demo.gif with demo/01-opening.tape, then add:
-<img src="docs/demo.gif" alt="Playing a scene in the Claude Code side pane" width="800"> -->
+<img src="docs/demo.gif" alt="Picking the library on the town map, the walk while Claude writes the scene, then the scene with its choices, in the Claude Code side pane" width="560">
 
 **English** · [中文](README.zh-CN.md)
 
