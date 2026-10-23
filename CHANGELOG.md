@@ -17,6 +17,7 @@ All notable changes to this project are listed here. The format follows [Keep a 
 - A test that every place-bound key beat's last chance actually takes the player to its place.
 
 ### Changed
+- `community/packs/*.json` were re-exported (they still held the packs as of v0.4.0) and the seven changed packs got a minor version bump. `tools/sync-community.ts` does this; CI checks that `community/` matches `packs/`.
 - `LICENSE` is the plain MIT text so GitHub detects it; which folders it covers moved to `NOTICE`.
 - A promise counts as kept only when she is on stage and you pick the option that keeps it; fixed scenes no longer keep promises by themselves. A promise made on the last day can now expire.
 - Ensemble endings check promises too; on a tie in the same tier the ensemble ending wins.

@@ -1,6 +1,6 @@
 {
   "id": "band",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "defaultLang": "zh",
   "langs": [
     "zh",
@@ -333,8 +333,8 @@
           "en": "You're half a beat early. ...Third time."
         },
         {
-          "zh": "左边……听不清。别告诉她。",
-          "en": "Left side... can't hear. Don't tell her."
+          "zh": "鼓棒断了。……第三根。",
+          "en": "Stick snapped. ...Third one."
         }
       ],
       "secret": {
@@ -467,8 +467,8 @@
         }
       ],
       "secret": {
-        "zh": "防空洞排练室这半年的租金，一直是她托蒋舅匿名交的——脖子上那串就是防空洞铁门的备用钥匙。她退出七号防空洞，是因为攒的钱交完房租就空了，只能去霓虹渡口拿演出费，好继续垫下去。闻笛以为她是为钱背叛。",
-        "en": "For the past six months she has been paying the shelter's rent anonymously through my uncle; the keys at her neck are the spare set for its iron door. She left Shelter No. 7 because the rent ate all her savings, and joined Neon Ferry for gig fees so she could keep paying. Wen Di thinks she sold them out for money."
+        "zh": "从去年起，防空洞排练室的租金一直是她托蒋舅匿名交的——脖子上那串就是防空洞铁门的备用钥匙。她退出七号防空洞，是因为攒的钱交完房租就空了，只能去霓虹渡口拿演出费，好继续垫下去。闻笛以为她是为钱背叛。",
+        "en": "Since last year she has been paying the shelter's rent anonymously through my uncle; the keys at her neck are the spare set for its iron door. She left Shelter No. 7 because the rent ate all her savings, and joined Neon Ferry for gig fees so she could keep paying. Wen Di thinks she sold them out for money."
       },
       "arc": [
         {
@@ -591,8 +591,8 @@
           "en": "Subwoofer, your bass goes \"vmmm\", like fog on the river. I'm recording it, okay?"
         },
         {
-          "zh": "……要是大家知道是我，会不会以后都不让我进防空洞了。",
-          "en": "...If everyone finds out it was me, will they ever let me into the shelter again."
+          "zh": "这个声音我要了！……你莫动，再说一遍。",
+          "en": "I'm keeping that sound! ...Don't move. Say it again."
         }
       ],
       "secret": {
@@ -1064,8 +1064,8 @@
           "en": "When my Zhen drums, the whole flight of steps can hear it."
         },
         {
-          "zh": "（压低声音）她左边那只耳朵……你帮婆婆看着点。",
-          "en": "(Quietly) That left ear of hers... keep an eye on it for me, love."
+          "zh": "（压低声音）枕枕从小就爱敲，锅碗瓢盆，屋头没有一样没遭过。",
+          "en": "(Quietly) My Zhen's been banging on things since she was tiny. Not a pot in the house escaped."
         }
       ],
       "haunts": {
@@ -1128,8 +1128,8 @@
         "en": "old friends, fallen out"
       },
       "text": {
-        "zh": "初中起一起组了七号防空洞；去年黎雀突然退队加入霓虹渡口，闻笛认定她是为了演出费背叛，两人见面就呛。",
-        "en": "They started Shelter No. 7 together in middle school; last year Li Que suddenly quit for Neon Ferry, and Wen Di is sure she sold out for gig fees. Now every meeting is a fight."
+        "zh": "初中时一起接过闻川散掉的七号防空洞，重新组了起来；去年黎雀突然退队加入霓虹渡口，闻笛认定她是为了演出费背叛，两人见面就呛。",
+        "en": "In middle school they took up the name of Wen Chuan's broken-up band and rebuilt Shelter No. 7 together; last year Li Que suddenly quit for Neon Ferry, and Wen Di is sure she sold out for gig fees. Now every meeting is a fight."
       }
     },
     {
@@ -1253,6 +1253,9 @@
           "who": [
             "wendi"
           ],
+          "places": [
+            "shelter"
+          ],
           "kind": {
             "zh": "开端",
             "en": "opening"
@@ -1270,6 +1273,9 @@
             "liqiao",
             "wendi"
           ],
+          "places": [
+            "livehouse"
+          ],
           "kind": {
             "zh": "旧怨",
             "en": "old feud"
@@ -1286,6 +1292,12 @@
           "who": [
             "wendi",
             "lingche"
+          ],
+          "slots": [
+            1
+          ],
+          "places": [
+            "livehouse"
           ],
           "kind": {
             "zh": "转折",
@@ -1342,6 +1354,9 @@
           "who": [
             "suzhen"
           ],
+          "places": [
+            "shelter"
+          ],
           "kind": {
             "zh": "秘密",
             "en": "secret"
@@ -1362,6 +1377,13 @@
           "who": [
             "wendi",
             "wenchuan"
+          ],
+          "slots": [
+            0,
+            1
+          ],
+          "places": [
+            "shelter"
           ],
           "kind": {
             "zh": "秘密曝光",
@@ -1397,6 +1419,12 @@
           "who": [
             "chumeng"
           ],
+          "slots": [
+            2
+          ],
+          "places": [
+            "nightmarket"
+          ],
           "kind": {
             "zh": "真相",
             "en": "the truth"
@@ -1418,13 +1446,19 @@
             "liqiao",
             "jiangjiu"
           ],
+          "slots": [
+            1
+          ],
+          "places": [
+            "livehouse"
+          ],
           "kind": {
             "zh": "秘密曝光",
             "en": "secret exposed"
           },
           "text": {
-            "zh": "舅舅说漏了嘴：防空洞这半年的租金一直是黎雀匿名交的，她脖子上那串就是铁门的备用钥匙。",
-            "en": "My uncle lets it slip: Li Que has been paying the shelter's rent anonymously for six months, and the keys round her neck are the spares for its iron door."
+            "zh": "舅舅说漏了嘴：防空洞从去年起的租金一直是黎雀匿名交的，她脖子上那串就是铁门的备用钥匙。",
+            "en": "My uncle lets it slip: Li Que has been paying the shelter's rent anonymously since last year, and the keys round her neck are the spares for its iron door."
           },
           "promise": {
             "zh": "答应黎雀：音乐节上让两支乐队同台合奏那首新歌",
@@ -1437,6 +1471,9 @@
           "by": 13,
           "who": [
             "wendi"
+          ],
+          "slots": [
+            1
           ],
           "kind": {
             "zh": "高潮",
@@ -1821,8 +1858,8 @@
         "en": "Fog Lamp"
       },
       "brief": {
-        "zh": "真结局：你写完了新歌的贝斯线，新歌在音乐节上完整唱完，最后一句她转身唱给你。她撕了意向书，接下舅舅的驻场，说「北京明年再说，今年先在雾江红」。恋爱结局。",
-        "en": "True ending: you finished the bass line, the new song is played through at the festival, and she turns to sing the last line to you. She tears up the letter of intent and takes the residency at Slope: \"Beijing can wait a year. This year I make it in Wujiang.\" Romance ending."
+        "zh": "真结局：你写完了新歌的贝斯线，新歌在音乐节上完整唱完，最后一句她转身唱给你。下台后舅舅问乐队愿不愿意每周来坡上驻场，她撕了意向书，说「北京明年再说，今年先在雾江红」。恋爱结局。",
+        "en": "True ending: you finished the bass line, the new song is played through at the festival, and she turns to sing the last line to you. Offstage my uncle asks whether the band will take a weekly residency at Slope; she tears up the letter of intent and says yes: \"Beijing can wait a year. This year I make it in Wujiang.\" Romance ending."
       }
     },
     {
@@ -1848,6 +1885,7 @@
       "kind": "normal",
       "tier": 2,
       "minStage": 3,
+      "maxBroken": 0,
       "title": {
         "zh": "最后一句没唱",
         "en": "The Last Line Unsung"
@@ -1869,8 +1907,8 @@
         "en": "On TV"
       },
       "brief": {
-        "zh": "坏结局：你没兑现对她的约定，乐队在音乐节前散了。秋天你在大学宿舍的电视里看到她在选秀舞台上唱歌，唱的不是那首新歌。",
-        "en": "Bad ending: you broke your word to her and the band fell apart before the festival. That autumn, on the TV in your college dorm, you see her singing on a talent show. It isn't the new song."
+        "zh": "坏结局：你没兑现对她的约定，新歌在音乐节上没有贝斯线，唱到一半就散了，下台后乐队也散了。秋天你在大学宿舍的电视里看到她在选秀舞台上唱歌，唱的不是那首新歌。",
+        "en": "Bad ending: you broke your word to her; at the festival the new song has no bass line and falls apart halfway, and the band falls apart when they walk off. That autumn, on the TV in your college dorm, you see her singing on a talent show. It isn't the new song."
       }
     },
     {
@@ -1914,6 +1952,7 @@
       "kind": "normal",
       "tier": 2,
       "minStage": 3,
+      "maxBroken": 0,
       "title": {
         "zh": "四根弦",
         "en": "Four Strings"
@@ -1980,6 +2019,7 @@
       "kind": "normal",
       "tier": 2,
       "minStage": 3,
+      "maxBroken": 0,
       "title": {
         "zh": "勇敢的转调",
         "en": "A Brave Key Change"
@@ -2046,6 +2086,7 @@
       "kind": "normal",
       "tier": 2,
       "minStage": 3,
+      "maxBroken": 0,
       "title": {
         "zh": "嗡嗡的雾",
         "en": "Fog That Hums"
@@ -2067,8 +2108,8 @@
         "en": "Account Deleted"
       },
       "brief": {
-        "zh": "坏结局：没人陪她开口，她删掉了「雾里收音」，夜市拆的那晚她没有出现。你在她空掉的摊位上，只听见江上的雾。",
-        "en": "Bad ending: no one went with her to speak up, so she deletes \"Heard in the Fog\" and doesn't show on the night the market comes down. At her empty stall you hear only the fog on the river."
+        "zh": "坏结局：没人陪她开口，她删掉了「雾里收音」。夜市拆的那晚她一直低头收碗，没有抬头看你；第二天你再去，摊位已经空了，只听见江上的雾。",
+        "en": "Bad ending: no one went with her to speak up, so she deletes \"Heard in the Fog\". On the night the market comes down she keeps her head down clearing bowls and never looks up at you; the next day her stall is empty, and you hear only the fog on the river."
       }
     },
     {
@@ -2076,6 +2117,7 @@
       "kind": "good",
       "tier": 2,
       "minStage": 2,
+      "maxBroken": 0,
       "flags": [
         "beat:b-encore"
       ],
@@ -2648,11 +2690,14 @@
           "places": [
             "rooftop"
           ],
-          "alone": true
+          "alone": true,
+          "after": [
+            "beat:b-letter"
+          ]
         },
         "staging": {
-          "zh": "老楼天台，晾着的床单被风鼓起来，脚下整座山城的灯。她递来一张折了四折、角被汗浸软的纸。轻轨从楼里钻出来的那一震，落在最后一句之后。",
-          "en": "The old building's rooftop, sheets billowing on the line, the whole hill city lit below. She hands over a paper folded in four, its corner soft with sweat. The shudder of the train leaving the building lands after the last line."
+          "zh": "老楼天台，晾着的床单被风鼓起来，脚下整座山城的灯。闻川摊在桌上的只是意向书第一页；她递来的是最后一页，折了四折、角被汗浸软。轻轨从楼里钻出来的那一震，落在最后一句之后。",
+          "en": "The old building's rooftop, sheets billowing on the line, the whole hill city lit below. Wen Chuan only laid out the first page of the letter; what she hands over is the last page, folded in four, its corner soft with sweat. The shudder of the train leaving the building lands after the last line."
         },
         "lines": [
           {
@@ -2665,8 +2710,8 @@
           {
             "who": "me",
             "text": {
-              "zh": "北京。",
-              "en": "Beijing."
+              "zh": "北京。……你签了字的。",
+              "en": "Beijing. ...You signed it."
             }
           },
           {
@@ -2829,7 +2874,10 @@
           "places": [
             "rooftop"
           ],
-          "alone": true
+          "alone": true,
+          "after": [
+            "beat:b-left-ear"
+          ]
         },
         "staging": {
           "zh": "夜里的天台，风从左边吹过来。她摘下左耳的耳塞，把头偏过来让「我」对着那边说话。「我」说的那句话不写出来。",
@@ -3308,7 +3356,10 @@
             "beat:b-old-feud"
           ],
           "who": "liqiao",
-          "minStage": 3
+          "minStage": 3,
+          "needEndings": [
+            "wendi-true"
+          ]
         },
         "truth": {
           "zh": "那把三根弦的旧贝斯原本是黎雀的。她退队那天把它留在防空洞，琴颈背面贴着她画的小音符，被闻笛用胶布盖住了。",
@@ -3316,8 +3367,8 @@
         },
         "reframes": [
           {
-            "zh": "第一天黎雀顺手替「我」调准了这把琴",
-            "en": "on the first day Li Que casually tuned this very bass for me"
+            "zh": "在坡上第一次见面，黎雀顺手替「我」调准了这把琴",
+            "en": "the first time we met at Slope, Li Que casually tuned this very bass for me"
           },
           {
             "zh": "闻笛那句「三根弦也是贝斯」",
@@ -3371,8 +3422,8 @@
         },
         "reframes": [
           {
-            "zh": "凌澈说「粉丝数我不看」时看了楚檬一眼",
-            "en": "Ling Che glancing at Chu Meng when she said \"I don't look at followers\""
+            "zh": "凌澈那句「那个投稿的账号，录音质量是可以的」",
+            "en": "Ling Che's \"whoever submitted that recording: the audio quality was workable\""
           },
           {
             "zh": "第一天楚檬一路跟到防空洞门口",
@@ -3771,6 +3822,9 @@
         "about": "suzhen",
         "truth": "true",
         "fromDay": 3,
+        "after": [
+          "beat:b-left-ear"
+        ],
         "text": {
           "zh": "「我们枕枕晚上睡觉，左边那只耳朵老是捂着。」",
           "en": "\"My Zhen sleeps with her hand over her left ear these days.\""

@@ -1,6 +1,6 @@
 {
   "id": "cicada",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "defaultLang": "zh",
   "langs": [
     "zh",
@@ -31,8 +31,8 @@
   "days": 14,
   "slots": [
     {
-      "zh": "午休",
-      "en": "Lunch"
+      "zh": "上午 · 午休",
+      "en": "Morning · Lunch"
     },
     {
       "zh": "放学",
@@ -691,8 +691,8 @@
           "en": "Secret: in the paper's office she admits the feature and her mother, and lays both drafts in front of me: \"You tell me. Which one do I file?\""
         },
         {
-          "zh": "抉择：第 10 天截稿前，陪她把那篇特写交到妈妈面前，还是让专题照常登出。",
-          "en": "Choice: before the Day 10 deadline, go with her to hand the profile to her mother, or let the feature run as planned."
+          "zh": "抉择：第 10 天表决只给了「待定」；截稿第二天之前，陪她把那篇特写交到妈妈面前，还是让专题定论。",
+          "en": "Choice: the Day 10 vote only says \"pending\"; by the day after the deadline, go with her to hand the profile to her mother, or let the feature have the last word."
         }
       ],
       "haunts": {
@@ -702,6 +702,7 @@
         ],
         "1": [
           "council",
+          "astro",
           "oldstreet"
         ],
         "2": [
@@ -1588,6 +1589,13 @@
           "who": [
             "xiaoman"
           ],
+          "slots": [
+            0,
+            1
+          ],
+          "places": [
+            "astro"
+          ],
           "kind": {
             "zh": "开端",
             "en": "inciting moment"
@@ -1603,6 +1611,13 @@
           "by": 3,
           "who": [
             "yinuo"
+          ],
+          "slots": [
+            0,
+            1
+          ],
+          "places": [
+            "astro"
           ],
           "kind": {
             "zh": "伏笔",
@@ -1620,6 +1635,9 @@
           "who": [
             "wenli",
             "xiaoman"
+          ],
+          "places": [
+            "roof"
           ],
           "kind": {
             "zh": "冲突",
@@ -1655,6 +1673,12 @@
           "who": [
             "zhiyao"
           ],
+          "slots": [
+            2
+          ],
+          "places": [
+            "track"
+          ],
           "kind": {
             "zh": "发现",
             "en": "discovery"
@@ -1677,6 +1701,14 @@
             "yinuo",
             "wenli"
           ],
+          "slots": [
+            0,
+            1
+          ],
+          "places": [
+            "classroom",
+            "council"
+          ],
           "kind": {
             "zh": "误会",
             "en": "misunderstanding"
@@ -1697,6 +1729,9 @@
           "who": [
             "qingyi"
           ],
+          "places": [
+            "river"
+          ],
           "kind": {
             "zh": "秘密曝光",
             "en": "a secret comes out"
@@ -1712,8 +1747,8 @@
         }
       ],
       "hook": {
-        "zh": "明天，学生会要表决撤社名单。一诺的抽屉里压着两篇稿子；温璃的签字笔还没拔开笔帽；清漪的日历上，第 14 天被红笔圈了起来。",
-        "en": "Tomorrow the council votes on the cut list. Yinuo's drawer holds two drafts; Wen Li's pen is still capped; on Qingyi's calendar, Day 14 is circled in red."
+        "zh": "今天放学，学生会要表决撤社名单。一诺的抽屉里压着两篇稿子；温璃的签字笔还没拔开笔帽；清漪的日历上，第 14 天被红笔圈了起来。",
+        "en": "After class today the council votes on the cut list. Yinuo's drawer holds two drafts; Wen Li's pen is still capped; on Qingyi's calendar, Day 14 is circled in red."
       }
     },
     {
@@ -1736,17 +1771,20 @@
             "wenli",
             "yinuo"
           ],
+          "slots": [
+            1
+          ],
           "kind": {
             "zh": "转折",
             "en": "turning point"
           },
           "text": {
-            "zh": "学生会表决撤社名单：一诺交哪篇稿、温璃签不签字，只隔一扇门；温璃说出章程——三个社员就能保留，所有人都在看第三个名字是谁。大川说漏了嘴，全班知道了一诺是周主任的女儿。",
-            "en": "The council votes on the cut list: which draft Yinuo files and whether Wen Li signs are a single door apart. Wen Li reads out the rule: three members and a club survives. Everyone looks for the third name. Dachuan blurts that Yinuo is Director Zhou's daughter, and the whole class knows."
+            "zh": "学生会表决撤社名单：一诺交哪篇稿、温璃签不签字，只隔一扇门；温璃说出章程——三个社员就能保留，所有人都在看第三个名字是谁。表决结果是「待定」：天文社的名字暂缓，流星雨之夜清点到场社员，凑满三人才算保住。大川说漏了嘴，全班知道了一诺是周主任的女儿。",
+            "en": "The council votes on the cut list: which draft Yinuo files and whether Wen Li signs are a single door apart. Wen Li reads out the rule: three members and a club survives. Everyone looks for the third name. The verdict is \"pending\": the astronomy club is held over, and on the meteor night the members who show up will be counted; three, and it survives. Dachuan blurts that Yinuo is Director Zhou's daughter, and the whole class knows."
           },
           "promise": {
-            "zh": "答应她：在流星雨之前，陪她去做那件一直不敢做的事（温璃：当面把去年那晚告诉小满；一诺：把那篇特写交到周主任面前）",
-            "en": "promise her that before the meteor night you will go with her to do the thing she never dared (Wen Li: tell Xiaoman about last year to her face; Yinuo: hand the profile to Director Zhou)"
+            "zh": "答应她：陪她去做那件一直不敢做的事（温璃：流星雨之前当面把去年那晚告诉小满；一诺：截稿第二天之前，把那篇特写交到周主任面前）",
+            "en": "promise her you will go with her to do the thing she never dared (Wen Li: tell Xiaoman about last year to her face before the meteor night; Yinuo: hand the profile to Director Zhou by the day after the deadline)"
           }
         },
         {
@@ -1756,6 +1794,9 @@
           "who": [
             "zhiyao",
             "zheng"
+          ],
+          "slots": [
+            1
           ],
           "kind": {
             "zh": "高潮",
@@ -1773,6 +1814,9 @@
           "who": [
             "xiaoman",
             "wenli"
+          ],
+          "slots": [
+            2
           ],
           "kind": {
             "zh": "高潮",
@@ -2222,6 +2266,7 @@
       "kind": "normal",
       "tier": 2,
       "minStage": 3,
+      "maxBroken": 0,
       "title": {
         "zh": "天文社还剩两个人",
         "en": "Two Members Left"
@@ -2243,8 +2288,8 @@
         "en": "The Roof Door Was Locked"
       },
       "brief": {
-        "zh": "坏结局：你失约了。流星雨那晚她一个人在天台，像去年一样；第二天天文社的门牌被摘下，她在走廊上看见你，绕了路。",
-        "en": "Bad ending: you broke your word. On the meteor night she was alone on the roof, just like last year. The next day the club's nameplate comes down; she sees you in the hall and takes the long way round."
+        "zh": "坏结局：你失约了。流星雨那晚你留在江边的灯会，没有上天台；她一个人在天台，像去年一样，社员表上第三个名字的空格一直空着。第二天天文社的门牌被摘下，她在走廊上看见你，绕了路。",
+        "en": "Bad ending: you broke your word. On the meteor night you stayed at the lantern fair by the river and never went up; she was alone on the roof, just like last year, and the third line on the sheet stayed blank. The next day the club's nameplate comes down; she sees you in the hall and takes the long way round."
       }
     },
     {
@@ -2289,6 +2334,7 @@
       "kind": "normal",
       "tier": 2,
       "minStage": 3,
+      "maxBroken": 0,
       "title": {
         "zh": "夹在书里的车票",
         "en": "A Ticket in a Book"
@@ -2358,6 +2404,7 @@
       "kind": "normal",
       "tier": 2,
       "minStage": 3,
+      "maxBroken": 0,
       "title": {
         "zh": "冰棍还欠一根",
         "en": "One Popsicle Owed"
@@ -2379,8 +2426,8 @@
         "en": "The Knee Brace"
       },
       "brief": {
-        "zh": "坏结局：她瞒着所有人上了场，第三个弯道膝盖撑不住，被抬下跑道。她不怪你，可那个暑假她再也没叫过「阿屿」。",
-        "en": "Bad ending: she ran without telling anyone; on the third bend the knee gave out and she was carried off the track. She doesn't blame you, but all that summer she never calls you \"Ah-Yu\" again."
+        "zh": "坏结局：郑教练拦过她，她还是把护膝往下一拉，自己上了场；第三个弯道膝盖撑不住，被抬下跑道。她不怪你，可那个暑假她再也没叫过「阿屿」。",
+        "en": "Bad ending: Coach Zheng tried to stop her, but she pulled the brace down and ran anyway; on the third bend the knee gave out and she was carried off the track. She doesn't blame you, but all that summer she never calls you \"Ah-Yu\" again."
       }
     },
     {
@@ -2424,6 +2471,7 @@
       "kind": "normal",
       "tier": 2,
       "minStage": 3,
+      "maxBroken": 0,
       "title": {
         "zh": "采访本最后一页",
         "en": "The Last Page of Her Notebook"
@@ -2491,6 +2539,7 @@
       "kind": "normal",
       "tier": 2,
       "minStage": 3,
+      "maxBroken": 0,
       "title": {
         "zh": "消防楼梯",
         "en": "The Fire Stairs"
@@ -2512,8 +2561,8 @@
         "en": "Signed"
       },
       "brief": {
-        "zh": "坏结局：她还是在撤社名单上签了字，理由写得滴水不漏；流星雨那晚，她一个人坐在县医院的走廊里。",
-        "en": "Bad ending: she signs the cut list after all, with an airtight justification; on the meteor night she sits alone in the county hospital corridor."
+        "zh": "坏结局：流星雨那晚她到了天台门口，攥着那张观测表，没有进去；第二天她在撤社名单上签了字，理由写得滴水不漏，然后一个人去县医院的走廊坐到天黑。",
+        "en": "Bad ending: on the meteor night she gets as far as the roof door, the observation sheet in her fist, and does not go in; the next day she signs the cut list with an airtight justification, then sits alone in the county hospital corridor until dark."
       }
     },
     {
@@ -3544,7 +3593,7 @@
             "classroom"
           ],
           "days": [
-            1,
+            2,
             6
           ]
         },
@@ -3603,8 +3652,7 @@
           "minStage": 3,
           "places": [
             "council"
-          ],
-          "alone": true
+          ]
         },
         "staging": {
           "zh": "放学后的校报编辑部，只剩她一个人，空调开得太足。抽屉拉开一半，两沓稿子并排；一沓上面压着红笔批注。她用「假设性问题」开口，说到「妈妈」时把笔帽咬裂了。",
@@ -3723,8 +3771,7 @@
           "places": [
             "council",
             "roof"
-          ],
-          "alone": true
+          ]
         },
         "staging": {
           "zh": "行政楼的消防楼梯，感应灯每三十秒灭一次，她一次也不去跺脚，就在黑里说。她用数字讲那一夜，不讲感受。讲完，她从口袋里摸出一个易拉罐拉环，转一圈，放回去。",

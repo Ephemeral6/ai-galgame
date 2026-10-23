@@ -39,3 +39,9 @@ jobs:
         run: claude plugin validate .
       - name: Run tests
         run: claude plugin test .
+      # The plugin test kit cannot read .json files, so the community/ export is checked here.
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.12
+      - name: Community JSON matches packs
+        run: bun tools/sync-community.ts --check

@@ -9,7 +9,7 @@ import { EQUALIA_CRAFT } from './craft'
 
 export const EQUALIA: Pack & CraftFields = {
   id: 'equalia',
-  version: '1.1.0',
+  version: '1.2.0',
   defaultLang: 'en',
   langs: ['en', 'zh'],
   author: 'ai-galgame contributors',

@@ -1,6 +1,6 @@
 {
   "id": "snow",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "defaultLang": "zh",
   "langs": [
     "zh",
@@ -148,8 +148,8 @@
         "en": "Birch Ridge Bathhouse"
       },
       "mood": {
-        "zh": "棉门帘一掀全是白汽，门口挂着「本月底停业」",
-        "en": "lift the quilted curtain and it is all steam; a sign says \"Closing end of month\""
+        "zh": "棉门帘一掀全是白汽，门口挂着「腊月十九停业」",
+        "en": "lift the quilted curtain and it is all steam; a sign says \"Closing on the 19th\""
       },
       "slots": [
         1,
@@ -683,8 +683,8 @@
       },
       "color": "#90a4ae",
       "role": {
-        "zh": "韩冬禾的爸爸，林场锅炉工，烧了二十三年锅炉；搬迁后留在守林点烧炉子。他以为闺女开春就去市里念书，不知道她把名额退了。",
-        "en": "Donghe's father, boiler man at the forestry farm for twenty-three years; he stays behind to stoke the fire-watch boiler. He believes his daughter is off to the city high school in spring and does not know she gave up her place."
+        "zh": "韩冬禾的爸爸，林场锅炉工，烧了二十三年锅炉；搬迁后留在守林点烧炉子。他以为闺女开春就去市里念书。",
+        "en": "Donghe's father, boiler man at the forestry farm for twenty-three years; he stays behind to stoke the fire-watch boiler. He believes his daughter is off to the city high school in spring."
       },
       "look": {
         "zh": "灰色的獾，头顶一道白，戴藏青色棉帽，爪子上全是煤灰",
@@ -771,8 +771,8 @@
       },
       "color": "#5c7cba",
       "role": {
-        "zh": "小火车站最后一任站长，干了三十一年，第 10 天要亲手给最后一班车发车。他答应许砚秋在站台上录下最后一声汽笛，做最后一期节目的结尾。",
-        "en": "The branch-line station's last stationmaster, thirty-one years on the job; on Day 10 he flags off the last train himself. He has promised Yanqiu she can record the final whistle on the platform to close her last broadcast."
+        "zh": "小火车站最后一任站长，干了三十一年，第 10 天要亲手给最后一班车发车。最后一期节目在第 9 天夜里播，他答应那天傍晚把车头开出来试鸣一声，让许砚秋在站台上录下来做节目的结尾。",
+        "en": "The branch-line station's last stationmaster, thirty-one years on the job; on Day 10 he flags off the last train himself. Her last broadcast airs on the night of Day 9, so he has promised to run the engine out that evening and sound the whistle once for Yanqiu to record on the platform, to close the show."
       },
       "look": {
         "zh": "灰白色的哈士奇，戴一顶藏蓝色铁路大檐帽",
@@ -861,8 +861,8 @@
       },
       "color": "#c0703a",
       "role": {
-        "zh": "乌兰的阿爸，两年前带全家从牧区来林场，和韩师傅一个锅炉班组；第 8 天一早带全家坐班车回呼伦贝尔。对外说「开春才走」，是替女儿圆的话。",
-        "en": "Ulan's father. Two years ago he brought the family from the grasslands to the forestry farm and shares a boiler shift with Old Han; early on Day 8 he takes them back to Hulunbuir. \"We leave in spring\" is a cover he keeps up for his daughter."
+        "zh": "乌兰的阿爸，两年前带全家从牧区来林场，和韩师傅一个锅炉班组。逢人就说全家「开春才走」。",
+        "en": "Ulan's father. Two years ago he brought the family from the grasslands to the forestry farm, and he shares a boiler shift with Old Han. He tells everyone the family \"leaves in spring\"."
       },
       "look": {
         "zh": "枣红色的马，戴一顶带护耳的狐皮帽",
@@ -948,8 +948,8 @@
         "en": "Old classmates · a knot"
       },
       "text": {
-        "zh": "小学三年级有男生学砚秋口吃，冬禾一拳把人打哭，被全校通报；砚秋那天一个「谢」字卡了一下午也没说出口。从那以后两人见面就别扭，冬禾以为砚秋嫌她粗。",
-        "en": "In third grade a boy mocked Yanqiu's stammer and Donghe punched him to tears, earning a school-wide reprimand; Yanqiu spent the whole afternoon stuck on the first sound of \"thank you\" and never got it out. They have been awkward ever since; Donghe thinks Yanqiu finds her crude."
+        "zh": "小学三年级有男生学砚秋口吃，冬禾一拳把人打哭，被全校通报。从那以后两人见面就别扭，冬禾以为砚秋嫌她粗。",
+        "en": "In third grade a boy mocked Yanqiu's stammer and Donghe punched him to tears, earning a school-wide reprimand. They have been awkward ever since; Donghe thinks Yanqiu finds her crude."
       }
     },
     {
@@ -1010,8 +1010,8 @@
         "en": "The recording"
       },
       "text": {
-        "zh": "孟站长答应让砚秋在最后一班车开车前录下汽笛声；砚秋对着他的对讲机说话，一个字都不卡。",
-        "en": "Meng has promised Yanqiu the last whistle for her tape; speaking into his walkie-talkie, she never stammers once."
+        "zh": "孟站长答应第 9 天傍晚为砚秋试鸣一声汽笛，让她录进最后一期节目；砚秋对着他的对讲机说话，一个字都不卡。",
+        "en": "Meng has promised to sound the whistle once on the evening of Day 9 so Yanqiu can put it on her last show; speaking into his walkie-talkie, she never stammers once."
       }
     },
     {
@@ -1024,7 +1024,8 @@
       "text": {
         "zh": "乌兰每雕完一户人家，砚秋就去那户录告别；两人在补课班传纸条交换名单，谁也没问对方为什么。",
         "en": "Every time Ulan finishes carving a house, Yanqiu goes to tape that family's farewell; they swap lists by note in cram class and neither asks the other why."
-      }
+      },
+      "hiddenUntil": 2
     }
   ],
   "acts": [
@@ -1046,6 +1047,13 @@
           "by": 1,
           "who": [
             "donghe"
+          ],
+          "slots": [
+            0,
+            1
+          ],
+          "places": [
+            "station"
           ],
           "kind": {
             "zh": "重逢",
@@ -1118,6 +1126,9 @@
           "who": [
             "wulan"
           ],
+          "places": [
+            "river"
+          ],
           "kind": {
             "zh": "发现",
             "en": "Discovery"
@@ -1139,13 +1150,16 @@
             "donghe",
             "yanqiu"
           ],
+          "places": [
+            "bath"
+          ],
           "kind": {
             "zh": "误会",
             "en": "Misunderstanding"
           },
           "text": {
-            "zh": "澡堂门口，冬禾听说砚秋录下了韩师傅说「我们家不走」的那段话，以为她要在广播里抖出去；两人当着「我」吵起来，三年级那件事也翻了出来。",
-            "en": "Outside the bathhouse Donghe hears that Yanqiu taped Old Han saying \"our family isn't leaving\" and thinks she will air it; they fight in front of me, and the third-grade incident comes out too."
+            "zh": "澡堂门口，冬禾听说砚秋录下了韩师傅的一段话，以为她要在广播里抖出去；两人当着「我」吵起来，谁都不肯说那段话到底是什么，三年级那件事倒是被翻了出来（只提一句，细节留到之后）。",
+            "en": "Outside the bathhouse Donghe hears that Yanqiu taped something Old Han said and thinks she will air it; they fight in front of me, neither will say what was on the tape, and the third-grade incident comes up too (one line only, details later)."
           }
         },
         {
@@ -1154,6 +1168,9 @@
           "by": 6,
           "who": [
             "nainai"
+          ],
+          "places": [
+            "bath"
           ],
           "kind": {
             "zh": "点拨",
@@ -1189,6 +1206,9 @@
           "who": [
             "wulan"
           ],
+          "slots": [
+            2
+          ],
           "kind": {
             "zh": "高潮",
             "en": "Climax"
@@ -1201,10 +1221,13 @@
         {
           "id": "snow-chimney",
           "day": 8,
-          "by": 9,
+          "by": 8,
           "who": [
             "donghe",
             "hanshifu"
+          ],
+          "places": [
+            "boiler"
           ],
           "kind": {
             "zh": "秘密曝光",
@@ -1225,6 +1248,9 @@
           "by": 9,
           "who": [
             "yanqiu"
+          ],
+          "slots": [
+            2
           ],
           "kind": {
             "zh": "高潮",
@@ -1545,8 +1571,8 @@
         "en": "Keeping the Fire Lit"
       },
       "brief": {
-        "zh": "真结局：你兑现了「每年冬天回来看烟囱」的约定的头一回——车开前你陪韩师傅和她把锅炉房的煤码齐，父女俩在炉子前把话说开了。车开了，她留在站台上没有哭，冲你比了个「明年」的手势；她答应烟囱一直冒烟。隔着四百里的恋爱结局。",
-        "en": "True ending: you keep the first round of your promise to come back for the chimney: before the train you help Old Han and her stack the coal, and father and daughter finally talk it through by the firebox. The train pulls out; she stays on the platform and does not cry, just signs \"next year\" at you, and promises the chimney will keep smoking. A romance across four hundred li."
+        "zh": "真结局：你兑现了「每年冬天回来看烟囱」的约定的头一回——走前那一夜你陪韩师傅和她把锅炉房的煤码齐，父女俩在炉子前把话说开了。车开了，她留在站台上没有哭，冲你比了个「明年」的手势；她答应烟囱一直冒烟。隔着四百里的恋爱结局。",
+        "en": "True ending: you keep the first round of your promise to come back for the chimney: on your last night you help Old Han and her stack the coal, and father and daughter finally talk it through by the firebox. The train pulls out; she stays on the platform and does not cry, just signs \"next year\" at you, and promises the chimney will keep smoking. A romance across four hundred li."
       }
     },
     {
@@ -1562,8 +1588,8 @@
         "en": "The Fur Hat on the Platform"
       },
       "brief": {
-        "zh": "好结局：车开前她把狗皮帽子又扣回你头上，说「南方冬天也冷，别冻掉耳朵」；话没说满，但她把一只织歪的红手套塞进了你的兜里。她爸那边的事，她说她自己去讲。",
-        "en": "Good ending: before the train she jams the fur hat back on your head: \"Southern winters are cold too, don't lose your ears.\" Not everything gets said, but she stuffs one lopsided red mitten into your pocket. She says she will tell her father herself."
+        "zh": "好结局：车开前她把狗皮帽子又扣回你头上，说「南方冬天也冷，别冻掉耳朵」；话没说满，但她把一只织歪的红手套塞进了你的兜里。那晚锅炉房里吼开的话还没收尾，她说剩下的，她自己回去跟她爸说完。",
+        "en": "Good ending: before the train she jams the fur hat back on your head: \"Southern winters are cold too, don't lose your ears.\" Not everything gets said, but she stuffs one lopsided red mitten into your pocket. What was shouted in the boiler room that night is still unfinished; she says she will go home and finish it with her father herself."
       }
     },
     {
@@ -1690,6 +1716,7 @@
       "kind": "normal",
       "tier": 2,
       "minStage": 3,
+      "maxBroken": 0,
       "title": {
         "zh": "冰车还在仓房里",
         "en": "The Sled Is Still in the Shed"
@@ -1705,6 +1732,7 @@
       "kind": "normal",
       "tier": 2,
       "minStage": 3,
+      "maxBroken": 0,
       "title": {
         "zh": "窗户是六格的",
         "en": "Six Panes"
@@ -1720,6 +1748,7 @@
       "kind": "normal",
       "tier": 2,
       "minStage": 3,
+      "maxBroken": 0,
       "title": {
         "zh": "磁带 B 面",
         "en": "Side B"
@@ -1739,8 +1768,8 @@
         "en": "The Whole Town in One Photo"
       },
       "brief": {
-        "zh": "隐藏群像结局：你和三个人都走到了心事这一步，却没有和谁走到最后。最后一班车开车前，四个人在站台上挤着拍了一张合影，背后是冒烟的烟囱、没化的冰灯和广播站的大喇叭。",
-        "en": "Hidden ensemble ending: you reached each of them, but went all the way with none. Before the last train, the four of you squeeze onto the platform for one photo, with the smoking chimney, the unmelted lanterns and the broadcast loudspeaker behind you."
+        "zh": "隐藏群像结局：你和三个人都走到了心事这一步，却没有和谁走到最后。最后一班车开车前，你、冬禾和砚秋在站台上挤着拍了一张合影，乌兰两天前就跟着牧场走了，她的位置空着，砚秋举起手机——视频那头是草原上的风。背后是冒烟的烟囱、没化的冰灯和广播站的大喇叭。",
+        "en": "Hidden ensemble ending: you reached each of them, but went all the way with none. Before the last train, you, Donghe and Yanqiu squeeze onto the platform for one photo; Ulan left with the herds days ago, so her spot is a phone Yanqiu holds up, the steppe wind on the video call. Behind you: the smoking chimney, the unmelted lanterns and the broadcast loudspeaker."
       }
     },
     {
@@ -2123,7 +2152,7 @@
         },
         "staging": {
           "zh": "锅炉房门口，门缝里透出红光，里面韩师傅的吼声刚停。她摔门出来，撞上「我」。她先开口，不哭，只是一直拿袖子擦鼻子。",
-          "en": "Outside the boiler house; red light through the door gap; Master Han's shouting has just stopped. She slams out and walks into me. She speaks first, doesn't cry, just keeps wiping her nose on her sleeve."
+          "en": "Outside the boiler house; red light through the door gap; Old Han's shouting has just stopped. She slams out and walks into me. She speaks first, doesn't cry, just keeps wiping her nose on her sleeve."
         },
         "lines": [
           {
@@ -2136,15 +2165,15 @@
           {
             "who": "me",
             "text": {
-              "zh": "名额的事，他知道了？",
-              "en": "He found out about the transfer?"
+              "zh": "……里面吵起来了？",
+              "en": "...Was that a fight in there?"
             }
           },
           {
             "who": "donghe",
             "text": {
-              "zh": "他吼我。二十三年，他头一回吼我。",
-              "en": "He yelled at me. Twenty-three years, first time he's ever yelled at me."
+              "zh": "他吼我。十七年，他头一回吼我。",
+              "en": "He yelled at me. Seventeen years, first time he's ever yelled at me."
             }
           },
           {
@@ -2208,8 +2237,8 @@
           {
             "who": "wulan",
             "text": {
-              "zh": "搬走的。搬走一户，我雕一户。",
-              "en": "The ones who left. One family leaves, I carve one house."
+              "zh": "全镇都要走。我先雕。",
+              "en": "The whole town is leaving. I carve it first."
             }
           },
           {
@@ -2256,15 +2285,8 @@
           {
             "who": "narration",
             "text": {
-              "zh": "她把火柴盒递过来，盒子被她攥得有点软。",
-              "en": "She holds out the matchbox; it has gone a little soft from her grip."
-            }
-          },
-          {
-            "who": "wulan",
-            "text": {
-              "zh": "你家的那一座，你来点。",
-              "en": "Your family's house. You light it."
+              "zh": "火柴盒被她攥得有点软，她还是没划。",
+              "en": "The matchbox has gone a little soft in her grip. She still hasn't struck one."
             }
           }
         ],
@@ -2286,8 +2308,8 @@
           "beat": "snow-recorder"
         },
         "staging": {
-          "zh": "主街上，她扛着一台录音机，递来一张纸条，然后站着等「我」看完。她开口说的第一个字卡住了，于是又递了一张。",
-          "en": "On the main street, a tape recorder on her shoulder, she hands me a note and waits while I read. The first word she tries to say sticks, so she hands me another."
+          "zh": "她扛着一台录音机，递来一张纸条，然后站着等「我」看完。她开口说的第一个字卡住了，于是又递了一张。",
+          "en": "A tape recorder on her shoulder, she hands me a note and waits while I read. The first word she tries to say sticks, so she hands me another."
         },
         "lines": [
           {
@@ -2338,11 +2360,11 @@
         },
         "trigger": {
           "beat": "snow-broadcast",
-          "minStage": 2
+          "minStage": 3
         },
         "staging": {
-          "zh": "广播站，最后一期节目的 A 面刚放完，红灯还亮着。她手里攥着那盘没贴标签的磁带，在话筒前说得顺，转过脸来就卡住。最后她把话筒拿在手里对着「我」说。",
-          "en": "The radio station; side A of the last show has just finished; the light is still on. She grips the unlabelled tape. Into the mic she's fluent; facing me she sticks. In the end she holds the mic in her hand and speaks into it, at me."
+          "zh": "广播站，最后一期节目的 A 面刚放完，红灯还亮着。她手里攥着那盘没贴标签的磁带，在话筒前说得顺，转过脸来就卡住。这一幕停在她决定之前。",
+          "en": "The radio station; side A of the last show has just finished; the light is still on. She grips the unlabelled tape. Into the mic she's fluent; facing me she sticks. The scene stops before she decides."
         },
         "lines": [
           {
@@ -2360,30 +2382,419 @@
             }
           },
           {
-            "who": "yanqiu",
+            "who": "me",
             "text": {
-              "zh": "这盘磁带，你别现在听。等车开了，再听。",
-              "en": "Don't play this tape now. Play it after the train leaves."
+              "zh": "……砚秋？",
+              "en": "...Yanqiu?"
+            }
+          },
+          {
+            "who": "narration",
+            "text": {
+              "zh": "她看了一眼还亮着的红灯，又看了一眼「我」。",
+              "en": "She looks at the red light, still on, and then at me."
+            }
+          }
+        ],
+        "unsaid": {
+          "zh": "磁带里录的是什么；这盘磁带最后播不播。",
+          "en": "What's on the tape; whether it is ever aired."
+        }
+      },
+      {
+        "id": "dh-boxes",
+        "who": "donghe",
+        "kind": "comedy",
+        "motif": "boxes",
+        "title": {
+          "zh": "这天儿",
+          "en": "This Weather"
+        },
+        "trigger": {
+          "beat": "snow-boxes"
+        },
+        "staging": {
+          "zh": "「我」怀里抱着一摞奶奶让捎回去的空纸箱，手腕上挂着胶带。冬禾端着一搪瓷盆冻梨过来，先损人，被问到她家的箱子就改骂天气。她不停下来，说完就走。",
+          "en": "I am hugging a stack of empty boxes Grandma asked me to bring home, a roll of tape on my wrist. Donghe comes by with an enamel basin of frozen pears, mocks first, and when asked about her own boxes switches to cursing the weather. She never stops walking."
+        },
+        "lines": [
+          {
+            "who": "narration",
+            "text": {
+              "zh": "「我」怀里抱着一摞空纸箱，是奶奶让捎回去的第十一个到第十五个。",
+              "en": "I am hugging a stack of empty boxes, numbers eleven to fifteen of Grandma's order."
+            }
+          },
+          {
+            "who": "donghe",
+            "text": {
+              "zh": "哟，打包呢？缠那么多圈，到了市里你拿牙咬开啊？",
+              "en": "Packing, huh? All that tape, you planning to open it with your teeth in the city?"
             }
           },
           {
             "who": "me",
             "text": {
-              "zh": "为什么？",
-              "en": "Why?"
+              "zh": "你家打包了吗？我路过你家，门口一个箱子都没有。",
+              "en": "Have you packed? I passed your place. Not one box outside."
+            }
+          },
+          {
+            "who": "donghe",
+            "text": {
+              "zh": "这天儿，贼冷。……昨晚零下三十四，你知道不？我家窗户上的霜结了一指厚。",
+              "en": "This weather, though. Brutal. ...Thirty-four below last night, you know that? Frost a finger thick on our window."
+            }
+          },
+          {
+            "who": "me",
+            "text": {
+              "zh": "我问的是箱子。",
+              "en": "I asked about boxes."
+            }
+          },
+          {
+            "who": "donghe",
+            "text": {
+              "zh": "冻梨，拿着。缓好的。",
+              "en": "Frozen pears. Take them. They're thawed."
+            }
+          },
+          {
+            "who": "narration",
+            "text": {
+              "zh": "她把搪瓷盆往纸箱顶上一搁，转身走了，围巾的一头拖在地上。",
+              "en": "She plonks the basin on top of my boxes and walks off, one end of her scarf trailing on the ground."
+            }
+          }
+        ],
+        "unsaid": {
+          "zh": "她家不搬。",
+          "en": "That her family is not moving."
+        }
+      },
+      {
+        "id": "dh-yq-steam",
+        "who": "donghe",
+        "kind": "conflict",
+        "title": {
+          "zh": "棉门帘",
+          "en": "The Quilted Curtain"
+        },
+        "trigger": {
+          "beat": "snow-quarrel"
+        },
+        "staging": {
+          "zh": "浴池门口，棉门帘一掀就是一团白汽。砚秋抱着录音机出来，冬禾堵在台阶上。两人都对着「我」说话，谁都不看谁。三年级那件事只漏出半句，冬禾自己就停住了。",
+          "en": "The bathhouse door; every lift of the quilted curtain lets out a cloud of steam. Yanqiu comes out hugging the recorder; Donghe blocks the step. Both talk at me and look at each other at no point. The third-grade business slips out for half a sentence before Donghe stops herself."
+        },
+        "lines": [
+          {
+            "who": "donghe",
+            "text": {
+              "zh": "许砚秋，你录我爸了？",
+              "en": "Xu Yanqiu. You taped my dad?"
             }
           },
           {
             "who": "yanqiu",
             "text": {
-              "zh": "因为……车开了，你就不能回来骂我了。",
-              "en": "Because... once the train's gone, you can't come back and tell me off."
+              "zh": "录、录了。他……",
+              "en": "Y-yes. He..."
+            }
+          },
+          {
+            "who": "donghe",
+            "text": {
+              "zh": "录啥了？你要往大喇叭里放？",
+              "en": "Taped what? You going to put it on the loudspeaker?"
+            }
+          },
+          {
+            "who": "narration",
+            "text": {
+              "zh": "砚秋从兜里摸出纸条和笔，笔冻得写不出水，她对着笔尖哈了两口气。",
+              "en": "Yanqiu fishes out a slip and a pen; the ink is frozen, and she breathes on the nib twice."
+            }
+          },
+          {
+            "who": "donghe",
+            "text": {
+              "zh": "又写！三年级你就这样，有话不说——",
+              "en": "Writing again! You were like this in third grade, never just saying—"
+            }
+          },
+          {
+            "who": "narration",
+            "text": {
+              "zh": "冬禾说到一半自己停住了，像踩空了一级台阶。",
+              "en": "Donghe stops mid-sentence, like she missed a step."
+            }
+          },
+          {
+            "who": "yanqiu",
+            "text": {
+              "zh": "那、那段不播。我……保证。",
+              "en": "Th-that part won't air. I... promise."
+            }
+          },
+          {
+            "who": "donghe",
+            "text": {
+              "zh": "你保证有啥用。",
+              "en": "What good's your promise."
+            }
+          },
+          {
+            "who": "narration",
+            "text": {
+              "zh": "她一掀棉门帘进了澡堂，白汽扑了「我」一脸。",
+              "en": "She flings the curtain aside and goes in; the steam hits me full in the face."
             }
           }
         ],
         "unsaid": {
-          "zh": "磁带里录的是什么。",
-          "en": "What's on the tape."
+          "zh": "录音里韩师傅说了什么；三年级那天后来怎样。",
+          "en": "What Old Han said on the tape; what happened after that day in third grade."
+        }
+      },
+      {
+        "id": "dh-sled",
+        "who": "donghe",
+        "kind": "comedy",
+        "title": {
+          "zh": "旧冰车",
+          "en": "The Old Sled"
+        },
+        "trigger": {
+          "places": [
+            "street"
+          ],
+          "minStage": 1,
+          "after": [
+            "beat:snow-boxes"
+          ]
+        },
+        "staging": {
+          "zh": "夜里，主街尽头的长坡，路灯底下。她从仓房里拖出那辆旧冰车，铜铃铛冻哑了。她催「我」上车的口气像在吵架，翻进雪里以后反倒不说话了。",
+          "en": "Night, the long slope at the end of Main Street, under a streetlight. She has dragged the old ice sled out of the shed; its brass bell is frozen nearly mute. She orders me aboard like she's picking a fight, and goes quiet once we tip into the snow."
+        },
+        "lines": [
+          {
+            "who": "narration",
+            "text": {
+              "zh": "冰车上的铜铃铛冻得发哑，她晃了半天才响一声。",
+              "en": "The brass bell on the sled is frozen half-mute; she shakes it a long while before it rings once."
+            }
+          },
+          {
+            "who": "donghe",
+            "text": {
+              "zh": "上来。咋的，南方人不敢了？",
+              "en": "Get on. What, the southerner's scared?"
+            }
+          },
+          {
+            "who": "me",
+            "text": {
+              "zh": "这车好些年没人坐了吧。",
+              "en": "Nobody's ridden this in years."
+            }
+          },
+          {
+            "who": "donghe",
+            "text": {
+              "zh": "没那么久。去年冬天我自己滑过一回。……一个人滑没意思。",
+              "en": "Not that long. I took it down once last winter, by myself. ...No fun alone."
+            }
+          },
+          {
+            "who": "narration",
+            "text": {
+              "zh": "冰车冲下坡，在坡底转了半圈，把两个人一起甩进雪堆。",
+              "en": "The sled shoots down the slope, spins half around at the bottom, and throws us both into a drift."
+            }
+          },
+          {
+            "who": "donghe",
+            "text": {
+              "zh": "谁也别先起来啊。小时候就这规矩。",
+              "en": "Nobody gets up first. That was the rule when we were kids."
+            }
+          }
+        ],
+        "unsaid": {
+          "zh": "明年冬天谁陪她滑。",
+          "en": "Who rides with her next winter."
+        }
+      },
+      {
+        "id": "wl-saw",
+        "who": "wulan",
+        "kind": "daily",
+        "motif": "ice-bubbles",
+        "title": {
+          "zh": "顺着纹路",
+          "en": "With the Grain"
+        },
+        "trigger": {
+          "places": [
+            "river"
+          ],
+          "slots": [
+            1
+          ],
+          "minStage": 1,
+          "after": [
+            "beat:snow-icetown"
+          ]
+        },
+        "staging": {
+          "zh": "下午的冻河，两人一人一头拉锯，从河面上切冰块。她话少，只教怎么看冰。冷到说不出话时，两个人一起跺脚，跺到同一个拍子上。",
+          "en": "The frozen river in the afternoon; one at each end of the saw, cutting blocks from the ice. She says little except how to read the ice. When it gets too cold to talk, both of us stamp our feet until we fall into the same beat."
+        },
+        "lines": [
+          {
+            "who": "wulan",
+            "text": {
+              "zh": "锯子给你，那头。顺着纹路，别横着。",
+              "en": "Saw's yours. That end. With the grain, not across."
+            }
+          },
+          {
+            "who": "narration",
+            "text": {
+              "zh": "切开的冰面是青的，里面封着一串细小的气泡，像谁往水里吹了一口气。",
+              "en": "The cut face of the ice is blue-green, a string of tiny bubbles sealed inside, as if someone had breathed into the water."
+            }
+          },
+          {
+            "who": "me",
+            "text": {
+              "zh": "你怎么知道纹路往哪边走？",
+              "en": "How do you know which way the grain runs?"
+            }
+          },
+          {
+            "who": "wulan",
+            "text": {
+              "zh": "看气泡。气泡斜的那边，是风来的地方。",
+              "en": "Look at the bubbles. The way they slant is where the wind came from."
+            }
+          },
+          {
+            "who": "narration",
+            "text": {
+              "zh": "冻得说不出话了，两个人就一起跺脚，一下，两下，跺到了同一个拍子上。",
+              "en": "Too cold to speak, we stamp our feet, one, two, until we are stamping in time."
+            }
+          },
+          {
+            "who": "wulan",
+            "text": {
+              "zh": "阿爸说，跺脚的时候不能说话，会咬到舌头。",
+              "en": "My father says you mustn't talk while stamping. You'll bite your tongue."
+            }
+          },
+          {
+            "who": "me",
+            "text": {
+              "zh": "真的？",
+              "en": "Really?"
+            }
+          },
+          {
+            "who": "wulan",
+            "text": {
+              "zh": "不知道。他多半是骗我的。……可我跺脚的时候，一直没说过话。",
+              "en": "I don't know. He was probably fooling me. ...I still have never talked while stamping."
+            }
+          }
+        ],
+        "unsaid": {
+          "zh": "她哪天走。",
+          "en": "Which day she leaves."
+        }
+      },
+      {
+        "id": "yq-grandma",
+        "who": "yanqiu",
+        "kind": "comedy",
+        "motif": "notes",
+        "title": {
+          "zh": "以上是陈家奶奶",
+          "en": "That Was Grandma Chen"
+        },
+        "trigger": {
+          "places": [
+            "coop"
+          ],
+          "slots": [
+            0
+          ],
+          "minStage": 1,
+          "after": [
+            "beat:snow-recorder"
+          ]
+        },
+        "staging": {
+          "zh": "供销社柜台边，奶奶在挑最后几团毛线。砚秋叫人卡在第一个字，干脆按下录音键，把话筒举到嘴边，一口气说下去。奶奶对着话筒说完告别，又顺口数落了她一句。",
+          "en": "By the co-op counter Grandma is picking through the last balls of yarn. Yanqiu sticks on the first word of her name, so she presses record, raises the mic, and the rest comes out in one breath. Grandma says her farewell into it, then tacks on a scolding for Yanqiu."
+        },
+        "lines": [
+          {
+            "who": "yanqiu",
+            "text": {
+              "zh": "陈、陈家……",
+              "en": "Gr-Grandma..."
+            }
+          },
+          {
+            "who": "narration",
+            "text": {
+              "zh": "她按下录音键，把话筒举到嘴边。",
+              "en": "She presses record and lifts the mic to her mouth."
+            }
+          },
+          {
+            "who": "yanqiu",
+            "text": {
+              "zh": "陈家奶奶，请您对白桦岭说一句告别的话。",
+              "en": "Grandma Chen, please say a word of farewell to Birch Ridge."
+            }
+          },
+          {
+            "who": "nainai",
+            "text": {
+              "zh": "告别啥呀。我在这儿腌了五十年酸菜，缸我带走，酸菜味儿给你们留下。",
+              "en": "Farewell, nothing. Fifty years I pickled cabbage here. I'm taking the crock; the smell I leave to you."
+            }
+          },
+          {
+            "who": "narration",
+            "text": {
+              "zh": "奶奶低头绕着手里那团毛线，又补了一句。",
+              "en": "Grandma winds the yarn in her hands, eyes down, and adds one more thing."
+            }
+          },
+          {
+            "who": "nainai",
+            "text": {
+              "zh": "还有，广播站那丫头，晚上早点睡。灯老亮着，费电。",
+              "en": "And the girl at the broadcast room: go to bed earlier. That light's always on. Wastes power."
+            }
+          },
+          {
+            "who": "yanqiu",
+            "text": {
+              "zh": "（话筒还举着，一口气）收到。各位听众，以上是陈家奶奶。",
+              "en": "(Mic still raised, in one breath) Noted. Dear listeners, that was Grandma Chen."
+            }
+          }
+        ],
+        "unsaid": {
+          "zh": "她半夜在录的是哪一盘。",
+          "en": "Which tape she is recording at midnight."
         }
       }
     ],
@@ -2391,7 +2802,7 @@
       "commonUntil": 3,
       "commonGoal": {
         "zh": "共通线：重逢与清仓，三个人都露面；每人一个反常：韩家门口没有纸箱、乌兰草稿纸上的平面图、砚秋的纸条。",
-        "en": "Common route: reunions and clearance sales; all three appear, each with one oddity: no boxes at the Han house, Wulan's floor plans, Yanqiu's notes."
+        "en": "Common route: reunions and clearance sales; all three appear, each with one oddity: no boxes at the Han house, Ulan's floor plans, Yanqiu's notes."
       },
       "lock": {
         "minStage": 2,
@@ -2407,14 +2818,14 @@
           },
           "others": {
             "zh": "乌兰照样凿冰，砚秋的纸条变少了。",
-            "en": "Wulan keeps carving; Yanqiu's notes grow fewer."
+            "en": "Ulan keeps carving; Yanqiu's notes grow fewer."
           }
         },
         {
           "who": "wulan",
           "goal": {
             "zh": "个人线·乌兰：一座冰做的镇子，一次要亮的灯。",
-            "en": "Wulan route: a town made of ice, a light that has to shine once."
+            "en": "Ulan route: a town made of ice, a light that has to shine once."
           },
           "others": {
             "zh": "冬禾嘴上骂「远子天天往河套跑」，手上给你们送热水。",
@@ -2449,8 +2860,8 @@
           "minStage": 3
         },
         "truth": {
-          "zh": "三年级那次全班笑砚秋口吃，冬禾当场把带头的人推进了雪堆。砚秋一直以为冬禾是在嫌她丢人。",
-          "en": "In third grade, when the class laughed at Yanqiu's stutter, Donghe shoved the ringleader into a snowbank. Yanqiu always thought Donghe was ashamed of her."
+          "zh": "三年级那天冬禾为她把人打哭、挨了全校通报，砚秋一下午都卡在「谢」字上；放学前她把「谢谢你」写在纸条上，叠了四折，到今天也没递出去，就夹在广播站那本节目单里。冬禾一直以为砚秋嫌她粗。",
+          "en": "The day in third grade when Donghe punched the boy to tears for her and got reprimanded in front of the whole school, Yanqiu spent the afternoon stuck on the first sound of \"thank you\". Before the bell she wrote \"thank you\" on a slip, folded it four times, and has never handed it over; it is still tucked in the broadcast room's program sheets. Donghe has always thought Yanqiu finds her crude."
         },
         "reframes": [
           {
@@ -2458,8 +2869,8 @@
             "en": "the quarrel outside the bathhouse"
           },
           {
-            "zh": "旧合影里两个人挤在同一辆冰车上",
-            "en": "the old photo of the two of them squeezed onto one ice sled"
+            "zh": "旧合影里三个人挤在同一辆冰车上",
+            "en": "the old photo of the three of us squeezed onto one ice sled"
           }
         ]
       },
@@ -2474,16 +2885,40 @@
         },
         "truth": {
           "zh": "「开春才走」是巴特尔替女儿圆的话：乌兰怕说出走的日子，冰雕会来不及。",
-          "en": "\"Not till spring\" was Batu covering for his daughter: Wulan feared that naming the day would leave the ice town unfinished."
+          "en": "\"Not till spring\" was Bater covering for his daughter: Ulan feared that naming the day would leave the ice town unfinished."
         },
         "reframes": [
           {
             "zh": "巴特尔在冻河上喊的那一嗓子长调",
-            "en": "Batu's long-song shout across the frozen river"
+            "en": "Bater's long-song shout across the frozen river"
           },
           {
             "zh": "她雕得越来越快",
             "en": "how she carved faster and faster"
+          }
+        ]
+      },
+      {
+        "id": "rv-han-tape",
+        "when": {
+          "after": [
+            "beat:snow-quarrel"
+          ],
+          "who": "donghe",
+          "minStage": 3
+        },
+        "truth": {
+          "zh": "砚秋录下的是韩师傅的告别。录的时候他还以为闺女开春就去市里念书，托砚秋录一段话，等闺女到了市里再寄给她：「闺女。……到了市里，别惦记炉子。……爸烧得动。」他让砚秋千万别在广播里放，砚秋答应了，所以在澡堂门口一个字也不肯说。",
+          "en": "What Yanqiu taped was Old Han's goodbye. When he recorded it he still believed his daughter would start at the city school in spring, and asked Yanqiu to tape a few words to post to her once she was there: \"Girl. ...In the city, don't fret about the stove. ...Your dad can keep it going.\" He made Yanqiu swear never to air it, and she kept her word; that is why she would not say a thing outside the bathhouse."
+        },
+        "reframes": [
+          {
+            "zh": "澡堂门口谁都不肯说那段录音是什么",
+            "en": "how neither of them would say what was on the tape outside the bathhouse"
+          },
+          {
+            "zh": "韩师傅那句「她答应我了」",
+            "en": "Old Han's \"She promised me\""
           }
         ]
       }
@@ -2509,6 +2944,30 @@
         "text": {
           "zh": "牧区的春天，雪化的那天，草从冰下面露出来一点绿。",
           "en": "Spring on the grassland: the day the snow melts, a little green shows beneath the ice."
+        }
+      },
+      {
+        "id": "fb-bench",
+        "who": "donghe",
+        "trigger": {
+          "minStage": 2
+        },
+        "text": {
+          "zh": "小时候她在锅炉房的长条凳上写作业，炉门一开，作业本上全是红光；她爸添完煤，就用煤灰手指在她算错的题上画个圈。",
+          "en": "As a kid she did homework on the long bench in the boiler house; whenever the firebox opened, the page went red. After stoking, her dad would ring her wrong answers with a coal-black finger."
+        }
+      },
+      {
+        "id": "fb-whistle",
+        "who": "me",
+        "trigger": {
+          "after": [
+            "beat:snow-arrival"
+          ]
+        },
+        "text": {
+          "zh": "小时候傍晚那趟车的汽笛一响，奶奶就在院子里喊：「孩儿啊，车过去了，回家吃饭。」",
+          "en": "When I was small, the moment the evening train whistled, Grandma would call across the yard: \"Child, the train's gone by. Home for supper.\""
         }
       },
       {
@@ -2687,6 +3146,28 @@
             "zh": "广播站的窗户糊着报纸挡风",
             "en": "the station windows papered over against the wind"
           }
+        ],
+        "river": [
+          {
+            "zh": "冰车的白道子一直通到对岸",
+            "en": "white sled tracks running all the way to the far bank"
+          },
+          {
+            "zh": "冰窟窿边上冻着一截去年的渔网",
+            "en": "a scrap of last year's fishing net frozen at the edge of an ice hole"
+          }
+        ],
+        "bath": [
+          {
+            "zh": "门口的棉门帘冻得硬邦邦，掀开要用两只手",
+            "en": "the quilted door curtain frozen stiff; it takes both hands to lift"
+          }
+        ],
+        "school": [
+          {
+            "zh": "粉笔得先在暖气片上焐热了才写得出字",
+            "en": "chalk has to be warmed on the radiator before it will write"
+          }
         ]
       },
       "any": [
@@ -2708,7 +3189,7 @@
         ],
         "text": {
           "zh": "韩师傅高兴了添一锹煤，不高兴也添一锹，「我」开始用添煤的力度猜他的心情。",
-          "en": "Master Han adds a shovel of coal when he's happy and when he's not; I start guessing his mood by how hard he shovels."
+          "en": "Old Han adds a shovel of coal when he's happy and when he's not; I start guessing his mood by how hard he shovels."
         },
         "places": [
           "boiler"
@@ -2734,7 +3215,28 @@
         ],
         "text": {
           "zh": "巴特尔一喝奶茶就哼长调，哼到一半忘词，就改成锅炉房的口令。",
-          "en": "Batu hums a long-song whenever he drinks milk tea; when he forgets the words he switches to boiler-room shift calls."
+          "en": "Bater hums a long-song whenever he drinks milk tea; when he forgets the words he switches to boiler-room shift calls."
+        }
+      },
+      {
+        "id": "relay",
+        "who": [
+          "donghe",
+          "yanqiu"
+        ],
+        "text": {
+          "zh": "冬禾和砚秋见面就别扭，有话全让「我」传：「你跟她说……」「（纸条）你告诉她……」，传到后来「我」自己都分不清是谁在挤兑谁。",
+          "en": "Donghe and Yanqiu are awkward face to face, so everything goes through me: \"Tell her...\" \"(note) Tell her...\", until I can't tell who is needling whom."
+        }
+      },
+      {
+        "id": "crock",
+        "who": [
+          "nainai"
+        ],
+        "text": {
+          "zh": "奶奶的酸菜缸装上爬犁又搬下来，搬下来又装上去，每次都说「这回定了」。",
+          "en": "Grandma's pickling crock goes onto the sledge, comes off, goes back on; every time she says, \"That's settled, then.\""
         }
       },
       {
@@ -2777,7 +3279,39 @@
         "truth": "half",
         "text": {
           "zh": "「乌兰？开春走。开春……对，开春。」——说完喝了一大口奶茶。",
-          "en": "\"Wulan? Leaving in spring. Spring... yes, spring.\" Then a long gulp of milk tea."
+          "en": "\"Ulan? Leaving in spring. Spring... yes, spring.\" Then a long gulp of milk tea."
+        }
+      },
+      {
+        "id": "g-nainai-light",
+        "from": "nainai",
+        "about": "yanqiu",
+        "truth": "true",
+        "text": {
+          "zh": "「广播站的灯又亮到半夜。那丫头，录的比说的多。」",
+          "en": "\"The broadcast-room light burned past midnight again. That girl records more than she says.\""
+        }
+      },
+      {
+        "id": "g-nainai-river",
+        "from": "nainai",
+        "about": "wulan",
+        "truth": "true",
+        "fromDay": 4,
+        "text": {
+          "zh": "「巴特尔家那闺女天天往河套跑，手套都磨漏了。」",
+          "en": "\"Bater's girl runs down to the river every day. She's worn through her mittens.\""
+        }
+      },
+      {
+        "id": "g-meng-ticket",
+        "from": "mengzhan",
+        "about": "me",
+        "truth": "half",
+        "fromDay": 6,
+        "text": {
+          "zh": "「那张空路票我还留着。这位旅客有票了……那就再想想，给谁。」",
+          "en": "\"I've still got that blank ticket. This passenger here has his own... so, I'll think on who it's for.\""
         }
       },
       {
@@ -2787,8 +3321,8 @@
         "truth": "false",
         "fromDay": 3,
         "text": {
-          "zh": "「她开春去市里念书……念书好。」",
-          "en": "\"She's off to school in the city in spring... school's good.\""
+          "zh": "「她……开春去市里。……念书好。」",
+          "en": "\"She's... off to the city in spring. ...School's good.\""
         }
       }
     ],

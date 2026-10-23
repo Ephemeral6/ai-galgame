@@ -8,7 +8,7 @@ import { MAUVE_CRAFT } from './craft'
 
 export const MAUVE: Pack & CraftFields = {
   id: 'mauve',
-  version: '1.1.0',
+  version: '1.2.0',
   defaultLang: 'en',
   langs: ['en', 'zh'],
   author: 'ai-galgame contributors',

@@ -7,7 +7,7 @@ import { RADIO_CRAFT } from './craft'
 
 export const RADIO: Pack & CraftFields = {
   id: 'radio',
-  version: '1.1.0',
+  version: '1.2.0',
   defaultLang: 'zh',
   langs: ['zh', 'en'],
   author: 'ai-galgame contributors',
