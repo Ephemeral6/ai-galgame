@@ -24,6 +24,8 @@ All notable changes to this project are listed here. The format follows [Keep a 
 - Choices are chips instead of boxes, the header is two lines, only the newest line gets a solid nameplate, the DAY card is 7 rows instead of 12, and menus use tab chips and divider lines.
 
 ### Fixed
+- UI text no longer assumes a small town in summer: the nightly gossip line reads "Last night:" and the route notes say "these days" instead of "this summer" (snow is a winter pack, 00:47 a city one).
+- A tunnel gets the street backdrop (a row of lamps) instead of a room with windows.
 - Key beats and set pieces respect their time slot and place; a slot-limited beat missed on its last day counts as overdue.
 - Every ending of every bundled pack can now be reached (several in band, mauve, radio, equalia, snow, loop and cicada could not). Ending texts agree with the fixed scenes, secrets no longer leak before their reveal, timelines are consistent. Details in `docs/PLOT-AUDIT-2026-10-23.md`.
 - Set pieces and reveals that could never fire: radio's roof scene, mauve's verdict scene and salesman reveal, cicada's two confession scenes.
