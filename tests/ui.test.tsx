@@ -225,7 +225,7 @@ test('配角上台说话：名字、颜色来自配角设定', async ($, on) => 
 
 /** 第一版存档：没有 v / seed / flags / incident，主角色只有三个 */
 const OLD_STORY = {
-  pack: 'cicada', lang: 'zh', loop: 1, cycle: 1, rewinds: 0, loads: 0, phase: 'plan', day: 3, slot: 1,
+  pack: 'cicada', lang: 'zh', loop: 1, cycle: 1, rewinds: 0, loads: 0, phase: 'plan', day: 3, slot: 2,
   heroines: { xiaoman: { affection: 4, stage: 1, scenes: 2, mood: '', lastDay: 2 }, qingyi: { affection: 0, stage: 0, scenes: 0, mood: '', lastDay: 0 }, zhiyao: { affection: 1, stage: 0, scenes: 0, mood: '', lastDay: 1 } },
   promises: [{ text: '明天放学还来天文社', heroine: 'xiaoman', day: 2, due: 13, status: 'open' }], notes: [], facts: [], keepsakes: [], album: [],
   scene: null, after: '', reveal: 0, loadingText: '', ending: '', endingId: '', error: '',
@@ -243,7 +243,7 @@ test('旧存档：session.start 迁移成新格式能读；认不出的存档显
   expect(await ui.find({ type: 'Text', text: /档位 2 +无法识别的存档/ })).toBeDefined()
   expect(await ui.find({ type: 'Text', text: /档位 3 +无法识别的存档/ })).toBeDefined()
   await ui.press({ key: 'slot1' })
-  expect(await ui.find({ type: 'Text', text: /放学，去哪里/ })).toBeDefined()
+  expect(await ui.find({ type: 'Text', text: /晚自习后，去哪里/ })).toBeDefined()
   expect(await ui.find({ type: 'Text', text: /答应过小满：明天放学还来天文社/ })).toBeDefined()
   expect(await ui.find({ type: 'Text', text: /温璃 [♥♡]{5}/ })).toBeDefined() // 新加的主角色补上了
   await ui.unmount()

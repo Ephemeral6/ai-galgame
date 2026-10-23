@@ -243,9 +243,9 @@ describe('章节关键事件', () => {
   })
 
   test('到了最后期限的最后一个时段，不论谁在场都要写', () => {
-    const s = at(freshStory(P, 'zh'), 2, 2) // recruit：第 1 天起，最晚第 2 天
+    const s = at(freshStory(P, 'zh'), 2, 1) // recruit：第 1 天起，最晚第 2 天，限第 0、1 时段
     expect(dueBeat(P, s, ['qingyi'])?.id).toBe('recruit')
-    expect(dueBeat(P, at(s, 2, 1), ['qingyi'])).toBe(null)
+    expect(dueBeat(P, at(s, 2, 0), ['qingyi'])).toBe(null)
   })
 
   test('关键约定：在关键事件里答应的事带上 key，记在事件涉及的主角色名下', () => {
@@ -369,8 +369,10 @@ describe('多结局', () => {
     expect(pickEnding(P, s).id).toBe('xiaoman-good') // 还差流星雨那一幕
     s.flags = ['beat:meteor']
     expect(pickEnding(P, s).id).toBe('xiaoman-true')
-    s.promises = [kept('xiaoman', 'rumor'), { ...kept('xiaoman'), status: 'broken' }]
+    ready(s, 'xiaoman', 3, 9)
     expect(pickEnding(P, s).id).toBe('xiaoman-near')
+    s.promises = [kept('xiaoman', 'rumor'), { ...kept('xiaoman'), status: 'broken' }]
+    expect(pickEnding(P, s).id).toBe('xiaoman-bad') // 失约的人拿不到「近」结局
     ready(s, 'xiaoman', 2, 6)
     expect(pickEnding(P, s).id).toBe('xiaoman-bad')
   })
