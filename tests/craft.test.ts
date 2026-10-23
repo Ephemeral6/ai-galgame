@@ -154,7 +154,8 @@ describe('路线与揭示', () => {
   })
 
   test('揭示在条件满足、相关的人在场时触发，并记下标记', () => {
-    const s = withStage(at(freshStory(CICADA, 'zh'), 11, 1, { flags: ['beat:roofkey', 'set:wl-folders'] }), 'wenli', 3)
+    // wl-stairs 也在行政楼、阶段 3 触发，预写场景那一幕不出揭示，所以先当它演过了
+    const s = withStage(at(freshStory(CICADA, 'zh'), 11, 1, { flags: ['beat:roofkey', 'set:wl-folders', 'set:wl-stairs'] }), 'wenli', 3)
     const pick = pickCraft(CICADA, s, 'zh', { place: 'council', present: ['wenli', 'yinuo'] })
     expect(pick.reveal?.id).toBe('rv-roofkey')
     expect(pick.flags).toContain('reveal:rv-roofkey')

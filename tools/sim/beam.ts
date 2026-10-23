@@ -1,6 +1,7 @@
 // 定向搜索：对指定结局做束搜索，判断在「AI 给出合理选项」的假设下能否走到。
 // 分支：地点 × 领头的人（在场主角色之一或无人）× 选项（+2 / 约定+1 / -2 / 观察 0；预写场景用作者写的选项）
 // 用法：bun tools/sim/beam.ts <width> pack:ending ...；只写 pack 表示这个包的全部结局
+// 也可以找预写场景或揭示能不能触发：pack:set:<id>、pack:reveal:<id>；pack:craft 表示这个包的全部预写场景和揭示
 import { resolve } from 'node:path'
 const repo = resolve(import.meta.dir, '../..')
 const WIDTH = Number(process.argv[2] ?? 1500)
@@ -9,7 +10,13 @@ const E = await import(`${repo}/hooks/engine.ts`)
 const C = await import(`${repo}/hooks/craft.ts`)
 const P = await import(`${repo}/hooks/pack.ts`)
 const { BUILTIN } = await import(`${repo}/packs/index.ts`)
-const targets = args.flatMap(a => a.includes(':') ? [a] : BUILTIN.find((x: any) => x.id === a).endings.map((e: any) => `${a}:${e.id}`))
+const targets = args.flatMap(a => {
+  if (!a.includes(':')) return BUILTIN.find((x: any) => x.id === a).endings.map((e: any) => `${a}:${e.id}`)
+  const [pid, what] = a.split(':')
+  if (what !== 'craft') return [a]
+  const cr = C.craftOf(BUILTIN.find((x: any) => x.id === pid))
+  return [...(cr?.setPieces ?? []).map((x: any) => `${pid}:set:${x.id}`), ...(cr?.reveals ?? []).map((x: any) => `${pid}:reveal:${x.id}`)]
+})
 
 type Node = { s: any; path: string[] }
 
@@ -100,13 +107,35 @@ function dist(p: any, s: any, e: any): number {
   return d
 }
 
+/** 预写场景 / 揭示的触发距离：主角色阶段差 + 缺的前置标记 + 关键事件还没到 */
+function flagDist(s: any, cond: { who?: string; minStage?: number; after?: string[]; beat?: string }): number {
+  let d = 0
+  if (cond.minStage !== undefined) {
+    const st = cond.who ? (s.heroines[cond.who]?.stage ?? 0) : Math.max(0, ...Object.values(s.heroines).map((h: any) => h.stage))
+    d += Math.max(0, cond.minStage - st) * 6
+  }
+  for (const f of cond.after ?? []) if (!s.flags.includes(f)) d += 3
+  if (cond.beat && !s.flags.includes(`beat:${cond.beat}`)) d += 1
+  return d
+}
+
 const sigOf = (s: any) => JSON.stringify([s.day, s.slot, s.cycle, Object.values(s.heroines).map((h: any) => [h.affection, h.stage, Math.min(h.scenes, 9), h.lastDay]), s.promises.map((x: any) => x.status + x.heroine + (x.key ?? '')), s.flags.filter((f: string) => !f.startsWith('gag:') && !f.startsWith('fb:')).sort(), s.keepsakes.length])
 
 for (const t of targets) {
-  const [pid, eid] = t.split(':')
+  const parts = t.split(':')
+  const pid = parts[0]!
   const p = BUILTIN.find((x: any) => x.id === pid)
-  const e = p.endings.find((x: any) => x.id === eid)
   const all = p.endings.map((x: any) => x.id)
+  // 目标：结局，或者某个预写场景 / 揭示被触发（看 s.flags 里的 set:<id> / reveal:<id>）
+  const flagGoal = parts.length === 3 ? `${parts[1]}:${parts[2]}` : null
+  const cr = C.craftOf(p)
+  const craftDef = flagGoal ? (parts[1] === 'set' ? cr?.setPieces?.find((x: any) => x.id === parts[2]) : cr?.reveals?.find((x: any) => x.id === parts[2])) : null
+  if (flagGoal && !craftDef) { console.log(`✘ ${t} 没有这个 id`); continue }
+  const cond = craftDef ? (parts[1] === 'set' ? { who: craftDef.who, ...craftDef.trigger } : { ...craftDef.when }) : null
+  const eid = flagGoal ? '' : parts[1]!
+  const e = flagGoal ? { minLoop: cond.minLoop } : p.endings.find((x: any) => x.id === eid)
+  const reached = (s: any) => (flagGoal ? s.flags.includes(flagGoal) : false)
+  const distOf = (s: any) => (flagGoal ? flagDist(s, cond) : dist(p, s, e))
   let found: Node | null = null
   let best = Infinity
   for (const loop of e.minLoop ? [e.minLoop] : [1, 2]) {
@@ -117,14 +146,15 @@ for (const t of targets) {
       for (const n of beam) {
         for (const x of expand(p, n.s, loop >= 2 ? all : [])) {
           const node = { s: x.s, path: [...n.path, x.step] }
+          if (reached(x.s)) { found = node; break }
           if (x.s._done) {
             const got = E.pickEnding(p, x.s)
-            if (got.id === eid) { found = node; break }
-            best = Math.min(best, dist(p, x.s, e))
+            if (!flagGoal && got.id === eid) { found = node; break }
+            best = Math.min(best, distOf(x.s))
             continue
           }
           const k = sigOf(x.s)
-          const d = dist(p, x.s, e)
+          const d = distOf(x.s)
           const prev = next.get(k)
           if (!prev || prev.d > d) next.set(k, { n: node, d })
         }
@@ -139,5 +169,5 @@ for (const t of targets) {
     }
     if (found) { console.log(`✔ ${t} (loop ${loop}, ${((Date.now() - t0) / 1000).toFixed(1)}s)`); for (const st of found.path) console.log('   ' + st); break }
   }
-  if (!found) console.log(`✘ ${t} 束宽 ${WIDTH} 未找到；终局最小距离 ${best}`)
+  if (!found) { console.log(`✘ ${t} 束宽 ${WIDTH} 未找到；终局最小距离 ${best}`); process.exitCode = 1 }
 }

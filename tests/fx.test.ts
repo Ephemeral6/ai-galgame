@@ -4,11 +4,12 @@ import { describe, expect, test } from 'claude-code/testing'
 import type { EngineInterface } from 'claude-code'
 
 import type { Scene, Story } from '../types'
-import { stageFrame } from '../hooks/art'
+import { portraitFrame, stageFrame } from '../hooks/art'
+import { PX, bgOfTheme, framed } from '../hooks/theme'
 import { costOf, dateKey } from '../hooks/cost'
 import { advanceTime, applyChoice, applyScene, freshStory, parseDirection, parseScene, planOptions, profileLine, sceneDynamic, staticBlock } from '../hooks/engine'
 import { EMPTY_FEATS, achievementsOnFinish, dailyChallenge, dailyShare } from '../hooks/feats'
-import { CARD_FRAMES, atmoBand, cardFrame, fontText, fxOf, relationGraph, stageDirections, themeOf, townMap } from '../hooks/fx'
+import { CARD_FRAMES, WALK_H, atmoBand, backdrop, backdropOf, backdropTop, cardFrame, endFx, fontText, fxOf, over, relationGraph, stageDirections, themeOf, titleScene, townMap, walkFrame } from '../hooks/fx'
 import { awayLetter, diaryEntry, letterFrom, nightGossip, portraitOf, tendencies } from '../hooks/native'
 import { BUILTIN } from '../packs/index'
 import { CICADA } from '../packs/cicada/pack'
@@ -85,6 +86,41 @@ describe('像素画面', () => {
     expect(lit(fade)).toBe(lit(c)) // 淡入：像素都在，颜色暗
   })
 
+  test('DAY 卡 inline：大字小字同一行、矮一截，字不重画；排不下退回上下两行', () => {
+    const spec = { big: 'DAY 3', small: 'ACT II', color: '#ffffff', accent: '#f2c14e', style: 'wipe' as const }
+    const stack = cardFrame(spec, 76, CARD_FRAMES, 0)
+    const inline = cardFrame({ ...spec, layout: 'inline' as const }, 76, CARD_FRAMES, 0)
+    expect(inline.length).toBe(14)
+    expect(inline.length).toBeLessThan(stack.length)
+    // 边框以外的亮像素：inline 和上下两行画的是同一批字
+    expect(lit(inline) - 2 * (76 + 14) + 4).toBe(lit(stack) - 2 * (76 + stack.length) + 4)
+    expect(cardFrame({ ...spec, big: 'DAY 3 OF THE LONG SUMMER', layout: 'inline' as const }, 40, CARD_FRAMES, 0).length).toBeGreaterThan(14)
+  })
+
+  test('舞台背景板：地名推出种类，中英文地名结果一致；英文只按整词匹配', () => {
+    expect(['教学楼天台', '镇广播站', '江边夜市', '江雾音乐节 · 新人舞台', '江边', '操场', '老街', '天文社'].map(backdropOf))
+      .toEqual(['roof', 'room', 'shop', 'hall', 'water', 'field', 'street', 'room'])
+    expect(['Town Broadcast Room', 'County Radio Station', 'Outside the Shelter Door', 'Slope (live bar)', 'Ice-Lantern Fair', 'Seawall'].map(backdropOf))
+      .toEqual(['room', 'room', 'street', 'hall', 'water', 'water'])
+    const differ = BUILTIN.flatMap(p => [...p.places.map(x => x.name), ...p.fixed.map(x => x.place)])
+      .filter(n => typeof n !== 'string' && n.zh && n.en && backdropOf(n.zh) !== backdropOf(n.en))
+      .map(n => typeof n === 'string' ? n : `${n.zh} ${backdropOf(n.zh!)} / ${n.en} ${backdropOf(n.en!)}`)
+    expect(differ).toEqual([])
+  })
+
+  test('舞台背景板：氛围带底色接上背景板第一行；立绘叠在上面；随时段变', () => {
+    const st = stageFrame(P, [{ id: 'xiaoman', expression: 'normal' }], 'near', 0)
+    for (const k of ['room', 'hall', 'street', 'shop', 'field', 'water', 'roof'] as const) {
+      for (const time of ['day', 'dusk'] as const) {
+        const bd = backdrop(k, { time }, 76, st.length, 0)
+        expect([k, time, bd[0]![1]]).toEqual([k, time, backdropTop(k, { time })])
+      }
+      const both = over(backdrop(k, { time: 'night' }, 76, st.length, 0), st)
+      expect([k, both.flat().filter((v, i) => st.flat()[i] !== null && v !== st.flat()[i]).length]).toEqual([k, 0])
+    }
+    expect(JSON.stringify(backdrop('street', { time: 'night' }, 76, 30, 0))).not.toEqual(JSON.stringify(backdrop('street', { time: 'day' }, 76, 30, 0)))
+  })
+
   test('氛围带：每种粒子都画得出来，而且会动', () => {
     for (const fx of ['rain', 'snow', 'fireflies', 'cicadas', 'lanterns', 'meteors', 'stars', 'mist'] as const) {
       const f1 = atmoBand(fx, '#f2a65a', 76, 1)
@@ -92,6 +128,36 @@ describe('像素画面', () => {
       expect([fx, lit(f1) + lit(f2) > 0, JSON.stringify(f1) !== JSON.stringify(f2)]).toEqual([fx, true, true])
     }
     expect(lit(atmoBand('none', '#fff', 76, 1))).toBe(0)
+  })
+
+  test('标题页、结局粒子、生成中的小路、信物画框', () => {
+    const card = cardFrame({ big: 'CICADAS', small: 'AI GALGAME', color: '#f2c14e', accent: '#f8bbd0', style: 'fade' }, 76, CARD_FRAMES, 0)
+    const figs = P.cast.map(c => portraitFrame(c.sprite, 'normal', 1))
+    const ts = titleScene(card, figs, 76, 0)
+    expect(ts.length).toBe(card.length + figs[0]!.length + 4)
+    // 头像帧最下面留一行透明，看得见的脚落在草地正上方一行：那一行里五个人各有像素
+    const feet = ts[ts.length - 3]!
+    const slot = Math.floor(76 / P.cast.length)
+    expect(P.cast.map((_, i) => feet.slice(i * slot, (i + 1) * slot).some(v => v !== null && v !== feet[i * slot])).every(Boolean)).toBe(true)
+    const kinds = ['true', 'good', 'normal', 'bad'].map(k => JSON.stringify(endFx(k, 76, 20, 3)))
+    expect(new Set(kinds).size).toBe(4)
+    expect(JSON.stringify(endFx('bad', 76, 20, 3))).not.toEqual(JSON.stringify(endFx('bad', 76, 20, 4)))
+    const fig = portraitFrame(P.cast[0]!.sprite, 'normal', 1)
+    expect(walkFrame(fig, 76, 0).length).toBe(WALK_H)
+    expect(JSON.stringify(walkFrame(fig, 76, 5))).not.toEqual(JSON.stringify(walkFrame(fig, 76, 6)))
+    // 窄屏、人多时也不越界：每一行都正好 w 个像素，没有写到数组外面的键
+    const six = [...figs, figs[0]!]
+    const rowsOk = (px: (number | null)[][], w: number) => px.every(r => r.length === w && Object.keys(r).length === w)
+    const bad: string[] = []
+    for (const w of [30, 40, 45, 50, 60, 61, 79]) {
+      if (!rowsOk(titleScene(cardFrame({ big: 'CICADAS', color: '#fff', accent: '#fff', style: 'fade' }, w, CARD_FRAMES, 0), six, w, 0), w)) bad.push(`title ${w}`)
+      if (!rowsOk(walkFrame(portraitFrame(P.cast[0]!.sprite, 'normal', 1), w, 0), w)) bad.push(`walk ${w}`)
+      if (!rowsOk(townMap(P.places, new Set(P.places.map(x => x.id)), {}, Object.fromEntries(P.places.map(x => [x.id, ['#ffffff', '#ffffff', '#ffffff', '#ffffff', '#ffffff']])), w, 0), w)) bad.push(`map ${w}`)
+    }
+    expect(bad).toEqual([])
+    expect(['dark', 'light', 'light-daltonized', 'dark-ansi', 'auto', '', 3].map(bgOfTheme)).toEqual(['dark', 'light', 'light', 'dark', null, null, null])
+    const f = framed([[null, 1], [2, null]])
+    expect([f.length, f[0]!.length, f[1]![1], f[0]![0]]).toEqual([4, 4, null, PX.frame])
   })
 
   test('小镇地图：开放的地点亮着、标着按键数字，关着的暗', () => {

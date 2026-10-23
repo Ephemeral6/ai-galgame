@@ -29,10 +29,12 @@ import {
 import type { PlanOption } from './engine'
 import { ACHIEVEMENTS, EMPTY_FEATS, achievementsOnFinish, achievementsOnScene, dailyChallenge, dailyShare, okFeats } from './feats'
 import type { AchievementId, Feats } from './feats'
-import { BAND_H, CARD_FRAMES, DEFAULT_THEME, atmoBand, cardFrame, fxOf, mapSize, relationGraph, stageDirections, themeOf, tint, townMap } from './fx'
+import { BAND_H, CARD_FRAMES, DEFAULT_THEME, WALK_H, atmoBand, backdrop, backdropOf, backdropTop, cardFrame, endFx, fxOf, mapSize, over, relationGraph, stageDirections, themeOf, tint, titleScene, townMap, walkFrame } from './fx'
 import type { CardSpec } from './fx'
 import { LANGS, helpLines, t } from './i18n'
 import type { UiKey } from './i18n'
+import { FALLBACK, KIND, PX, STATE_CB, STATE_KEYS, TEXT, bgOfTheme, css, framed, inkOn, onScreen, readable } from './theme'
+import type { Bg } from './theme'
 import { AWAY_MS, EXTRA_KEYS, awayLetter, diaryEntry, nightGossip, portraitOf, tendencies } from './native'
 import type { ExtraKey } from './native'
 import { castOf, chapterOf, dayText, meterOf, packText, personOf, tr, validatePack } from './pack'
@@ -447,14 +449,24 @@ async function goTo($: EngineInterface, opt: PlanOption, who: string | null): Pr
   await unlock($, achievementsOnScene(f), st.lang)
 }
 
+/**
+ * 新台词、选项、余波都加在面板最下面。内容比窗口高时它们落在窗口外，
+ * 而数字热键只对整个在窗口里的按钮生效（实机 45 行高的终端里选项按不到），所以滚到底。
+ */
+function toEnd($: EngineInterface): void {
+  void $.ui.scroll({ in: PANE, to: 'end' }).catch(() => {})
+}
+
 async function nextLine($: EngineInterface): Promise<void> {
   const s = await update($, story, x => ({ ...x, reveal: x.reveal + 1 }))
+  toEnd($)
   const line = s.scene?.lines[s.reveal - 1]
   if (line) speak($, await read($, settings), line.text)
 }
 
 async function revealAll($: EngineInterface): Promise<void> {
   await update($, story, x => ({ ...x, reveal: 999 }))
+  toEnd($)
 }
 
 async function choose($: EngineInterface, c: Choice): Promise<void> {
@@ -465,6 +477,7 @@ async function choose($: EngineInterface, c: Choice): Promise<void> {
   await snapshot($)
   const r = applyChoice(p, s, c, st.lang)
   await update($, story, () => r.story)
+  toEnd($)
   sfx($, st, 'choice')
   await touchSeen($)
   if (!(await overBudget($))) for (const id of r.keepsakeFor) void makeKeepsake($, p, id, st.lang)
@@ -1007,15 +1020,17 @@ function hearts(n: number, max: number, on = '♥', off = '♡'): string {
   return on.repeat(full) + off.repeat(5 - full)
 }
 
-const PALETTES = {
-  default: { reply: '#7fd1c7', observe: '#9aa0a6', promise: '#f2c14e', kept: '#81c784', broken: '#e57373', event: '#e57373', info: '#9fc5e8' },
-  // Okabe–Ito：色盲也分得开；同时都带不同图标
-  cb: { reply: '#56b4e9', observe: '#cc79a7', promise: '#f0e442', kept: '#009e73', broken: '#d55e00', event: '#e69f00', info: '#56b4e9' },
-} as const
 const KIND_ICON: Record<string, string> = { reply: '❝', observe: '◎', promise: '✦', keep: '✔' }
-const ACCENT = '#f2c14e'
-const DIM = '#8a8f98'
-const INK = '#1e1a1a'
+// 终端深浅：session.start、/gal 时从 /config 的 theme 推一次（模块变量，画面板时只读）；推不出按深色
+let detectedBg: Bg | null = null
+async function detectBg($: EngineInterface): Promise<void> {
+  try {
+    const row = (await $.config.list()).find(r => r.key === 'theme')
+    detectedBg = bgOfTheme(row?.value)
+  } catch {
+    detectedBg = null
+  }
+}
 const TONE_ORDER: Tone[] = ['honest', 'evasive', 'joking', 'committed', 'caring', 'bold']
 
 export const register: Register = on => {
@@ -1029,6 +1044,7 @@ export const register: Register = on => {
     if (okFeats(f)) await update($, feats, () => f)
     await loadExtraPacks($)
     await migrate($)
+    await detectBg($)
     return next(e)
   })
 
@@ -1073,6 +1089,7 @@ export const register: Register = on => {
 
   on('command.run', { command: 'gal' }, async ($, e) => {
     await migrate($)
+    await detectBg($)
     const st = await read($, settings)
     const args = e.args.trim()
     if (args.startsWith('validate')) {
@@ -1164,7 +1181,10 @@ export const register: Register = on => {
     const compact = st.layout === 'compact' || (st.layout !== 'full' && cols < 80)
     const anim = st.anim !== false
     const Raster = RasterEl
-    const C = PALETTES[st.palette === 'cb' ? 'cb' : 'default']
+    const BG: Bg = st.bg === 'dark' || st.bg === 'light' ? st.bg : detectedBg ?? 'dark'
+    const TX = TEXT[BG]
+    const cb = st.palette === 'cb'
+    const C = { ...(cb ? KIND.cb : KIND.default), ...(cb ? STATE_CB : STATE_KEYS) }
     const stageW = Math.min(STAGE_W, cols - 4)
     const canStage = !!Raster && stageW >= 60
     const nextLayers: Layer[] = []
@@ -1173,8 +1193,10 @@ export const register: Register = on => {
 
     const inScene = view.view === 'game' && (s.phase === 'scene' || s.phase === 'after') && !!s.scene
     const theme = inScene ? themeOf(s.scene?.atmo) : DEFAULT_THEME
-    const colorOf = (id: string) => (id === 'me' ? '#7fd1c7' : personOf(p, id)?.color ?? '#cccccc')
-    const tinted = (id: string) => tint(colorOf(id), theme, inScene ? 0.22 : 0)
+    // rawColor 给色块和像素；colorOf 是当前景用的、对终端底色够对比的版本
+    const rawColor = (id: string) => (id === 'me' ? TX.me : personOf(p, id)?.color ?? FALLBACK)
+    const colorOf = (id: string) => readable(rawColor(id), BG)
+    const tinted = (id: string) => tint(rawColor(id), theme, inScene ? 0.22 : 0)
     const nameOf = (id: string) => (id === 'me' ? T(p.me) : T(personOf(p, id)?.name) || id)
     const shortOf = (id: string) => T(personOf(p, id)?.short) || id
 
@@ -1182,9 +1204,10 @@ export const register: Register = on => {
     const raster = (key: string, w: number, rowsPx: number, draw: (t: number) => Px[][], moving = true) => {
       if (!Raster) return null
       const rows = Math.ceil(rowsPx / 2)
-      const c = cells(draw(frame))
+      const lit = (tt: number) => onScreen(draw(tt))
+      const c = cells(lit(frame))
       lastCells[key] = c
-      if (moving && anim) nextLayers.push({ key, cols: w, rows, draw })
+      if (moving && anim) nextLayers.push({ key, cols: w, rows, draw: lit })
       return <Raster key={key} columns={w} rows={rows} cells={c} />
     }
     /** 标题卡：开场、章名、结局。动画开着时 6 帧淡入或擦入，之后静止 */
@@ -1209,89 +1232,93 @@ export const register: Register = on => {
         ))}
       </Box>
     )
-    const autoKey = { k: 'o', label: ao.on ? `O ${L('autoStop')}` : `O ${L('autoStart')}`, keep: true, dim: !ao.on, on: () => void toggleAuto($) }
+    const autoKey = { k: 'o', label: ao.on ? L('autoStop') : L('autoStart'), keep: true, dim: !ao.on, on: () => void toggleAuto($) }
     const autoInfo = (
       <Box flexDirection="column">
-        {ao.on && ao.reason ? <Text color={DIM} italic wrap="wrap">{ao.reason}</Text> : null}
-        {!ao.on && ao.note ? <Text color={ACCENT} wrap="wrap">{ao.note}</Text> : null}
+        {ao.on && ao.reason ? <Text dimColor italic wrap="wrap">{ao.reason}</Text> : null}
+        {!ao.on && ao.note ? <Text color={TX.accent} wrap="wrap">{ao.note}</Text> : null}
       </Box>
     )
     // 后台任务的横幅：等确认要读哪些文件（Y / N）、生成中（K 取消）、上一条结果
     const jobBanner = jb.kind === 'confirm' && jb.scan ? (
-      <Box key="job" flexDirection="column" borderStyle="round" borderColor={ACCENT} paddingX={1}>
+      <Box key="job" flexDirection="column" borderStyle="round" borderColor={TX.accent} paddingX={1}>
         <Text wrap="wrap">{L('repoConfirm', { files: jb.scan.files.join('、'), n: jb.scan.files.length, kb: Math.max(1, Math.round(jb.scan.bytes / 1024)) })}</Text>
         <Box flexDirection="row" gap={2}>
-          <Button key="job-yes" hotkey="y" plain onPress={() => void runRepo($)}><Text color={ACCENT} bold>{L('repoYes')}</Text></Button>
+          <Button key="job-yes" hotkey="y" plain onPress={() => void runRepo($)}><Text color={TX.accent} bold>{L('repoYes')}</Text></Button>
           <Button key="job-no" hotkey="n" plain onPress={() => void cancelJob($)}>{L('repoNo')}</Button>
         </Box>
       </Box>
     ) : jb.kind === 'gen' || jb.kind === 'repo' ? (
       <Box key="job" flexDirection="row" gap={2} flexWrap="wrap">
         <Text color={C.info}>⟳ {jobLine(lang, jb)}</Text>
-        <Button key="job-cancel" hotkey="k" plain onPress={() => void cancelJob($)}>K {L('repoNo').replace(/^N /, '')}</Button>
+        <Button key="job-cancel" hotkey="k" plain onPress={() => void cancelJob($)}>{L('repoNo')}</Button>
       </Box>
-    ) : jb.message && view.view === 'packs' ? <Text key="job" color={DIM} wrap="wrap">{jb.message}</Text> : null
+    ) : jb.message && view.view === 'packs' ? <Text key="job" dimColor wrap="wrap">{jb.message}</Text> : null
     const watchInfo = st.watch !== false && wk.notice && s.phase !== 'title'
       ? <Text color={wk.notice === 'busy' ? C.info : C.event} bold={wk.notice !== 'busy'} wrap="wrap">{wk.notice === 'busy' ? '◷ ' : '⏸ '}{L(wk.notice === 'busy' ? 'watchBusy' : wk.notice === 'done' ? 'watchDone' : 'watchPermission')}</Text>
       : null
 
     const calendar = () => {
-      const chars: { ch: string; color: string }[] = []
+      const chars: { ch: string; color?: string }[] = []
       for (let d = 1; d <= p.days; d++) {
         const ev = p.events.some(x => x.day === d) || p.fixed.some(x => x.day === d)
-        chars.push(d < s.day ? { ch: '▪', color: DIM } : d === s.day ? { ch: '◉', color: theme } : ev ? { ch: '◆', color: C.event } : { ch: '·', color: DIM })
+        chars.push(d < s.day ? { ch: '▪' } : d === s.day ? { ch: '◉', color: readable(theme, BG) } : ev ? { ch: '◆', color: C.event } : { ch: '·' })
       }
-      return <Text>{chars.map((c, i) => <Text key={`cal${i}`} color={c.color}>{c.ch}</Text>)}</Text>
+      return <Text>{chars.map((c, i) => <Text key={`cal${i}`} color={c.color} dimColor={!c.color}>{c.ch}</Text>)}</Text>
     }
 
     const maxAff = p.gates[4]?.affection ?? 12
     const costText = L('costLine', { run: usd(s.usage.cost ?? 0), today: usd(spentToday) })
+    // 分隔线：设置、存档、剧本、成就这几屏用它代替圆角框
+    const rule = '─'.repeat(Math.max(10, Math.min(cols - 2, 76)))
+    // 当前标签：inverse 芯片；其余标签由按钮的 dimColor 变暗
+    const tabChip = (cur: boolean, label: string) => (cur ? <Text inverse bold> ▶ {label} </Text> : label)
+    // 顶栏：两行、无边框，下面一根主题色分隔线。剧情里只列在场的人和这一幕好感变了的人
+    const onStage = new Set(inScene ? s.scene!.cast.map(a => a.id) : [])
     const header = (
-      <Box flexDirection="column" borderStyle="round" borderColor={theme} paddingX={1}>
-        <Box flexDirection="row" justifyContent="space-between" flexWrap="wrap">
-          <Text bold color={theme}>{T(p.title)}</Text>
-          <Text color={DIM}>{ao.on ? <Text color={ACCENT} bold>{L('autoBadge')} · </Text> : null}{chapterOf(p, lang, s.day)}{s.loop > 1 ? ` · ${L('runN', { n: s.loop })}` : ''}{p.features?.timeLoop ? ` · ${L('loopNotice', { n: s.cycle })}` : ''}{s.daily ? ` · ${L('dailyMenu')}` : ''}</Text>
-        </Box>
-        <Box flexDirection="row" justifyContent="space-between" flexWrap="wrap">
+      <Box flexDirection="column">
+        <Box flexDirection="row" justifyContent="space-between" flexWrap="wrap" columnGap={2}>
           <Text>
             <Text bold>{dayText(p, lang, s.day)} · {T(p.slots[s.slot])}</Text>
             {compact ? null : <Text>  </Text>}
             {compact ? null : calendar()}
           </Text>
-          <Text color={DIM}>{costText}</Text>
+          <Text dimColor>{ao.on ? <Text color={TX.accent} bold>{L('autoBadge')} · </Text> : null}{T(p.title)} · {chapterOf(p, lang, s.day)}{s.loop > 1 ? ` · ${L('runN', { n: s.loop })}` : ''}{p.features?.timeLoop ? ` · ${L('loopNotice', { n: s.cycle })}` : ''}{s.daily ? ` · ${L('dailyMenu')}` : ''} · {costText}</Text>
         </Box>
         <Box flexDirection="row" columnGap={2} flexWrap="wrap">
           {p.cast.map(c => {
             const hs = s.heroines[c.id]
             if (!hs) return null
+            if (inScene && !onStage.has(c.id) && !s.deltas[c.id]) return null
             const mt = meterOf(c)
             const d = s.deltas[c.id] ?? 0
             return (
               <Text key={`hs-${c.id}`}>
-                <Text color={tinted(c.id)} bold>{T(c.short)} </Text>
-                {mt.label ? <Text color={DIM}>{T(mt.label)} </Text> : null}
-                <Text color={tinted(c.id)}>{hearts(hs.affection, maxAff, mt.full, mt.empty)}</Text>
+                <Text color={readable(tinted(c.id), BG)} bold>{T(c.short)} </Text>
+                {mt.label ? <Text dimColor>{T(mt.label)} </Text> : null}
+                <Text color={readable(tinted(c.id), BG)}>{hearts(hs.affection, maxAff, mt.full, mt.empty)}</Text>
                 {d ? <Text color={d > 0 ? C.kept : C.broken} bold>{d > 0 ? ` +${d}` : ` ${d}`}</Text> : null}
-                {compact ? null : <Text color={DIM}> {T(p.stages[hs.stage])}</Text>}
+                {compact ? null : <Text dimColor> {T(p.stages[hs.stage])}</Text>}
               </Text>
             )
           })}
         </Box>
+        <Text color={theme}>{'─'.repeat(Math.max(10, Math.min(cols - 2, 96)))}</Text>
       </Box>
     )
 
     const gameKeys = (extraItems: Parameters<typeof keyBar>[0] = []) => keyBar([
       ...extraItems,
-      canUndo && s.phase !== 'loading' && { k: 'u', label: `U ${L('undo')}`, on: () => void rewind($) },
-      { k: 's', label: `S ${L('saves')}`, on: () => void update($, ui, x => ({ ...x, view: 'saves' as View, saveMode: 'save' as const, back: 'game' as View })) },
-      { k: 'p', label: `P ${L('album')}`, on: () => void update($, ui, x => ({ ...x, view: 'album' as View, tab: 0, back: 'game' as View })) },
-      { k: 'r', label: `R ${L('graphKey')}`, on: () => void update($, ui, x => ({ ...x, view: 'graph' as View, back: 'game' as View })) },
-      { k: 'h', label: `H ${L('help')}`, on: () => void update($, ui, x => ({ ...x, view: 'help' as View, back: 'game' as View })) },
-      { k: 't', label: `T ${L('toTitle')}`, on: () => void update($, story, x => ({ ...x, phase: x.phase === 'loading' ? x.phase : ('title' as const) })) },
+      canUndo && s.phase !== 'loading' && { k: 'u', label: L('undo'), on: () => void rewind($) },
+      { k: 's', label: L('saves'), on: () => void update($, ui, x => ({ ...x, view: 'saves' as View, saveMode: 'save' as const, back: 'game' as View })) },
+      { k: 'p', label: L('album'), on: () => void update($, ui, x => ({ ...x, view: 'album' as View, tab: 0, back: 'game' as View })) },
+      { k: 'r', label: L('graphKey'), on: () => void update($, ui, x => ({ ...x, view: 'graph' as View, back: 'game' as View })) },
+      { k: 'h', label: L('help'), on: () => void update($, ui, x => ({ ...x, view: 'help' as View, back: 'game' as View })) },
+      { k: 't', label: L('toTitle'), on: () => void update($, story, x => ({ ...x, phase: x.phase === 'loading' ? x.phase : ('title' as const) })) },
       autoKey,
-      { k: 'e', label: `E ${L('settings')}`, keep: true, on: () => void update($, ui, x => ({ ...x, view: 'settings' as View, tab: 0, back: 'game' as View })) },
+      { k: 'e', label: L('settings'), keep: true, on: () => void update($, ui, x => ({ ...x, view: 'settings' as View, tab: 0, back: 'game' as View })) },
     ])
-    const backKey = keyBar([{ k: 'b', label: `B ${L('back')}`, dim: false, on: () => void update($, ui, x => ({ ...x, view: x.back === x.view ? 'game' : x.back })) }])
+    const backKey = keyBar([{ k: 'b', label: L('back'), dim: false, on: () => void update($, ui, x => ({ ...x, view: x.back === x.view ? 'game' : x.back })) }])
 
     // ---------- 设置（分页；这里的按钮都不打断自动模式） ----------
     if (view.view === 'settings') {
@@ -1301,7 +1328,7 @@ export const register: Register = on => {
       const SEC_KEYS = ['z', 'x', 'c', 'v', 'n']
       const row = (key: string, hk: string, label: string, value: string, act: () => void, hint?: string) => (
         <Button key={key} hotkey={hk} plain onPress={act}>
-          {label}  <Text color={ACCENT}>{value}</Text>{hint ? <Text color={DIM}>  {hint}</Text> : null}
+          {label}  <Text color={TX.accent}>{value}</Text>{hint ? <Text dimColor>  {hint}</Text> : null}
         </Button>
       )
       const onOff = (b: boolean | undefined) => (b ? L('on') : L('off'))
@@ -1315,6 +1342,7 @@ export const register: Register = on => {
           row('set-map', '4', L('mapSet'), onOff(st.map !== false), () => void setSettings($, x => ({ ...x, map: x.map === false }))),
           row('set-layout', '5', L('layout'), L(`layout_${st.layout ?? 'auto'}` as UiKey), () => void setSettings($, x => ({ ...x, layout: cyc(['auto', 'compact', 'full'] as const, x.layout ?? 'auto') }))),
           row('set-palette', '6', L('palette'), L(`palette_${st.palette ?? 'default'}` as UiKey), () => void setSettings($, x => ({ ...x, palette: x.palette === 'cb' ? 'default' : 'cb' }))),
+          row('set-bg', '0', L('bgSet'), L(`bg_${st.bg ?? 'auto'}` as UiKey), () => void setSettings($, x => ({ ...x, bg: cyc(['auto', 'dark', 'light'] as const, x.bg ?? 'auto') })), detectedBg ? L('bgDetected', { bg: L(`bg_${detectedBg}` as UiKey) }) : undefined),
           row('set-voice', '7', L('voice'), onOff(st.voice), () => void setSettings($, x => ({ ...x, voice: !x.voice }))),
           row('set-sfx', '8', L('sfx'), onOff(st.sfx), () => void setSettings($, x => ({ ...x, sfx: !x.sfx }))),
           row('set-short', '9', L('short'), onOff(st.short), () => void setSettings($, x => ({ ...x, short: !x.short }))),
@@ -1333,11 +1361,11 @@ export const register: Register = on => {
           row('set-writer', '1', L('writer'), L(st.writer === 'haiku' ? 'writer_haiku' : 'writer_sonnet'), () => void setSettings($, x => ({ ...x, writer: x.writer === 'haiku' ? 'sonnet' : 'haiku' }))),
           row('set-budget', '2', L('budget'), st.budget ? usd(st.budget) : L('budgetNone'), () => void setSettings($, x => ({ ...x, budget: cyc(BUDGETS, x.budget ?? 0) }))),
           <Box key="usage" flexDirection="column" marginTop={1}>
-            <Text color={DIM}>{L('usage')}</Text>
-            <Text color={DIM}>{L('usageLine', { w: u.writer, c: u.checker, i: u.input, r: u.cacheRead, o: u.output })}</Text>
-            <Text color={DIM}>{L('usagePilot', { n: u.pilot ?? 0, i: u.pilotIn ?? 0, o: u.pilotOut ?? 0 })}</Text>
-            <Text color={DIM}>{L('usageExtra', { n: u.extra ?? 0, i: u.extraIn ?? 0, o: u.extraOut ?? 0 })}</Text>
-            <Text color={DIM}>{L('usageCost', { run: usd(u.cost ?? 0), today: usd(spentToday) })}</Text>
+            <Text dimColor>{L('usage')}</Text>
+            <Text dimColor>{L('usageLine', { w: u.writer, c: u.checker, i: u.input, r: u.cacheRead, o: u.output })}</Text>
+            <Text dimColor>{L('usagePilot', { n: u.pilot ?? 0, i: u.pilotIn ?? 0, o: u.pilotOut ?? 0 })}</Text>
+            <Text dimColor>{L('usageExtra', { n: u.extra ?? 0, i: u.extraIn ?? 0, o: u.extraOut ?? 0 })}</Text>
+            <Text dimColor>{L('usageCost', { run: usd(u.cost ?? 0), today: usd(spentToday) })}</Text>
           </Box>,
         ]
       } else {
@@ -1349,15 +1377,15 @@ export const register: Register = on => {
       }
       return finishRender(
         <Box flexDirection="column">
-          <Text bold color={ACCENT}>{L('settings')}{ao.on ? <Text color={DIM}> · {L('autoBadge')}</Text> : null}</Text>
+          <Text bold color={TX.accent}>{L('settings')}{ao.on ? <Text dimColor> · {L('autoBadge')}</Text> : null}</Text>
           <Box flexDirection="row" gap={2} flexWrap="wrap">
             {SECS.map((k, i) => (
-              <Button key={`sec${i}`} hotkey={SEC_KEYS[i]} plain dimColor={sec !== i} onPress={() => void update($, ui, x => ({ ...x, tab: i }))}>{sec === i ? '▶ ' : ''}{SEC_KEYS[i]!.toUpperCase()} {L(k)}</Button>
+              <Button key={`sec${i}`} hotkey={SEC_KEYS[i]} plain dimColor={sec !== i} onPress={() => void update($, ui, x => ({ ...x, tab: i }))}>{tabChip(sec === i, L(k))}</Button>
             ))}
           </Box>
           <Box flexDirection="column" marginTop={1}>{body}</Box>
-          {sec === 0 ? <Text color={DIM} wrap="wrap">{L('importHint', { dir: '~/.claude/galgame-packs' })}</Text> : null}
-          {keyBar([{ k: 'b', label: `B ${L('back')}`, dim: false, keep: true, on: () => void update($, ui, x => ({ ...x, view: x.back === x.view ? 'game' : x.back, tab: 0 })) }])}
+          {sec === 0 ? <Text dimColor wrap="wrap">{L('importHint', { dir: '~/.claude/galgame-packs' })}</Text> : null}
+          {keyBar([{ k: 'b', label: L('back'), dim: false, keep: true, on: () => void update($, ui, x => ({ ...x, view: x.back === x.view ? 'game' : x.back, tab: 0 })) }])}
         </Box>,
       )
     }
@@ -1366,7 +1394,7 @@ export const register: Register = on => {
     if (view.view === 'help') {
       return finishRender(
         <Box flexDirection="column">
-          <Text bold color={ACCENT}>{L('help')}</Text>
+          <Text bold color={TX.accent}>{L('help')}</Text>
           <Box flexDirection="column" marginTop={1} gap={1}>
             {helpLines(lang).map((x, i) => <Text key={`help${i}`} wrap="wrap">{x}</Text>)}
           </Box>
@@ -1383,24 +1411,24 @@ export const register: Register = on => {
       const revealed = (p.relations ?? []).filter(r => r.hiddenUntil === undefined || [r.a, r.b].some(x => castOf(p, x) && (s.heroines[x]?.stage ?? 0) >= r.hiddenUntil!))
       return finishRender(
         <Box flexDirection="column">
-          <Text bold color={ACCENT}>{L('graph')}</Text>
+          <Text bold color={TX.accent}>{L('graph')}</Text>
           {Raster && !compact ? raster('graph', gw, gh, tt => relationGraph(p, s, s.deltas, gw, gh, tt).px, Object.keys(s.deltas).length > 0) : null}
           <Box flexDirection="row" columnGap={2} flexWrap="wrap">
             {graph.nodes.filter(n => castOf(p, n.id)).map(n => {
               const c = castOf(p, n.id)!
               const hs = s.heroines[n.id]
               const mt = meterOf(c)
-              return <Text key={`gn-${n.id}`}><Text color={c.color}>■ {T(c.short)} </Text><Text color={c.color}>{hearts(hs?.affection ?? 0, maxAff, mt.full, mt.empty)}</Text><Text color={DIM}> {T(p.stages[hs?.stage ?? 0])}</Text></Text>
+              return <Text key={`gn-${n.id}`}><Text color={colorOf(c.id)}>■ {T(c.short)} </Text><Text color={colorOf(c.id)}>{hearts(hs?.affection ?? 0, maxAff, mt.full, mt.empty)}</Text><Text dimColor> {T(p.stages[hs?.stage ?? 0])}</Text></Text>
             })}
           </Box>
           <Box flexDirection="column" marginTop={1}>
             {revealed.map((r, i) => (
-              <Text key={`rel${i}`} color={DIM} wrap="wrap">
-                <Text color={r.a === 'me' ? '#7fd1c7' : colorOf(r.a)}>{r.a === 'me' ? T(p.me) : shortOf(r.a)}</Text> — <Text color={r.b === 'me' ? '#7fd1c7' : colorOf(r.b)}>{r.b === 'me' ? T(p.me) : shortOf(r.b)}</Text>  {T(r.kind)}
+              <Text key={`rel${i}`} dimColor wrap="wrap">
+                <Text color={colorOf(r.a)}>{r.a === 'me' ? T(p.me) : shortOf(r.a)}</Text> — <Text color={colorOf(r.b)}>{r.b === 'me' ? T(p.me) : shortOf(r.b)}</Text>  {T(r.kind)}
               </Text>
             ))}
           </Box>
-          <Text color={DIM} wrap="wrap">{L('graphHint')}</Text>
+          <Text dimColor wrap="wrap">{L('graphHint')}</Text>
           {backKey}
         </Box>,
       )
@@ -1414,28 +1442,28 @@ export const register: Register = on => {
       const resEnd = resPack?.endings.find(x => x.id === res?.ending)
       return finishRender(
         <Box flexDirection="column">
-          <Text bold color={ACCENT}>{L('feats')}</Text>
-          <Text color={DIM}>{L('statsLine', { c: fe.stats.clears, s: fe.stats.scenes, cost: usd(fe.stats.cost) })}</Text>
+          <Text bold color={TX.accent}>{L('feats')}</Text>
+          <Text dimColor>{L('statsLine', { c: fe.stats.clears, s: fe.stats.scenes, cost: usd(fe.stats.cost) })}</Text>
           <Box flexDirection="column" marginTop={1}>
             {ACHIEVEMENTS.map(id => {
               const got = fe.achievements.includes(id)
-              return <Text key={`ach-${id}`} color={got ? ACCENT : DIM}>{got ? '★' : '☆'} {L(`ach_${id}` as UiKey)}<Text color={DIM}>  {L(`achd_${id}` as UiKey)}</Text></Text>
+              return <Text key={`ach-${id}`} color={got ? TX.accent : undefined} dimColor={!got}>{got ? '★' : '☆'} {L(`ach_${id}` as UiKey)}<Text dimColor>  {L(`achd_${id}` as UiKey)}</Text></Text>
             })}
           </Box>
-          <Box flexDirection="column" marginTop={1} borderStyle="round" borderColor={DIM} paddingX={1}>
+          <Box flexDirection="column" marginTop={1}><Text dimColor>{rule}</Text>
             <Text bold>{L('dailyTitle')} · {today}</Text>
-            <Text color={DIM} wrap="wrap">{L('dailyHint')}</Text>
+            <Text dimColor wrap="wrap">{L('dailyHint')}</Text>
             {res && resPack && resEnd ? (
               <>
                 <Text>{L('dailyDone', { ending: tr(resEnd.title, lang, resPack.defaultLang) })}</Text>
-                <Text color={DIM}>{L('dailyShare')} {dailyShare(today, tr(resPack.title, 'en', resPack.defaultLang), tr(resEnd.title, 'en', resPack.defaultLang), res.kind)}</Text>
+                <Text dimColor>{L('dailyShare')} {dailyShare(today, tr(resPack.title, 'en', resPack.defaultLang), tr(resEnd.title, 'en', resPack.defaultLang), res.kind)}</Text>
                 {s.daily === today && s.phase === 'ending' ? endingCard(s, p, lang).split('\n').map((x, i) => <Text key={`dcard${i}`}>{x}</Text>) : null}
               </>
             ) : (
               <Button key="daily-start" hotkey="1" plain onPress={hit(() => void startDaily($))}>{L('dailyStart', { title: tr(dc.pack.title, lang, dc.pack.defaultLang) })}</Button>
             )}
           </Box>
-          {keyBar([{ k: 'b', label: `B ${L('back')}`, dim: false, on: () => void update($, ui, x => ({ ...x, view: 'game' as View })) }])}
+          {keyBar([{ k: 'b', label: L('back'), dim: false, on: () => void update($, ui, x => ({ ...x, view: 'game' as View })) }])}
         </Box>,
       )
     }
@@ -1446,8 +1474,8 @@ export const register: Register = on => {
       return finishRender(
         <Box flexDirection="column">
           <Box flexDirection="row" gap={2}>
-            <Button key="pk-tab0" hotkey="l" plain dimColor onPress={hit(() => void update($, ui, x => ({ ...x, tab: 0 })))}>L {L('packs')}</Button>
-            <Text bold color={ACCENT}>▶ {L('community')}</Text>
+            <Button key="pk-tab0" hotkey="l" plain dimColor onPress={hit(() => void update($, ui, x => ({ ...x, tab: 0 })))}>{L('packs')}</Button>
+            <Text>{tabChip(true, L('community'))}</Text>
           </Box>
           {jobBanner}
           {jb.kind === 'browse' ? <Text color={C.info}>⟳ {L('communityLoading')}</Text> : null}
@@ -1455,15 +1483,15 @@ export const register: Register = on => {
             {jb.entries.map((en, i) => (
               <Button key={`cm-${en.id}`} hotkey={i < 9 ? String(i + 1) : undefined} plain onPress={hit(() => void install($, en.id))}>
                 <Text bold>{en.title}</Text>
-                <Text color={DIM}>  {en.author} · {en.license} · {en.lang}  </Text>
-                <Text color={ACCENT}>{installed.has(en.id) ? L('update') : L('install')}</Text>
-                {compact ? null : <Text color={DIM}>  {en.summary}</Text>}
+                <Text dimColor>  {en.author} · {en.license} · {en.lang}  </Text>
+                <Text color={TX.accent}>{installed.has(en.id) ? L('update') : L('install')}</Text>
+                {compact ? null : <Text dimColor>  {en.summary}</Text>}
               </Button>
             ))}
           </Box>
           {keyBar([
-            { k: 'g', label: `G ${L('communityLoading').replace(/[….]+$/, '')}`, on: () => void browse($) },
-            { k: 'b', label: `B ${L('back')}`, dim: false, on: () => void update($, ui, x => ({ ...x, view: 'game' as View, tab: 0 })) },
+            { k: 'g', label: L('communityLoading').replace(/[….]+$/, ''), on: () => void browse($) },
+            { k: 'b', label: L('back'), dim: false, on: () => void update($, ui, x => ({ ...x, view: 'game' as View, tab: 0 })) },
           ])}
         </Box>,
       )
@@ -1473,8 +1501,8 @@ export const register: Register = on => {
       return finishRender(
         <Box flexDirection="column">
           <Box flexDirection="row" gap={2}>
-            <Text bold color={ACCENT}>▶ {L('packs')}</Text>
-            <Button key="pk-tab1" hotkey="c" plain dimColor onPress={hit(() => { void update($, ui, x => ({ ...x, tab: 1 })); if (!jb.entries.length) void browse($) })}>C {L('community')}</Button>
+            <Text>{tabChip(true, L('packs'))}</Text>
+            <Button key="pk-tab1" hotkey="c" plain dimColor onPress={hit(() => { void update($, ui, x => ({ ...x, tab: 1 })); if (!jb.entries.length) void browse($) })}>{L('community')}</Button>
           </Box>
           {jobBanner}
           <Box flexDirection="column" marginTop={1}>
@@ -1484,25 +1512,25 @@ export const register: Register = on => {
               const cur = q.id === st.pack
               return (
                 <Button key={`pk-${en.id}`} hotkey={i < 9 ? String(i + 1) : undefined} plain onPress={hit(() => void setSettings($, x => ({ ...x, pack: q.id })).then(() => update($, story, x => ({ ...x, phase: 'title' as const }))))}>
-                  <Text bold color={cur ? ACCENT : undefined}>{cur ? '▶ ' : '  '}{Q(q.title)}</Text>
-                  <Text color={DIM}>  {Q(q.subtitle)} · {L('castN', { n: q.cast.length })}{q.npcs?.length ? ` · ${L('npcs', { n: q.npcs.length })}` : ''} · {q.days}d · {L(`packOrigin_${en.origin}` as UiKey)}{q.langs.includes(lang) ? '' : ` · ${q.defaultLang}`}</Text>
+                  <Text bold color={cur ? TX.accent : undefined}>{cur ? '▶ ' : '  '}{Q(q.title)}</Text>
+                  <Text dimColor>  {Q(q.subtitle)} · {L('castN', { n: q.cast.length })}{q.npcs?.length ? ` · ${L('npcs', { n: q.npcs.length })}` : ''} · {q.days}d · {L(`packOrigin_${en.origin}` as UiKey)}{q.langs.includes(lang) ? '' : ` · ${q.defaultLang}`}</Text>
                 </Button>
               )
             })}
           </Box>
-          <Box flexDirection="column" marginTop={1} borderStyle="round" borderColor={DIM} paddingX={1}>
+          <Box flexDirection="column" marginTop={1}><Text dimColor>{rule}</Text>
             <Text bold>{T(p.title)}</Text>
             {p.source === 'original'
-              ? <Text color={DIM}>{L('original')} · {p.author}</Text>
-              : <Text color={DIM} wrap="wrap">{L('sourceBy', { work: T(p.source.work), author: T(p.source.author), license: T(p.source.license) })}{p.source.notice ? `\n${T(p.source.notice)}` : ''}</Text>}
-            {p.notes ? <Text wrap="wrap"><Text color={ACCENT}>{L('homage')}：</Text>{T(p.notes)}</Text> : null}
-            {p.source !== 'original' ? <Text wrap="wrap" color={DIM}>{T(p.source.adaptation)}</Text> : null}
+              ? <Text dimColor>{L('original')} · {p.author}</Text>
+              : <Text dimColor wrap="wrap">{L('sourceBy', { work: T(p.source.work), author: T(p.source.author), license: T(p.source.license) })}{p.source.notice ? `\n${T(p.source.notice)}` : ''}</Text>}
+            {p.notes ? <Text wrap="wrap"><Text color={TX.accent}>{L('homage')}：</Text>{T(p.notes)}</Text> : null}
+            {p.source !== 'original' ? <Text wrap="wrap" dimColor>{T(p.source.adaptation)}</Text> : null}
           </Box>
-          <Text color={DIM} wrap="wrap">{L('importHint', { dir: '~/.claude/galgame-packs' })}</Text>
-          <Text color={DIM} wrap="wrap">{L('genHint')}</Text>
+          <Text dimColor wrap="wrap">{L('importHint', { dir: '~/.claude/galgame-packs' })}</Text>
+          <Text dimColor wrap="wrap">{L('genHint')}</Text>
           {keyBar([
-            { k: 'f', label: `F ${L('repoKey')}`, on: () => void $.session.root().then(root => askRepo($, root, '')) },
-            { k: 'b', label: `B ${L('back')}`, dim: false, on: () => void update($, ui, x => ({ ...x, view: 'game' as View })) },
+            { k: 'f', label: L('repoKey'), on: () => void $.session.root().then(root => askRepo($, root, '')) },
+            { k: 'b', label: L('back'), dim: false, on: () => void update($, ui, x => ({ ...x, view: 'game' as View })) },
           ])}
         </Box>,
       )
@@ -1524,10 +1552,10 @@ export const register: Register = on => {
       return finishRender(
         <Box flexDirection="column">
           <Box flexDirection="row" gap={2}>
-            <Button key="mode-save" hotkey="w" plain dimColor={view.saveMode !== 'save'} onPress={hit(() => void update($, ui, x => ({ ...x, saveMode: 'save' as const })))}>{view.saveMode === 'save' ? '▶ ' : ''}{L('modeSave')}</Button>
-            <Button key="mode-load" hotkey="r" plain dimColor={view.saveMode !== 'load'} onPress={hit(() => void update($, ui, x => ({ ...x, saveMode: 'load' as const })))}>{view.saveMode === 'load' ? '▶ ' : ''}{L('modeLoad')}</Button>
+            <Button key="mode-save" hotkey="w" plain dimColor={view.saveMode !== 'save'} onPress={hit(() => void update($, ui, x => ({ ...x, saveMode: 'save' as const })))}>{tabChip(view.saveMode === 'save', L('modeSave'))}</Button>
+            <Button key="mode-load" hotkey="r" plain dimColor={view.saveMode !== 'load'} onPress={hit(() => void update($, ui, x => ({ ...x, saveMode: 'load' as const })))}>{tabChip(view.saveMode === 'load', L('modeLoad'))}</Button>
           </Box>
-          <Box flexDirection="column" marginTop={1} borderStyle="round" borderColor={DIM} paddingX={1}>
+          <Box flexDirection="column" marginTop={1}><Text dimColor>{rule}</Text>
             {[0, ...SAVE_SLOTS].map((n, i) => {
               const f = files[i] ?? null
               const label = n === 0 ? L('auto') : L('slot', { n })
@@ -1536,10 +1564,10 @@ export const register: Register = on => {
                 : (okSave(f) ? () => void loadSlot($, pack, n) : null)
               return act ? (
                 <Button key={`slot${n}`} hotkey={String(n)} plain onPress={hit(act)}>
-                  <Text bold>{label}</Text><Text color={DIM}>  {info(f)}</Text>
+                  <Text bold>{label}</Text><Text dimColor>  {info(f)}</Text>
                 </Button>
               ) : (
-                <Text key={`slotx${n}`} color={DIM}>   {label}  {info(f)}</Text>
+                <Text key={`slotx${n}`} dimColor>   {label}  {info(f)}</Text>
               )
             })}
           </Box>
@@ -1561,36 +1589,36 @@ export const register: Register = on => {
         body = mem.length ? [
           ...mem.map((x, i) => (
             <Text key={`mem${i}`} wrap="wrap">
-              <Text color={DIM}>{dayText(p, lang, x.day)} {T(p.slots[x.slot])}  </Text>
-              <Text color={x.heroine ? colorOf(x.heroine) : DIM}>{x.heroine ? `${shortOf(x.heroine)}  ` : ''}</Text>
+              <Text dimColor>{dayText(p, lang, x.day)} {T(p.slots[x.slot])} │ </Text>
+              <Text color={x.heroine ? colorOf(x.heroine) : undefined}>{x.heroine ? `${shortOf(x.heroine)}  ` : ''}</Text>
               <Text>{x.text}</Text>
             </Text>
           )),
-          ...nights.map((g, i) => <Text key={`gos${i}`} color={DIM} italic wrap="wrap">☾ {dayText(p, lang, g.day)}  {g.text}</Text>),
-        ] : <Text color={DIM}>{L('noMemories')}</Text>
+          ...nights.map((g, i) => <Text key={`gos${i}`} dimColor italic wrap="wrap">☾ {dayText(p, lang, g.day)}  {g.text}</Text>),
+        ] : <Text dimColor>{L('noMemories')}</Text>
       } else if (tab === 1) {
         const ks: Keepsake[] = pm.keepsakes
         body = ks.length ? (
           <Box flexDirection="row" flexWrap="wrap" gap={2}>
             {ks.slice(-perRow * 2).map((k, i) => (
               <Box key={`ks${i}`} flexDirection="column" width={26}>
-                {Raster ? <Raster key={`ksr${i}`} columns={24} rows={12} cells={cells(keepsakeFrame(k))} /> : null}
+                {Raster ? <Raster key={`ksr${i}`} columns={26} rows={13} cells={cells(framed(onScreen(keepsakeFrame(k))))} /> : null}
                 <Text bold color={colorOf(k.heroine)}>{k.title}</Text>
-                <Text color={DIM} wrap="wrap">{k.desc}</Text>
+                <Text dimColor wrap="wrap">{k.desc}</Text>
               </Box>
             ))}
           </Box>
-        ) : <Text color={DIM} wrap="wrap">{L('noKeepsakes')}</Text>
+        ) : <Text dimColor wrap="wrap">{L('noKeepsakes')}</Text>
       } else if (tab === 2) {
         body = (
           <Box flexDirection="column">
-            <Text color={DIM}>{L('endingsSeen', { a: seenCount, b: p.endings.length })} · {L('clears', { n: pm.clears })}</Text>
+            <Text dimColor>{L('endingsSeen', { a: seenCount, b: p.endings.length })} · {L('clears', { n: pm.clears })}</Text>
             {p.endings.map(x => {
               const seen = pm.endings.includes(x.id)
               return (
                 <Text key={`end-${x.id}`} wrap="wrap">
-                  <Text color={seen ? (x.who ? colorOf(x.who) : ACCENT) : DIM}>{seen ? '★' : '☆'} {seen ? T(x.title) : L('locked')}</Text>
-                  <Text color={DIM}>{x.who ? `  ${shortOf(x.who)}` : ''}{x.who && meterOf(castOf(p, x.who)).label ? ` · ${T(meterOf(castOf(p, x.who)).label)}` : ''}{x.kind ? ` · ${L(`end_${x.kind}` as UiKey)}` : ''}</Text>
+                  <Text color={seen ? (x.who ? colorOf(x.who) : TX.accent) : undefined} dimColor={!seen}>{seen ? '★' : '☆'} {seen ? T(x.title) : L('locked')}</Text>
+                  <Text dimColor>{x.who ? `  ${shortOf(x.who)}` : ''}{x.who && meterOf(castOf(p, x.who)).label ? ` · ${T(meterOf(castOf(p, x.who)).label)}` : ''}{x.kind ? ` · ${L(`end_${x.kind}` as UiKey)}` : ''}</Text>
                 </Text>
               )
             })}
@@ -1602,24 +1630,24 @@ export const register: Register = on => {
           <Text key={`pr${i}`} color={x.status === 'kept' ? C.kept : x.status === 'broken' ? C.broken : undefined} wrap="wrap">
             {x.status === 'kept' ? '✓' : x.status === 'broken' ? '✗' : '○'} {x.key ? '★' : ''}<Text color={colorOf(x.heroine)}>{shortOf(x.heroine)}</Text>：{x.text}（{dayText(p, lang, x.due)}）
           </Text>
-        )) : <Text color={DIM}>—</Text>
+        )) : <Text dimColor>—</Text>
       } else if (tab === 4) {
         // 她的日记：关系到「心事」解锁；打开某一天时才生成（1 次 Haiku），之后缓存在存档里
         const open = p.cast.filter(c => (s.heroines[c.id]?.stage ?? 0) >= 2)
         const pick = open.find(c => c.id === view.pick) ?? open[0]
         const days = pick ? [...new Set(s.album.filter(a => a.heroine === pick.id).map(a => a.day))].slice(-3) : []
-        body = !extraOn(st, 'diary') ? <Text color={DIM}>{L('off')}</Text> : !mine || !open.length ? <Text color={DIM} wrap="wrap">{L('diaryLocked')}</Text> : (
+        body = !extraOn(st, 'diary') ? <Text dimColor>{L('off')}</Text> : !mine || !open.length ? <Text dimColor wrap="wrap">{L('diaryLocked')}</Text> : (
           <Box flexDirection="column">
             <Box flexDirection="row" gap={2} flexWrap="wrap">
-              <Text color={DIM}>{L('diaryPick')}</Text>
-              {open.map((c, i) => <Button key={`dp-${c.id}`} hotkey={String.fromCharCode(97 + i)} plain dimColor={pick?.id !== c.id} onPress={hit(() => void update($, ui, x => ({ ...x, pick: c.id })))}><Text color={c.color}>{String.fromCharCode(65 + i)} {T(c.short)}</Text></Button>)}
+              <Text dimColor>{L('diaryPick')}</Text>
+              {open.map((c, i) => <Button key={`dp-${c.id}`} hotkey={String.fromCharCode(97 + i)} plain dimColor={pick?.id !== c.id} onPress={hit(() => void update($, ui, x => ({ ...x, pick: c.id })))}><Text color={colorOf(c.id)}>{T(c.short)}</Text></Button>)}
             </Box>
             {days.map(d => {
               const cached = s.diary[`${pick!.id}:${d}`]
               return (
                 <Box key={`dy-${d}`} flexDirection="column" marginTop={1}>
-                  <Text color={pick!.color} bold>{dayText(p, lang, d)}</Text>
-                  {cached ? <Text italic wrap="wrap">{cached}</Text> : <Button key={`dr-${d}`} plain onPress={hit(() => void genDiary($, pick!.id, d))}><Text color={DIM}>✎ {L('diaryRead')}</Text></Button>}
+                  <Text color={colorOf(pick!.id)} bold>{dayText(p, lang, d)}</Text>
+                  {cached ? <Text italic wrap="wrap">{cached}</Text> : <Button key={`dr-${d}`} plain onPress={hit(() => void genDiary($, pick!.id, d))}><Text dimColor>✎ {L('diaryRead')}</Text></Button>}
                 </Box>
               )
             })}
@@ -1629,17 +1657,17 @@ export const register: Register = on => {
         // 你在她眼里：选择倾向（本地统计，不调用模型）+ 她的话（打开时生成，缓存）
         const tend = tendencies(s)
         const met = p.cast.filter(c => (s.heroines[c.id]?.stage ?? 0) >= 1)
-        body = !extraOn(st, 'portrait') ? <Text color={DIM}>{L('off')}</Text> : (
+        body = !extraOn(st, 'portrait') ? <Text dimColor>{L('off')}</Text> : (
           <Box flexDirection="column">
-            <Text color={DIM}>{L('portraitBars')}</Text>
-            {tend.length < 1 || tend.reduce((a, b) => a + b.n, 0) < 3 ? <Text color={DIM}>{L('portraitFew')}</Text> : TONE_ORDER.filter(tn => tend.some(x => x.tone === tn)).map(tn => {
+            <Text dimColor>{L('portraitBars')}</Text>
+            {tend.length < 1 || tend.reduce((a, b) => a + b.n, 0) < 3 ? <Text dimColor>{L('portraitFew')}</Text> : TONE_ORDER.filter(tn => tend.some(x => x.tone === tn)).map(tn => {
               const x = tend.find(y => y.tone === tn)!
-              return <Text key={`tn-${tn}`}><Text>{L(`tone_${tn}` as UiKey).padEnd(lang === 'zh' ? 3 : 10, '　')} </Text><Text color={ACCENT}>{'█'.repeat(Math.max(1, Math.round(x.share * 20)))}</Text><Text color={DIM}> {x.n}</Text></Text>
+              return <Text key={`tn-${tn}`}><Text>{L(`tone_${tn}` as UiKey).padEnd(lang === 'zh' ? 3 : 10, '　')} </Text><Text color={TX.accent}>{'█'.repeat(Math.max(1, Math.round(x.share * 20)))}</Text><Text dimColor> {x.n}</Text></Text>
             })}
             {mine ? met.map((c, i) => (
               <Box key={`pt-${c.id}`} flexDirection="column" marginTop={1}>
-                <Text color={c.color} bold>{T(c.name)}</Text>
-                {s.portrait[c.id] ? <Text italic wrap="wrap">「{s.portrait[c.id]}」</Text> : <Button key={`pg-${c.id}`} hotkey={String.fromCharCode(97 + i)} plain onPress={hit(() => void genPortrait($, c.id))}><Text color={DIM}>{String.fromCharCode(65 + i)} {L('portraitGen', { name: T(c.short) })}</Text></Button>}
+                <Text color={colorOf(c.id)} bold>{T(c.name)}</Text>
+                {s.portrait[c.id] ? <Text italic wrap="wrap">「{s.portrait[c.id]}」</Text> : <Button key={`pg-${c.id}`} hotkey={String.fromCharCode(97 + i)} plain onPress={hit(() => void genPortrait($, c.id))}><Text dimColor>{L('portraitGen', { name: T(c.short) })}</Text></Button>}
               </Box>
             )) : null}
           </Box>
@@ -1649,15 +1677,16 @@ export const register: Register = on => {
         <Box flexDirection="column">
           <Box flexDirection="row" gap={2} flexWrap="wrap">
             {tabs.map((x, i) => (
-              <Button key={`tab${i}`} hotkey={String(i + 1)} plain dimColor={tab !== i} onPress={hit(() => void update($, ui, y => ({ ...y, tab: i })))}>{tab === i ? `▶ ${L(x)}` : L(x)}</Button>
+              <Button key={`tab${i}`} hotkey={String(i + 1)} plain dimColor={tab !== i} onPress={hit(() => void update($, ui, y => ({ ...y, tab: i })))}>{tabChip(tab === i, L(x))}</Button>
             ))}
           </Box>
-          <Box flexDirection="column" marginTop={1} borderStyle="round" borderColor={DIM} paddingX={1}>{body}</Box>
+          <Text dimColor>{'─'.repeat(Math.max(10, Math.min(cols - 2, 76)))}</Text>
+          <Box flexDirection="column" marginTop={1}>{body}</Box>
           {keyBar([
-            mine && s.album.length > 0 && { k: 'x', label: `X ${L('exportHtml')}`, on: () => void doExport($, 'html') },
-            mine && s.album.length > 0 && { k: 'm', label: `M ${L('exportMd')}`, on: () => void doExport($, 'md') },
-            mine && s.album.length > 0 && { k: 'c', label: `C ${L('shareText')}`, on: () => void shareText($).then(x => $.ui.toast(x)) },
-            { k: 'b', label: `B ${L('back')}`, dim: false, on: () => void update($, ui, x => ({ ...x, view: x.back === x.view ? 'game' : x.back })) },
+            mine && s.album.length > 0 && { k: 'x', label: L('exportHtml'), on: () => void doExport($, 'html') },
+            mine && s.album.length > 0 && { k: 'm', label: L('exportMd'), on: () => void doExport($, 'md') },
+            mine && s.album.length > 0 && { k: 'c', label: L('shareText'), on: () => void shareText($).then(x => $.ui.toast(x)) },
+            { k: 'b', label: L('back'), dim: false, on: () => void update($, ui, x => ({ ...x, view: x.back === x.view ? 'game' : x.back })) },
           ])}
         </Box>,
       )
@@ -1680,29 +1709,41 @@ export const register: Register = on => {
       ]
       const menu = items.map((x, i) => ({ ...x, k: String(i + 1) }))
       const cw = Math.max(40, Math.min(96, cols - 4))
-      const titleCard = card(`title-${p.id}`, { big: tr(p.title, 'en', p.defaultLang), small: 'AI GALGAME', color: ACCENT, accent: '#f8bbd0', style: 'fade' }, cw)
+      // 标题卡 + 一条星空草地，角色站在同一条地面上，合成一块像素画
+      const spec: CardSpec = { big: tr(p.title, 'en', p.defaultLang), small: 'AI GALGAME', color: css(PX.accent), accent: css(PX.accent2), style: 'fade' }
+      const figs = p.cast.slice(0, 6)
+      const figures = figs.map((c, i) => portraitFrame(c.sprite, i % 2 ? 'normal' : 'smile', 1))
+      const id = `title-${p.id}`
+      const t0 = startOf(id)
+      const sceneH = titleScene(cardFrame(spec, cw, CARD_FRAMES, 0), figures, cw, 0).length
+      const titleArt = Raster && !compact
+        ? raster(`card-${id}`.slice(0, 60), cw, sceneH, tt => titleScene(cardFrame(spec, cw, anim ? tt - t0 : CARD_FRAMES, tt), figures, cw, tt))
+        : null
+      const slotW = Math.floor(cw / Math.max(1, figs.length))
+      // 次要菜单（相册、成就、设置、帮助）并成一行
+      const minor = new Set(['album', 'feats', 'settings', 'help'])
       return finishRender(
         <Box flexDirection="column" alignItems="center">
           {jobBanner}
-          {titleCard}
-          <Box flexDirection="column" alignItems="center" borderStyle="double" borderColor={ACCENT} paddingX={3} marginTop={titleCard ? 0 : 1}>
-            <Text bold color={ACCENT}>{T(p.title)}</Text>
-            <Text color={DIM}>{T(p.subtitle)}</Text>
-          </Box>
-          {Raster && !compact ? (
-            <Box flexDirection="row" gap={2} marginTop={1} flexWrap="wrap" justifyContent="center">
-              {p.cast.slice(0, 6).map((c, i) => (
-                <Box key={`pt-${c.id}`} flexDirection="column" alignItems="center">
-                  <Raster key={`portrait-${c.id}`} columns={14} rows={PORTRAIT_ROWS} cells={cells(portraitFrame(c.sprite, i % 2 ? 'normal' : 'smile', 1))} />
-                  <Text color={c.color} bold>{T(c.name)}</Text>
-                </Box>
-              ))}
+          {titleArt}
+          {titleArt ? (
+            <Box flexDirection="row" width={cw}>
+              {figs.map(c => <Box key={`pt-${c.id}`} width={slotW} justifyContent="center"><Text color={colorOf(c.id)} bold>{T(c.short)}</Text></Box>)}
             </Box>
           ) : null}
+          <Box flexDirection="column" alignItems="center" marginTop={1}>
+            <Text bold color={TX.accent}>{T(p.title)}</Text>
+            <Text dimColor>{T(p.subtitle)}</Text>
+          </Box>
           <Box flexDirection="column" marginTop={1}>
-            {menu.map(x => (
+            {menu.filter(x => !minor.has(x.id)).map(x => (
               <Button key={`menu-${x.id}`} hotkey={x.k} variant={x.primary ? 'primary' : undefined} plain={x.primary ? undefined : true} onPress={hit(x.on)}>{x.label}</Button>
             ))}
+            <Box flexDirection="row" gap={2} flexWrap="wrap">
+              {menu.filter(x => minor.has(x.id)).map(x => (
+                <Button key={`menu-${x.id}`} hotkey={x.k} plain dimColor onPress={hit(x.on)}>{x.label}</Button>
+              ))}
+            </Box>
           </Box>
           {keyBar([autoKey])}
           {autoInfo}
@@ -1711,7 +1752,7 @@ export const register: Register = on => {
               <Button key={`lang-${l.id}`} plain dimColor={l.id !== lang} onPress={hit(() => void setSettings($, x => ({ ...x, lang: l.id })))}>{l.id === lang ? `[${l.label}]` : l.label}</Button>
             ))}
           </Box>
-          <Text color={DIM}>
+          <Text dimColor>
             {p.source === 'original' ? `${L('original')} · ${p.author}` : L('sourceBy', { work: T(p.source.work), author: T(p.source.author), license: T(p.source.license) })}
             {pm.clears > 0 ? ` · ${L('clears', { n: pm.clears })} · ${L('endingsSeen', { a: seenCount, b: p.endings.length })}` : ''}
           </Text>
@@ -1721,10 +1762,15 @@ export const register: Register = on => {
 
     // ---------- 生成中 ----------
     if (s.phase === 'loading') {
+      // 等待时一条夜路，小动物走过去；谁走由天数和时段轮换（状态里不记目的地）
+      const walker = p.cast[(s.day + s.slot) % Math.max(1, p.cast.length)]
+      const fig = walker ? portraitFrame(walker.sprite, 'normal', 1) : null
+      const walk = canStage && fig ? raster('loading', stageW, WALK_H, tt => walkFrame(fig, stageW, tt)) : null
       return finishRender(
         <Box flexDirection="column">
           {header}
-          <Box marginY={1} paddingX={2}><Text color={DIM} italic>{s.loadingText}</Text></Box>
+          {walk}
+          <Box marginY={1} paddingX={1}><Text dimColor italic>{s.loadingText}</Text></Box>
           {autoInfo}
           {watchInfo}
         </Box>,
@@ -1743,11 +1789,11 @@ export const register: Register = on => {
       // 每天第一个时段：像素「DAY n」卡（逢新章节再带英文章名），擦入
       const act = (p.acts ?? []).find(a => a.from === s.day) ?? (p.chapters ?? []).find(c => c.from === s.day)
       const cw = Math.max(40, Math.min(76, cols - 4))
-      const dayCard = s.slot === 0 ? card(`day-${p.id}-${s.cycle}-${s.day}`, { big: `DAY ${s.day}`, small: act ? tr(act.title, 'en', p.defaultLang) : undefined, color: '#f4f4f4', accent: ACCENT, style: 'wipe' }, cw) : null
+      const dayCard = s.slot === 0 ? card(`day-${p.id}-${s.cycle}-${s.day}`, { big: `DAY ${s.day}`, small: act ? tr(act.title, 'en', p.defaultLang) : undefined, color: css(PX.title), accent: css(PX.accent), style: 'wipe', layout: 'inline' }, cw) : null
       // 像素小镇地图：开放的地点亮着，标着按键数字，下面是可能遇见的人
       const labels: Record<string, string> = {}
       const maybe: Record<string, string[]> = {}
-      opts.forEach((o, i) => { if (o.id) { labels[o.id] = String(i + 1); maybe[o.id] = o.maybe.map(colorOf) } })
+      opts.forEach((o, i) => { if (o.id) { labels[o.id] = String(i + 1); maybe[o.id] = o.maybe.map(rawColor) } })
       const mw = Math.max(40, Math.min(76, cols - 4))
       const showMap = !!Raster && !compact && st.map !== false && !forced
       return finishRender(
@@ -1756,14 +1802,14 @@ export const register: Register = on => {
           {dayCard}
           {todayEv ? <Text color={C.event}>◆ {L('today', { text: todayEv })}</Text> : null}
           {inc && !inc.places ? <Text color={C.info} wrap="wrap">◇ {L('happening', { text: T(inc.text) })}</Text> : null}
-          {night && extraOn(st, 'gossip') ? <Text color={DIM} italic wrap="wrap">☾ {L('gossipNight', { text: night.text })}</Text> : null}
+          {night && extraOn(st, 'gossip') ? <Text dimColor italic wrap="wrap">☾ {L('gossipNight', { text: night.text })}</Text> : null}
           {s.letter ? (
             <Box flexDirection="column" borderStyle="round" borderColor={colorOf(s.letter.from)} paddingX={1}>
               <Text color={colorOf(s.letter.from)} bold>{L('letterFrom', { name: shortOf(s.letter.from) })}</Text>
               <Text wrap="wrap">{s.letter.text}</Text>
             </Box>
           ) : null}
-          {s.after ? <Text color={ACCENT} wrap="wrap">{s.after}</Text> : null}
+          {s.after ? <Text wrap="wrap">{s.after}</Text> : null}
           {open.map((x, i) => <Text key={`op${i}`} color={colorOf(x.heroine)} wrap="wrap">{x.key ? '★' : '○'} {L('promised', { name: shortOf(x.heroine), text: x.text, due: dayText(p, lang, x.due) })}</Text>)}
           {showMap ? raster('map', mw, mapSize(p.places.length, mw).h, tt => townMap(p.places, new Set(opts.map(o => o.id ?? '')), labels, maybe, mw, tt)) : null}
           <Box flexDirection="column" marginTop={1}>
@@ -1775,17 +1821,16 @@ export const register: Register = on => {
             ) : null}
             {opts.map((o, i) => (
               <Button key={`go-${i}`} hotkey={String(i + 1)} plain onPress={hit(() => void goTo($, o, null))}>
-                <Text color={DIM}>{i + 1} </Text>
                 <Text bold>{o.forced ? `★ ${o.forced}` : o.place}</Text>
-                {compact ? null : <Text color={DIM}>  {o.mood}</Text>}
-                {o.maybe.length ? <Text>  {o.maybe.map((id, j) => <Text key={`mb${j}`} color={colorOf(id)} dimColor={!!personOf(p, id)?.npc}>{j ? '/' : ''}{shortOf(id)}</Text>)}<Text color={DIM}>?</Text></Text> : null}
+                {compact ? null : <Text dimColor>  {o.mood}</Text>}
+                {o.maybe.length ? <Text>  {o.maybe.map((id, j) => <Text key={`mb${j}`} color={colorOf(id)} dimColor={!!personOf(p, id)?.npc}>{j ? '/' : ''}{shortOf(id)}</Text>)}<Text dimColor>?</Text></Text> : null}
               </Button>
             ))}
           </Box>
           {s.error ? <Text color={C.broken} wrap="wrap">{s.error}</Text> : null}
           {autoInfo}
           {watchInfo}
-          {gameKeys(s.letter ? [{ k: 'l', label: `L ${L('letterDismiss')}`, on: () => void update($, story, x => ({ ...x, letter: null })) }] : [])}
+          {gameKeys(s.letter ? [{ k: 'l', label: L('letterDismiss'), on: () => void update($, story, x => ({ ...x, letter: null })) }] : [])}
         </Box>,
       )
     }
@@ -1793,28 +1838,36 @@ export const register: Register = on => {
     // ---------- 结局 ----------
     if (s.phase === 'ending') {
       const end = p.endings.find(x => x.id === s.endingId)
-      const c = end?.who ? colorOf(end.who) : ACCENT
+      const c = end?.who ? colorOf(end.who) : TX.accent
+      const cPx = end?.who ? rawColor(end.who) : css(PX.accent)
       const big = end?.kind === 'true' ? 'TRUE END' : end?.kind === 'good' ? 'GOOD END' : end?.kind === 'bad' ? 'BAD END' : end?.kind === 'normal' ? 'NORMAL END' : 'THE END'
       const cw = Math.max(40, Math.min(76, cols - 4))
+      // 结局卡：淡入后只留粒子（true 流星、good 花瓣、normal 萤火、bad 雨）
+      const endId = `end-${p.id}-${s.endingId}-${s.loop}`
+      const endSpec: CardSpec = { big, small: end ? tr(end.title, 'en', p.defaultLang) : '', color: cPx, accent: css(PX.accent), style: 'fade' }
+      const e0 = startOf(endId)
+      const endCard = Raster && !compact
+        ? raster(`card-${endId}`.slice(0, 60), cw, cardFrame(endSpec, cw, CARD_FRAMES, 0).length, tt => {
+          const cf = cardFrame(endSpec, cw, anim ? tt - e0 : CARD_FRAMES, tt)
+          return anim && tt - e0 < CARD_FRAMES ? cf : over(endFx(end?.kind, cw, cf.length, tt), cf)
+        })
+        : null
       return finishRender(
         <Box flexDirection="column">
-          {card(`end-${p.id}-${s.endingId}-${s.loop}`, { big, small: end ? tr(end.title, 'en', p.defaultLang) : '', color: c, accent: ACCENT, style: 'fade' }, cw)}
-          <Box flexDirection="column" alignItems="center" borderStyle="double" borderColor={c} paddingX={2}>
-            <Text color={DIM}>{L('endingHead')}</Text>
-            <Text bold color={c}>{end ? T(end.title) : ''}</Text>
-          </Box>
-          <Box marginTop={1} paddingX={1}><Text wrap="wrap">{s.ending}</Text></Box>
-          <Text color={DIM}>{L('endingsSeen', { a: seenCount, b: p.endings.length })} · {L('clears', { n: pm.clears })}</Text>
+          {endCard}
+          <Text><Text dimColor>{L('endingHead')} · </Text><Text bold color={c}>{end ? T(end.title) : ''}</Text></Text>
+          <Box borderStyle="round" borderColor={c} paddingX={1}><Text wrap="wrap">{s.ending}</Text></Box>
+          <Text dimColor>{L('endingsSeen', { a: seenCount, b: p.endings.length })} · {L('clears', { n: pm.clears })}</Text>
           {keyBar([
-            { k: '1', label: `1 ${L('newGamePlus', { n: s.loop + 1 })}`, dim: false, on: () => void newGame($, s.loop + 1) },
-            { k: 'p', label: `P ${L('album')}`, on: () => void update($, ui, x => ({ ...x, view: 'album' as View, tab: 2, back: 'game' as View })) },
-            { k: 'x', label: `X ${L('exportHtml')}`, on: () => void doExport($, 'html') },
-            { k: 'm', label: `M ${L('exportMd')}`, on: () => void doExport($, 'md') },
-            { k: 'c', label: `C ${L('endingCardKey')}`, on: () => void cardText($).then(x => $.ui.toast(x)) },
-            { k: 't', label: `T ${L('toTitle')}`, on: () => void update($, story, x => ({ ...x, phase: 'title' as const })) },
+            { k: '1', label: L('newGamePlus', { n: s.loop + 1 }), dim: false, on: () => void newGame($, s.loop + 1) },
+            { k: 'p', label: L('album'), on: () => void update($, ui, x => ({ ...x, view: 'album' as View, tab: 2, back: 'game' as View })) },
+            { k: 'x', label: L('exportHtml'), on: () => void doExport($, 'html') },
+            { k: 'm', label: L('exportMd'), on: () => void doExport($, 'md') },
+            { k: 'c', label: L('endingCardKey'), on: () => void cardText($).then(x => $.ui.toast(x)) },
+            { k: 't', label: L('toTitle'), on: () => void update($, story, x => ({ ...x, phase: 'title' as const })) },
           ])}
-          <Box flexDirection="column" borderStyle="round" borderColor={DIM} paddingX={1} marginTop={1}>
-            <Text color={DIM}>{L('endingCardHint')}</Text>
+          <Box flexDirection="column" marginTop={1}>
+            <Text dimColor>─── {L('endingCardHint')} ───</Text>
             {endingCard(s, p, lang).split('\n').map((x, i) => <Text key={`card${i}`}>{x}</Text>)}
           </Box>
           {autoInfo}
@@ -1838,59 +1891,61 @@ export const register: Register = on => {
     const curLine = items[shown - 1]?.line ?? 0
     const since0 = revealTick
     const fx = fxOf(sc.atmo)
-    const band = canStage && !compact && fx !== 'none' ? raster('atmo', stageW, BAND_H, tt => atmoBand(fx, theme, stageW, tt)) : null
-    const stage = canStage && castShown.length
-      ? raster('stage', stageW, STAGE_ROWS * 2, tt => stageFrame(p, castShown, sc.distance, tt, stageDirections(sc, s.phase === 'after' ? 999 : curLine, anim ? tt - since0 : 99), stageW))
+    // 舞台 = 按地点推出的背景板 + 立绘；氛围带画在天空（或墙）色上，和舞台拼成一幅
+    const scenery = backdropOf(sc.place)
+    const band = canStage && !compact && fx !== 'none' ? raster('atmo', stageW, BAND_H, tt => onScreen(atmoBand(fx, theme, stageW, tt), backdropTop(scenery, sc.atmo))) : null
+    const stage = canStage
+      ? raster('stage', stageW, STAGE_ROWS * 2, tt => over(backdrop(scenery, sc.atmo, stageW, STAGE_ROWS * 2, tt), stageFrame(p, castShown, sc.distance, tt, stageDirections(sc, s.phase === 'after' ? 999 : curLine, anim ? tt - since0 : 99), stageW)))
       : null
     const showLetItBe = done && s.phase === 'scene' && extraOn(st, 'letItBe')
     return finishRender(
       <Box flexDirection="column">
         {header}
         <Text>
-          <Text bold color={theme}>{sc.title}</Text>
-          <Text color={DIM}>  @{sc.place}{sc.proactive ? ` · ${L('cameToYou')}` : ''}{sc.atmo?.mood ? ` · ${sc.atmo.mood}` : ''}</Text>
+          <Text bold color={TX.accent}>{sc.title}</Text>
+          <Text dimColor>  @{sc.place}{sc.proactive ? ` · ${L('cameToYou')}` : ''}{sc.atmo?.mood ? ` · ${sc.atmo.mood}` : ''}</Text>
         </Text>
         {band}
         {stage}
-        <Box flexDirection="column" borderStyle="round" borderColor={lead ? tinted(lead) : theme} paddingX={1}>
+        <Box flexDirection="column" borderStyle="round" borderColor={readable(lead ? tinted(lead) : theme, BG)} paddingX={1}>
           {items.slice(0, shown).map((l, i) => {
+            // 只有最新一句是实底名牌 + 粗体；旧句名牌去底、整句变暗；余波里本幕台词全暗
             const newest = i === shown - 1 && s.phase === 'scene'
-            if (l.kind === 'narration') return <Text key={`n${i}`} italic color={DIM} wrap="wrap">{l.text}</Text>
-            if (l.kind === 'focus') return <Text key={`f${i}`} color={theme} wrap="wrap">◈ {l.text}</Text>
-            if (l.kind === 'pause') return <Text key={`z${i}`} color={DIM}>{'　'.repeat(4)}……</Text>
+            if (l.kind === 'narration') return <Text key={`n${i}`} italic dimColor={s.phase === 'after'} wrap="wrap">{l.text}</Text>
+            if (l.kind === 'focus') return <Text key={`f${i}`} dimColor wrap="wrap">◈ {l.text}</Text>
+            if (l.kind === 'pause') return <Text key={`z${i}`} dimColor>{'　'.repeat(4)}……</Text>
             return (
               <Text key={`l${i}`} wrap="wrap">
-                <Text backgroundColor={tinted(l.who)} color={INK} bold> {nameOf(l.who)} </Text>
+                {newest
+                  ? <Text backgroundColor={tinted(l.who)} color={inkOn(tinted(l.who))} bold> {nameOf(l.who)} </Text>
+                  : <Text dimColor> {nameOf(l.who)} </Text>}
                 <Text> </Text>
-                <Text bold={newest} dimColor={!newest && !done}>{lang === 'zh' ? `「${l.text}」` : `"${l.text}"`}</Text>
+                <Text bold={newest} dimColor={!newest}>{lang === 'zh' ? `「${l.text}」` : `"${l.text}"`}</Text>
+                {newest && !done ? <Text dimColor>  ▼</Text> : null}
               </Text>
             )
           })}
-          {s.phase === 'after' ? <Box marginTop={1}><Text wrap="wrap" color={ACCENT}>{s.after}</Text></Box> : null}
+          {s.phase === 'after' ? <Box marginTop={1}><Text wrap="wrap">{s.after}</Text></Box> : null}
         </Box>
         {s.phase === 'after' ? (
-          keyBar([{ k: 'j', label: `▼ J ${L('cont')}`, dim: false, on: () => void advance($) }])
+          keyBar([{ k: 'j', label: `▼ ${L('cont')}`, dim: false, on: () => void advance($) }])
         ) : !done ? (
           keyBar([
-            { k: 'j', label: `▼ J ${L('next')}`, dim: false, on: () => void nextLine($) },
-            { k: 'a', label: `A ${L('all')}`, on: () => void revealAll($) },
+            { k: 'j', label: L('next'), dim: false, on: () => void nextLine($) },
+            { k: 'a', label: L('all'), on: () => void revealAll($) },
           ])
         ) : (
           <Box flexDirection="column" marginTop={1}>
-            {sc.choices.map((c, i) => {
-              const color = C[c.kind === 'keep' ? 'kept' : c.kind]
-              const inner = (
-                <Button key={`c${i}`} hotkey={String(i + 1)} plain onPress={hit(() => void choose($, c))}>
-                  <Text color={color}>{compact ? '' : '▌'}{KIND_ICON[c.kind]} {i + 1} </Text>
-                  <Text color={color} bold>{L(`kind_${c.kind}` as UiKey)}</Text>
-                  <Text>  {c.text}</Text>
-                </Button>
-              )
-              return compact ? inner : <Box key={`cc${i}`} borderStyle="round" borderColor={color} paddingX={1}>{inner}</Box>
-            })}
+            {sc.choices.map((c, i) => (
+              // 选项不加框：类型做成芯片（底 = 类型色，字 = inkOn），后面是选项文字
+              <Button key={`c${i}`} hotkey={String(i + 1)} plain onPress={hit(() => void choose($, c))}>
+                <Text backgroundColor={C[c.kind]} color={inkOn(C[c.kind])} bold> {KIND_ICON[c.kind]} {L(`kind_${c.kind}` as UiKey)} </Text>
+                <Text>  {c.text}</Text>
+              </Button>
+            ))}
             {showLetItBe ? (
               <Button key="c-let" hotkey={String(sc.choices.length + 1)} plain onPress={hit(() => void letItBe($))}>
-                <Text color={DIM}>{compact ? '' : ' '}☁ {sc.choices.length + 1} {L('letItBe')}</Text><Text color={DIM}>  {L('letItBeHint')}</Text>
+                <Text dimColor> ☁ {L('letItBe')}  {L('letItBeHint')}</Text>
               </Button>
             ) : null}
           </Box>

@@ -633,6 +633,8 @@ export type GalSettings = {
   layout?: 'auto' | 'compact' | 'full'
   /** 配色：default 或 cb（色盲友好） */
   palette?: 'default' | 'cb'
+  /** 终端底色：auto 按 /config 的主题推，读不到按深色；dark / light 手动指定 */
+  bg?: 'auto' | 'dark' | 'light'
 }
 /** 自动游玩的运行状态（会话内） */
 export type AutoState = {

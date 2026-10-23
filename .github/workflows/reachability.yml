@@ -1,0 +1,38 @@
+name: Reachability
+
+# Beam search over every built-in pack, without model calls: each ending must be
+# reachable, and each set piece and reveal must fire. Slow (minutes per pack), so it
+# runs on pack and engine changes, weekly, and by hand.
+on:
+  pull_request:
+    paths: [packs/**, hooks/engine.ts, hooks/craft.ts, hooks/pack.ts, tools/sim/**]
+  schedule:
+    - cron: '0 3 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: reach-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  beam:
+    name: ${{ matrix.pack }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        pack: [band, cicada, snow, loop, radio, equalia, mauve]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.12
+      - name: Every ending reachable
+        run: bun tools/sim/beam.ts 1500 ${{ matrix.pack }}
+      - name: Every set piece and reveal fires
+        if: ${{ !cancelled() }}
+        run: bun tools/sim/beam.ts 800 ${{ matrix.pack }}:craft

@@ -100,26 +100,35 @@ function wrap(s: string, width: number, scale: number, n: number): string[] {
 }
 
 // ---------- 标题卡（开场、每章、结局） ----------
-export type CardSpec = { big: string; small?: string; color: string; accent: string; style: 'fade' | 'wipe' }
+/** layout: 'inline' 时大字和小字排在同一行（DAY 卡用，矮一截）；排不下就退回上下两行 */
+export type CardSpec = { big: string; small?: string; color: string; accent: string; style: 'fade' | 'wipe'; layout?: 'stack' | 'inline' }
 export const CARD_FRAMES = 6
 
 /** 一张卡；step 是从出现起的第几帧（0..CARD_FRAMES，之后静止，只剩星点闪烁） */
 export function cardFrame(spec: CardSpec, w: number, step: number, t: number): Px[][] {
   const big0 = fontText(spec.big)
   const scale = textWidth(big0, 2) <= w - 6 ? 2 : 1
-  const bigLines = wrap(big0, w - 6, scale, 2)
-  const small = wrap(fontText(spec.small ?? ''), w - 6, 1, 2)
-  const h = 4 + bigLines.length * 6 * scale + small.length * 7
+  const small0 = fontText(spec.small ?? '')
+  const inlineW = textWidth(big0, scale) + (small0 ? 6 + textWidth(small0, 1) : 0)
+  const inline = spec.layout === 'inline' && inlineW <= w - 6
+  const bigLines = inline ? [big0] : wrap(big0, w - 6, scale, 2)
+  const small = inline ? [] : wrap(small0, w - 6, 1, 2)
+  const h = inline ? 4 + 5 * scale : 4 + bigLines.length * 6 * scale + small.length * 7
   const px = blank(w, h)
   const color = hex(spec.color)
   const accent = hex(spec.accent)
+  if (inline) {
+    const x0 = Math.floor((w - inlineW) / 2)
+    drawText(px, big0, x0, 2, color, scale)
+    if (small0) drawText(px, small0, x0 + textWidth(big0, scale) + 6, 2 + 5 * scale - 5, accent, 1)
+  }
   const dim = mix(accent, 0x101018, 0.6)
   // 细边框与四角星点
   for (let x = 1; x < w - 1; x++) { px[0]![x] = dim; px[h - 1]![x] = dim }
   for (let y = 1; y < h - 1; y++) { px[y]![0] = dim; px[y]![w - 1] = dim }
   for (const [x, y] of [[0, 0], [w - 1, 0], [0, h - 1], [w - 1, h - 1]] as const) px[y]![x] = (t % 6 < 3) ? accent : dim
   let y = 2
-  for (const line of bigLines) { drawText(px, line, Math.floor((w - textWidth(line, scale)) / 2), y, color, scale); y += 6 * scale }
+  if (!inline) for (const line of bigLines) { drawText(px, line, Math.floor((w - textWidth(line, scale)) / 2), y, color, scale); y += 6 * scale }
   for (const line of small) { drawText(px, line, Math.floor((w - textWidth(line, 1)) / 2), y + 1, accent, 1); y += 7 }
   // 过渡：淡入（由暗到亮）或擦入（从左往右，前沿一列亮白）
   const k = Math.min(1, step / CARD_FRAMES)
@@ -182,6 +191,200 @@ export function atmoBand(fx: NonNullable<Atmo['fx']>, theme: string, w: number, 
   return px
 }
 
+// ---------- 舞台背景板 ----------
+export type Backdrop = 'room' | 'hall' | 'street' | 'shop' | 'field' | 'water' | 'roof'
+
+// 顺序有讲究：「江边灯会与天台」先算天台，「王座厅」先算大厅，「镇广播站」先算室内，「江边夜市」先算店铺。
+// 英文只按整词匹配（「Broadcast」里有 road），中英两边各管各的地名，结果要一致
+const BACKDROP_RULES: [RegExp, Backdrop][] = [
+  [/天台|\brooftop\b/i, 'roof'],
+  [/门前|铁门|\bdoor\b/i, 'street'],
+  [/食堂|礼堂|livehouse|音乐节|舞台|王座|大厅|\b(canteen|stage|festival|throne|hall|live bar)\b/i, 'hall'],
+  [/广播|教室|图书馆|房间|厨房|走廊|楼道|补习|补课|会议室|浴池|锅炉|特藏|牢房|防空洞|\b(broadcast|radio|booth|room|classroom|library|club|kitchen|hallway|stairwell|cram|bathhouse|boiler|collections|cell|shelter)\b/i, 'room'],
+  [/小卖部|供销社|铺|小亭|店|夜市|琴行|\b(shop|store|stall|kiosk|market)\b/i, 'shop'],
+  [/江|河|海|码头|港|湖|冰场|灯塔|堤|\b(river|riverside|harbou?r|sea|seawall|lake|pier|lighthouse|frozen|ice-lantern)\b/i, 'water'],
+  [/操场|球场|体育场|广场|花园|\b(field|court|stadium|square|gardens?|park)\b/i, 'field'],
+  [/街|大道|梯|站|缆车|公交|路|桥|\b(street|boulevard|steps|station|bus|road|platform)\b/i, 'street'],
+]
+
+/** 按地名（中英都可）推背景种类；都不中就当室内 */
+export function backdropOf(place: string): Backdrop {
+  return BACKDROP_RULES.find(([re]) => re.test(place))?.[1] ?? 'room'
+}
+
+const SKY: Record<NonNullable<Atmo['time']>, [number, number]> = {
+  dawn: [0x3b2e5a, 0xf2a7a0], day: [0x5aa7e0, 0xbfe3f2], dusk: [0x2a2350, 0xf2a65a], night: [0x0e1030, 0x2a2f5a],
+}
+const SCREEN = 0x17151f
+const LAMP = 0xffd27a
+const OUTDOOR: Backdrop[] = ['street', 'shop', 'field', 'water', 'roof']
+
+/** 天空上下两色：按时段，阴雨雪雾再压灰一点 */
+function skyOf(a: Atmo | undefined): [number, number] {
+  const [top, bot] = SKY[a?.time ?? 'day']
+  const grey = a?.weather && a.weather !== 'clear' && a.weather !== 'wind' ? 0.35 : 0
+  return [mix(top, 0x6b7280, grey), mix(bot, 0x9aa3ad, grey)]
+}
+
+/** 天空渐变量化成 4 档，控制 Raster 的色对数 */
+function band4(a: number, b: number, k: number): number {
+  return mix(a, b, Math.round(Math.max(0, Math.min(1, k)) * 4) / 4)
+}
+
+/** 背景板最上一行的底色（压暗前）：室外是天空顶色，室内、大厅是各自的墙色 */
+function topOf(kind: Backdrop, top: number): number {
+  return kind === 'hall' ? mix(0x4a4458, top, 0.2) : kind === 'room' ? mix(0x6b5a4e, top, 0.25) : top
+}
+
+/** 氛围带的底色：和背景板最上一行同色（同样压暗 20%），拼成一幅 */
+export function backdropTop(kind: Backdrop, a: Atmo | undefined): number {
+  return mix(topOf(kind, skyOf(a)[0]), SCREEN, 0.2)
+}
+
+/**
+ * 舞台背景板：天空或墙、远景、地面。立绘的脚落在倒数第 2 行，地面占底部 4 行。
+ * 只有窗灯、水面反光、星星随 t 动；整体往幕布色压 20%，让立绘更突出。
+ */
+export function backdrop(kind: Backdrop, a: Atmo | undefined, w: number, h: number, t: number): Px[][] {
+  const px: Px[][] = blank(w, h)
+  const [top, bot] = skyOf(a)
+  const night = a?.time === 'night'
+  const g = h - 4 // 地面第一行
+  const put = (x: number, y: number, c: number) => { if (y >= 0 && y < h && x >= 0 && x < w) px[y]![x] = c }
+  const fill = (x0: number, y0: number, x1: number, y1: number, c: number | ((x: number, y: number) => number)) => {
+    for (let y = Math.max(0, y0); y < Math.min(h, y1); y++) for (let x = Math.max(0, x0); x < Math.min(w, x1); x++) put(x, y, typeof c === 'number' ? c : c(x, y))
+  }
+  const sky = (y1: number) => fill(0, 0, w, y1, (_, y) => band4(top, bot, y / Math.max(1, y1 - 1)))
+  const stars = (y1: number) => { if (night) for (let i = 0; i < 14; i++) if ((t + i * 2) % 6 < 4) put((i * 29) % w, (i * 7) % Math.max(1, y1), 0xe8eaf6) }
+  const skyline = (base: number, tall: number, c: number) => {
+    for (let x = 0; x < w; x++) { const hh = tall - ((x >> 3) * 7 % 5); fill(x, base - hh, x + 1, base, c) }
+    for (let x = 0; x < w; x++) if ((x >> 3) % 2 === 0 && x % 3 === 1 && (night || a?.time === 'dusk')) put(x, base - 3, (t + x) % 9 < 7 ? LAMP : mix(LAMP, c, 0.5))
+  }
+  switch (kind) {
+    case 'room': case 'hall': {
+      const wall = topOf(kind, top)
+      fill(0, 0, w, g, wall)
+      fill(0, g - 3, w, g, mix(wall, 0x000000, 0.18)) // 墙裙
+      if (kind === 'room') {
+        // 两扇窗，窗里是天空
+        for (const wx of [6, w - 24]) {
+          fill(wx, 3, wx + 18, 14, (_, y) => band4(top, bot, (y - 3) / 10))
+          if (night) for (let i = 0; i < 3; i++) if ((t + i) % 5 < 3) put(wx + 3 + i * 6, 5 + (i % 2) * 3, 0xe8eaf6)
+          const frame = 0xe8dcc8
+          fill(wx - 1, 2, wx + 19, 3, frame); fill(wx - 1, 14, wx + 19, 15, frame)
+          fill(wx - 1, 2, wx, 15, frame); fill(wx + 18, 2, wx + 19, 15, frame); fill(wx + 9, 2, wx + 10, 15, frame)
+        }
+        fill(0, g, w, h, (x, y) => ((x + y * 3) % 12 === 0 ? 0x6e4a32 : 0x8a5d3e)) // 木地板
+      } else {
+        // 顶上一排吊灯，地面是打磨过的深色地板
+        for (let x = 4; x < w; x += 12) { fill(x, 0, x + 1, 2, 0x2a2633); fill(x - 1, 2, x + 2, 3, (t + x) % 10 < 8 ? LAMP : mix(LAMP, wall, 0.4)) }
+        fill(0, g, w, h, (x, y) => (y === g ? 0x5a5266 : (x + y) % 2 ? 0x3a3445 : 0x342f3e))
+      }
+      break
+    }
+    case 'street':
+      sky(g); stars(g - 8)
+      skyline(g, 11, mix(top, 0x000000, 0.45))
+      fill(0, g, w, h, (x, y) => (y === g ? 0x6b6f7a : y === g + 2 && x % 6 < 3 ? 0x8a8d96 : 0x44464f))
+      break
+    case 'shop': {
+      sky(g); stars(6)
+      // 店面：条纹雨棚、货架、柜台
+      fill(0, 7, w, 10, (x) => ((x >> 2) % 2 ? 0xe8e0d0 : 0xc0504d))
+      fill(0, 10, w, g, 0x5a4636)
+      for (let y = 12; y < g - 3; y += 4) fill(2, y, w - 2, y + 1, 0x8a6a4e)
+      for (let x = 3; x < w - 3; x += 3) put(x, 11 + ((x * 7) % 3) * 4, [0xf79646, 0x9bbb59, 0x4bacc6, 0xffd27a][x % 4]!)
+      fill(0, g - 3, w, g, 0x7a5a42) // 柜台
+      fill(0, g, w, h, (x, y) => (y === g ? 0x6b6f7a : 0x44464f))
+      break
+    }
+    case 'field':
+      sky(g - 3); stars(g - 8)
+      for (let x = 0; x < w; x++) fill(x, g - 6 + Math.round(Math.sin(x / 3) * 1.5), x + 1, g - 3, mix(0x2e4a2a, top, 0.2)) // 远处树影
+      fill(0, g - 3, w, h, (x, y) => ((x >> 2) % 2 ? 0x4f7a3a : 0x46703a))
+      fill(0, g - 1, w, g, 0xd8d8d0) // 白线
+      break
+    case 'water': {
+      const wy = g - 9
+      sky(wy); stars(wy - 2)
+      skyline(wy, 4, mix(top, 0x000000, 0.5)) // 对岸
+      fill(0, wy, w, g, (x, y) => ((x + y * 5 + t) % 13 === 0 ? mix(bot, 0xffffff, 0.3) : band4(0x2b4f7a, 0x3d6a9a, (y - wy) / 9)))
+      fill(0, g, w, h, (x, y) => (y === g ? 0x8a8d96 : (x + y) % 5 ? 0x5a5d66 : 0x4e515a)) // 石堤
+      break
+    }
+    case 'roof':
+      sky(g - 5); stars(g - 8)
+      skyline(g - 5, 5, mix(top, 0x000000, 0.4))
+      fill(0, g - 5, w, g, mix(top, 0x000000, 0.55))
+      for (let x = 0; x < w; x++) { put(x, g - 5, 0x9aa0a6); if (x % 4 === 0) fill(x, g - 5, x + 1, g, 0x9aa0a6) } // 栏杆
+      fill(0, g, w, h, (x, y) => ((x + y * 2) % 7 ? 0x5a5a66 : 0x4e4e5a))
+      break
+  }
+  return px.map(r => r.map(v => (v === null ? SCREEN : v === LAMP ? v : mix(v, SCREEN, 0.2))))
+}
+
+// ---------- 标题页、结局粒子、生成中的小路 ----------
+/** 标题页：卡片下面一条星空，角色站在同一条草地上。figures 是各人的小头像（透明底） */
+export function titleScene(card: Px[][], figures: Px[][][], w: number, t: number): Px[][] {
+  const fh = Math.max(0, ...figures.map(f => f.length))
+  const h = fh + 4
+  const strip: Px[][] = blank(w, h)
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) strip[y]![x] = y >= h - 2 ? (y === h - 2 ? 0x4f7a3a : 0x3f6a2e) : band4(0x0e1030, 0x2a2f5a, y / Math.max(1, h - 3))
+  for (let i = 0; i < 10; i++) if ((t + i * 2) % 6 < 4) strip[(i * 5) % Math.max(1, h - 4)]![(i * 31 + 7) % w] = 0xe8eaf6
+  const slot = Math.floor(w / Math.max(1, figures.length))
+  figures.forEach((f, i) => {
+    const fw = f[0]?.length ?? 0
+    const x0 = i * slot + Math.floor((slot - fw) / 2)
+    const y0 = h - 1 - f.length // 脚踩在草地第一行
+    f.forEach((row, y) => row.forEach((v, x) => { if (v !== null && strip[y0 + y] && x0 + x >= 0 && x0 + x < w) strip[y0 + y]![x0 + x] = v }))
+  })
+  return [...card.map(r => r.slice(0, w).concat(Array(Math.max(0, w - r.length)).fill(null))), ...strip]
+}
+
+/** 结局卡的粒子：true 流星、good 花瓣、normal 萤火、bad 雨；压暗一半，不抢字 */
+export function endFx(kind: string | undefined, w: number, h: number, t: number): Px[][] {
+  const px: Px[][] = blank(w, h)
+  if (kind === 'good') {
+    for (let i = 0; i < 12; i++) {
+      const y = Math.floor((t + i * 5) / 2) % h
+      const x = (i * 13 + Math.round(Math.sin((t + i * 3) / 3) * 2) + w) % w
+      px[y]![x] = mix(i % 2 ? 0xf8bbd0 : 0xf48fb1, SCREEN, 0.4)
+    }
+    return px
+  }
+  const fx = kind === 'true' ? 'meteors' : kind === 'bad' ? 'rain' : 'fireflies'
+  const theme = kind === 'bad' ? '#5b8fd9' : '#c5cae9'
+  for (let y0 = 0; y0 < h; y0 += BAND_H) {
+    const b = atmoBand(fx, theme, w, t + y0)
+    b.forEach((row, y) => row.forEach((v, x) => { if (v !== null && px[y0 + y]) px[y0 + y]![x] = mix(v, SCREEN, 0.5) }))
+  }
+  return px
+}
+
+export const WALK_H = 16
+/** 生成中：一条夜路，小动物从左往右走过去（两帧步伐），路灯一盏盏亮 */
+export function walkFrame(figure: Px[][], w: number, t: number): Px[][] {
+  const h = WALK_H
+  const px: Px[][] = blank(w, h)
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) px[y]![x] = y >= h - 2 ? (y === h - 2 ? 0x6b6f7a : 0x44464f) : band4(0x0e1030, 0x2a2f5a, y / (h - 3))
+  for (let x = 6; x < w; x += 18) {
+    for (let y = 3; y < h - 2; y++) px[y]![x] = 0x5a5d66
+    const lamp = (t + x) % 12 < 9 ? LAMP : mix(LAMP, SCREEN, 0.5)
+    px[2]![x] = lamp
+    if (x + 1 < w) px[2]![x + 1] = lamp
+  }
+  const fw = figure[0]?.length ?? 0
+  const x0 = ((t * 2) % (w + fw)) - fw
+  const bob = t % 2
+  figure.forEach((row, y) => row.forEach((v, x) => { const yy = h - 2 - figure.length + y - bob; if (v !== null && px[yy] && x0 + x >= 0 && x0 + x < w) px[yy]![x0 + x] = v }))
+  return px
+}
+
+/** 把 top 叠在 base 上：top 的透明处露出 base */
+export function over(base: Px[][], top: Px[][]): Px[][] {
+  return base.map((row, y) => row.map((v, x) => top[y]?.[x] ?? v))
+}
+
 // ---------- 演出指令 ----------
 /** 演出到第 reveal 句（0 = 旁白），since 是这一句出现后过了几帧：算出每人的走位、转身、气泡 */
 export function stageDirections(sc: Scene, reveal: number, since: number): StageDir {
@@ -239,18 +442,54 @@ export function townMap(places: PlaceDef[], open: Set<string>, labels: Record<st
     const cx = ox + (i % MAP_COLS) * CELL_W + 2
     const cy = Math.floor(i / MAP_COLS) * CELL_H
     const lit = open.has(pl.id)
-    const roof = lit ? ROOFS[hashId(pl.id) % ROOFS.length]! : 0x3a3a46
-    const wall = lit ? 0xe8e0d0 : 0x55555f
-    // 屋顶（3 行，逐行变宽）与墙（5 行）
-    for (let r = 0; r < 3; r++) for (let x = 3 - r; x <= 7 + r; x++) px[cy + r]![cx + x] = roof
-    for (let r = 3; r < 8; r++) for (let x = 0; x <= 10; x++) px[cy + r]![cx + x] = wall
-    if (lit) { const win = (t + i) % 6 < 4 ? 0xffe082 : 0xffca28; px[cy + 4]![cx + 1] = win; px[cy + 4]![cx + 9] = win }
+    // 关着的：整栋压暗、不亮灯
+    const c = (v: number) => (lit ? v : mix(v, 0x2a2833, 0.7))
+    const put = (x: number, y: number, v: number) => { if (px[cy + y] && cx + x >= 0 && cx + x < w) px[cy + y]![cx + x] = c(v) }
+    const rect = (x0: number, y0: number, x1: number, y1: number, v: number | ((x: number, y: number) => number)) => {
+      for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) put(x, y, typeof v === 'number' ? v : v(x, y))
+    }
+    const roof = ROOFS[hashId(pl.id) % ROOFS.length]!
+    const wall = 0xe8e0d0
+    const win = lit && (t + i) % 6 < 4 ? 0xffe082 : 0xffca28
+    const name = typeof pl.name === 'string' ? pl.name : `${pl.name.zh ?? ''} ${pl.name.en ?? ''}`
+    // 每类地点一种外形（11×8）
+    switch (backdropOf(name)) {
+      case 'hall': // 尖顶大屋、宽门
+        for (let r = 0; r < 3; r++) rect(3 - r, r, 7 + r, r, roof)
+        rect(0, 3, 10, 7, wall); rect(4, 5, 6, 7, 0x6e4a32)
+        break
+      case 'shop': // 条纹雨棚
+        rect(0, 2, 10, 3, x => ((x >> 1) % 2 ? 0xe8e0d0 : 0xc0504d))
+        rect(0, 4, 10, 7, 0xd8c8a8); put(1, 5, win); put(9, 5, win)
+        break
+      case 'street': // 路灯 + 小屋
+        rect(0, 1, 0, 7, 0x8a8d96); put(0, 0, lit ? LAMP : 0x8a8d96)
+        rect(2, 3, 10, 3, roof); rect(2, 4, 10, 7, wall); put(3, 5, win); put(9, 5, win)
+        break
+      case 'field': // 树 + 栅栏
+        rect(0, 1, 3, 4, 0x4f7a3a); rect(1, 5, 2, 7, 0x6e4a32)
+        rect(4, 6, 10, 6, 0xd8d0c0); for (let x = 4; x <= 10; x += 2) rect(x, 5, x, 7, 0xd8d0c0)
+        break
+      case 'water': // 灯塔 + 波浪
+        rect(7, 1, 8, 5, 0xe8e0d0); rect(7, 3, 8, 3, 0xc0504d); put(7, 0, lit ? LAMP : 0x8a8d96); put(8, 0, lit ? LAMP : 0x8a8d96)
+        rect(0, 6, 10, 7, (x, y) => ((x + y + t) % 4 === 0 ? 0x8fc1e8 : 0x3d6a9a))
+        break
+      case 'roof': // 高楼，顶上一排栏杆
+        rect(2, 1, 8, 7, 0x7a7f8c); for (let x = 2; x <= 8; x += 2) put(x, 0, 0x9aa0a6)
+        put(3, 3, win); put(7, 3, win); put(3, 5, win); put(7, 5, win)
+        break
+      default: // room：平顶校舍，顶上小钟楼
+        rect(4, 0, 6, 1, roof); put(5, 0, lit ? LAMP : roof)
+        rect(0, 2, 10, 2, roof); rect(0, 3, 10, 7, wall); put(1, 4, win); put(9, 4, win)
+        break
+    }
+    // 按键数字：左下角一块琥珀色小牌子（5×5），房子的外形从上面和右边露出来
     const label = labels[pl.id]
-    if (label) drawText(px, label, cx + 4, cy + 3, lit ? 0x1e1a1a : 0x9aa0a6)
-    // 可能遇见的人：墙下一排彩色小点
-    ;(maybe[pl.id] ?? []).slice(0, 5).forEach((c, j) => { px[cy + 9]![cx + j * 2] = hex(c) })
-    // 路
-    for (let x = 0; x < CELL_W; x++) if ((x + i) % 3 !== 0) px[cy + 10]![cx - 2 + x] = 0x3d3d4a
+    if (label) { rect(0, 3, 4, 7, 0xf2c14e); drawText(px, label, cx + 1, cy + 3, 0x17151f) }
+    // 可能遇见的人：一排彩色小点
+    ;(maybe[pl.id] ?? []).slice(0, 5).forEach((col, j) => { if (cx + j * 2 < w) px[cy + 9]![cx + j * 2] = hex(col) })
+    // 路：一条实线
+    for (let x = 0; x < CELL_W; x++) if (cx - 2 + x < w) px[cy + 10]![cx - 2 + x] = 0x3d3d4a
   })
   return px
 }
@@ -285,7 +524,7 @@ export function relationGraph(p: Pack, s: Story, deltas: Record<string, number>,
   const heroines = p.cast
   heroines.forEach((c, i) => {
     const a = -Math.PI / 2 + (i / heroines.length) * Math.PI * 2
-    nodes.push({ id: c.id, x: Math.round(cx + Math.cos(a) * (w * 0.3)), y: Math.round(cy + Math.sin(a) * (h * 0.36)), color: hex(c.color), size: 3 })
+    nodes.push({ id: c.id, x: Math.round(cx + Math.cos(a) * (w * 0.3)), y: Math.round(cy + Math.sin(a) * (h * 0.36)), color: hex(c.color), size: 5 })
   })
   const npcs = p.npcs ?? []
   npcs.forEach((n, i) => {
@@ -312,12 +551,15 @@ export function relationGraph(p: Pack, s: Story, deltas: Record<string, number>,
     if (d && t % 2 === 0) color = d > 0 ? 0xffffff : 0xff5252
     line(px, cx, cy, N.x, N.y, color, st >= 2 ? 1 : 3 - st, 0)
   }
+  // 主角色是 5×5 的小脸（圆角、两只眼睛），配角和「我」是小方块
+  const FACE = ['.xxx.', 'xxxxx', 'xexex', 'xxxxx', '.xxx.']
   for (const n of nodes) {
     for (let a = 0; a < n.size; a++) for (let b = 0; b < n.size; b++) {
       const y = n.y - Math.floor(n.size / 2) + a, x = n.x - Math.floor(n.size / 2) + b
-      if (px[y] && x >= 0 && x < w) px[y]![x] = n.color
+      const f = n.size === 5 ? FACE[a]![b] : 'x'
+      if (f !== '.' && px[y] && x >= 0 && x < w) px[y]![x] = f === 'e' ? 0x17151f : n.color
     }
-    if (npcOf(p, n.id) === undefined && n.id !== 'me' && (deltas[n.id] ?? 0) !== 0 && t % 2 === 0 && px[n.y - 2]) px[n.y - 2]![n.x] = 0xffffff
+    if (npcOf(p, n.id) === undefined && n.id !== 'me' && (deltas[n.id] ?? 0) !== 0 && t % 2 === 0 && px[n.y - 3]) px[n.y - 3]![n.x] = 0xffffff
   }
   return { px, nodes }
 }

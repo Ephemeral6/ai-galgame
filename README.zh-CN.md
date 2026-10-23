@@ -14,8 +14,7 @@
 [![语言](https://img.shields.io/badge/%E8%AF%AD%E8%A8%80-%E4%B8%AD%E6%96%87%20%7C%20English-green)](README.md)
 [![剧本包](https://img.shields.io/badge/%E5%89%A7%E6%9C%AC%E5%8C%85-7-purple)](#随附剧本包)
 
-<!-- 主动图：用 demo/01-opening.tape 录成 docs/demo.gif 后加上：
-<img src="docs/demo.gif" alt="在 Claude Code 面板里玩一幕" width="800"> -->
+<img src="docs/demo.gif" alt="在 Claude Code 侧边面板里：从小镇地图选图书馆，Claude 写这一幕时的夜路动画，然后是这一幕和选项" width="560">
 
 [English](README.md) · **中文**
 
