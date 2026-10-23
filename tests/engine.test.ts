@@ -6,7 +6,7 @@ import { describe, expect, test } from 'claude-code/testing'
 import type { Choice, Pack, Scene, Story } from '../types'
 import { stageFrame, validKeepsake } from '../hooks/art'
 import {
-  advanceTime, alsoBeat, applyChoice, applyScene, dueBeat, focusMode, forcedEvent, freshStory, incidentHere, keepable, needsMigration, normalizeStory, parseScene,
+  advanceTime, alsoBeat, applyChoice, applyScene, byOf, dueBeat, focusMode, forcedEvent, freshStory, incidentHere, keepable, lastChance, needsMigration, normalizeStory, parseScene,
   pickEnding, planOptions, proactive, rollIncident, sceneContext, sceneDynamic, staticBlock, withKeep,
 } from '../hooks/engine'
 import { allBeats, chapterOf, personOf, tr, validatePack } from '../hooks/pack'
@@ -539,5 +539,16 @@ describe('剧本包加载校验', () => {
   test('缺失的语言回落到默认语言', () => {
     expect(tr({ zh: '中' }, 'en', 'zh')).toBe('中')
     expect(tr('plain', 'en', 'zh')).toBe('plain')
+  })
+  // snow-chimney 原来 by 9，最后机会撞上第 9 天夜里的固定广播，日程永远不会把玩家带去锅炉房
+  test('内置包：限地点的关键事件，最后机会那一格日程真的会把玩家带到它的地点', () => {
+    for (const p of BUILTIN) {
+      for (const b of allBeats(p).filter(x => x.places?.length)) {
+        const base = { ...freshStory(p, 'zh', 1, 1), day: byOf(p, b) }
+        const s = p.slots.map((_, slot) => ({ ...base, slot })).find(x => lastChance(p, x, b))!
+        const opt = forcedEvent(p, s, 'zh')
+        expect([p.id, b.id, !!opt?.id && b.places!.includes(opt.id)]).toEqual([p.id, b.id, true])
+      }
+    }
   })
 })

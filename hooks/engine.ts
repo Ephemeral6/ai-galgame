@@ -176,12 +176,12 @@ export function forcedEvent(p: Pack, s: Story, lang: Lang): PlanOption | null {
 }
 
 /** 关键事件的最后期限（默认 day + 1，不超过总天数） */
-function byOf(p: Pack, b: BeatDef): number {
+export function byOf(p: Pack, b: BeatDef): number {
   return b.by ?? Math.min(p.days, b.day + 1)
 }
 
 /** 这个时段是不是关键事件的最后机会：by 那天、它允许的最后一个时段 */
-function lastChance(p: Pack, s: Story, b: BeatDef): boolean {
+export function lastChance(p: Pack, s: Story, b: BeatDef): boolean {
   const slots = b.slots?.length ? b.slots : p.slots.map((_, i) => i)
   return s.day === byOf(p, b) && s.slot === Math.max(...slots)
 }

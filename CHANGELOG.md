@@ -12,6 +12,8 @@ All notable changes to this project are listed here. The format follows [Keep a 
 - Stage backdrops for seven kinds of place that follow time of day and weather; a title card with the cast on grass; one house shape per kind of place on the map; ending-card particles by ending kind; a night-road loading screen; faces in the relationship web.
 - A "terminal background" setting (auto / dark / light).
 - equalia, mauve and radio get a fuller writing layer: new hand-written set pieces, reveals, flashbacks, running gags, gossip and day-by-day texture.
+- snow and loop get the same: loop's seventh night and night market now have hand-written scenes; snow gets five new set pieces and the missing content of the tape Yanqiu made of Old Han.
+- A test that every place-bound key beat's last chance actually takes the player to its place.
 
 ### Changed
 - `LICENSE` is the plain MIT text so GitHub detects it; which folders it covers moved to `NOTICE`.
@@ -25,6 +27,9 @@ All notable changes to this project are listed here. The format follows [Keep a 
 - Every ending of every bundled pack can now be reached (several in band, mauve, radio, equalia, snow, loop and cicada could not). Ending texts agree with the fixed scenes, secrets no longer leak before their reveal, timelines are consistent. Details in `docs/PLOT-AUDIT-2026-10-23.md`.
 - Set pieces and reveals that could never fire: radio's roof scene, mauve's verdict scene and salesman reveal, cicada's two confession scenes.
 - Pixel drawing no longer writes outside its canvas at narrow widths.
+- snow's boiler-room beat and equalia's microfilm beat had their last chance taken by a fixed scene, so a player who missed them lost the beat (and in snow the key promise for Donghe's true ending).
+- Beats on fixed-scene days are now limited to the fixed scene's slot, so climaxes no longer fire in the morning somewhere else.
+- snow and loop: English names now match throughout; character notes and relations no longer state secrets before their stage.
 
 ## [0.4.0] - 2026-10-23
 
