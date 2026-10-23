@@ -9,7 +9,7 @@ import { PX, bgOfTheme, framed } from '../hooks/theme'
 import { costOf, dateKey } from '../hooks/cost'
 import { advanceTime, applyChoice, applyScene, freshStory, parseDirection, parseScene, planOptions, profileLine, sceneDynamic, staticBlock } from '../hooks/engine'
 import { EMPTY_FEATS, achievementsOnFinish, dailyChallenge, dailyShare } from '../hooks/feats'
-import { CARD_FRAMES, WALK_H, atmoBand, backdrop, backdropOf, backdropTop, cardFrame, endFx, fontText, fxOf, over, relationGraph, stageDirections, themeOf, titleScene, townMap, walkFrame } from '../hooks/fx'
+import { CARD_FRAMES, WALK_H, atmoBand, backdrop, backdropOf, backdropTop, cardFrame, cellWidth, endFx, fontText, fxOf, mapLabelRow, mapSlot, over, relationGraph, stageDirections, themeOf, titleScene, townMap, walkFrame } from '../hooks/fx'
 import { awayLetter, diaryEntry, letterFrom, nightGossip, portraitOf, tendencies } from '../hooks/native'
 import { BUILTIN } from '../packs/index'
 import { CICADA } from '../packs/cicada/pack'
@@ -169,6 +169,23 @@ describe('像素画面', () => {
     const none = townMap(P.places, new Set(), {}, {}, 76, 1)
     expect(JSON.stringify(px)).not.toEqual(JSON.stringify(none))
     expect(px.flat().includes(0xc0ca33)).toBe(true) // 小卖部下面有黄阿姨的小点
+  })
+
+  test('地图标签行：数字落在房子正下方，地名按显示宽度截断、不压到下一栋', () => {
+    expect([cellWidth('abc'), cellWidth('小卖部'), cellWidth('1 天文社')]).toEqual([3, 6, 8])
+    const names = [{ i: 0, label: '1', name: '校门口小卖部和一个很长的名字' }, { i: 1, label: '2', name: 'Library' }, { i: 6, label: '7', name: '老街' }]
+    const row0 = mapLabelRow(names, 0, 76)
+    expect(row0.map(x => x.label)).toEqual(['1', '2'])
+    let col = 0
+    for (const [k, x] of row0.entries()) {
+      col += x.gap
+      expect(col).toBe(mapSlot(names[k]!.i, 76).x)
+      const used = cellWidth(x.label) + (x.name ? 1 + cellWidth(x.name) : 0)
+      expect(used).toBeLessThan(15) // 一格 15 列，至少留一列空隙
+      col += used
+    }
+    expect(row0[0]!.name).toBe('校门口小卖部') // 1 + 空格 + 12 格，留 1 格空隙
+    expect(mapLabelRow(names, 1, 76).map(x => [x.label, x.name])).toEqual([['7', '老街']])
   })
 
   test('关系网：刚变过好感的线会闪；还没挑明的关系不画', () => {
