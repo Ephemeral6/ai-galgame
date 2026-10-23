@@ -25,7 +25,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        pack: [band, cicada, snow, loop, radio, equalia, mauve]
+        pack: [band, cicada, snow, lasttrain, loop, radio, equalia, mauve]
     steps:
       - uses: actions/checkout@v4
       - uses: oven-sh/setup-bun@v2

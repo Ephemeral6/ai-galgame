@@ -5,6 +5,7 @@ All notable changes to this project are listed here. The format follows [Keep a 
 ## [Unreleased]
 
 ### Added
+- New original pack **00:47** (`lasttrain`, 零点四十七分): the night shift at an old metro station in the last ten nights before its line closes. 10 nights × 2 slots, three adult leads and three supporting characters, 14 endings, a full writing layer.
 - CI on every pull request: `claude plugin validate .` and `claude plugin test .` on Linux and Windows.
 - `SECURITY.md`, `CODE_OF_CONDUCT.md`, a feature-request issue form and this changelog.
 - `tools/sim/beam.ts` and `tools/sim/sim.ts`: check without a model whether every ending of a pack can be reached. `beam.ts <pack>:craft` does the same for every set piece and reveal, and exits 1 when a target is not found.

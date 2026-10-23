@@ -12,7 +12,7 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Claude Code 插件](https://img.shields.io/badge/Claude%20Code-%E6%8F%92%E4%BB%B6%20%2F%20mod-D97757)](#安装)
 [![语言](https://img.shields.io/badge/%E8%AF%AD%E8%A8%80-%E4%B8%AD%E6%96%87%20%7C%20English-green)](README.md)
-[![剧本包](https://img.shields.io/badge/%E5%89%A7%E6%9C%AC%E5%8C%85-7-purple)](#随附剧本包)
+[![剧本包](https://img.shields.io/badge/%E5%89%A7%E6%9C%AC%E5%8C%85-8-purple)](#随附剧本包)
 
 <img src="docs/demo.gif" alt="在 Claude Code 侧边面板里：从小镇地图选图书馆，Claude 写这一幕时的夜路动画，然后是这一幕和选项" width="560">
 
@@ -133,6 +133,7 @@ claude plugin install ai-galgame --marketplace Ephemeral6/ai-galgame
 | **蝉鸣与晚自习** Cicadas & Evening Study | 原创旗舰：江南县城中学，暑假前的十四天；天文社撤社、省运会、出国、校报与学生会 | 14 天 × 3 时段 · 5 名主角色 · 6 名配角 · 3 幕 9 个关键事件 · 12 种随机事件 · 22 个结局 | CC BY 4.0 |
 | **防空洞与江雾音乐节** The Shelter Band & the River Fog Festival | 原创：西南雾都，高考后的夏天，防空洞里的乐队冲音乐节新人舞台 | 13 天 × 3 时段 · 4 名主角色 · 5 名配角 · 3 幕 9 个关键事件 · 12 种随机事件 · 18 个结局 | CC BY 4.0 |
 | **白桦岭的最后一班车** Last Train from Birch Ridge | 原创：东北林区小镇整体搬迁前的十天 | 10 天 × 3 时段 · 3 名主角色 · 4 名配角 · 3 幕 · 14 个结局 | CC BY 4.0 |
+| **零点四十七分** 00:47 | 原创：老地铁站的夜班，线路停运前的最后十夜；夜间视力在衰退的司机、没有住处的美院学生、偷偷补了八年壁画的检修工。全员成年，「我」22 岁 | 10 夜 × 2 时段 · 3 名主角色 · 3 名配角 · 3 幕 10 个关键事件 · 14 个结局 | CC BY 4.0 |
 | **潮信七日** Seven Tides | 原创：台风周的时间循环，记忆保留、最多重来 2 次 | 7 天 × 3 时段 · 3 名主角色 · 3 名配角 · 3 幕 · 14 个结局 | CC BY 4.0 |
 | **停播前的四个夜晚** Four Nights Before Sign-Off | 原创短篇：打破第四面墙，有二周目专属结局 | 4 天 × 2 时段 · 1 名主角色 · 2 名配角 · 6 个结局 | CC BY 4.0 |
 | **Bridge to eQualia**（改编） | 改编自 Blackle Mori 的同名作品 | 7 天 · 4 名角色 · 3 名配角 · 12 个结局 | CC0 1.0 |

@@ -5,9 +5,10 @@ import type { Pack } from '../types'
 import { BAND } from './band/pack'
 import { CICADA } from './cicada/pack'
 import { EQUALIA } from './equalia/pack'
+import { LASTTRAIN } from './lasttrain/pack'
 import { LOOP } from './loop/pack'
 import { MAUVE } from './mauve/pack'
 import { RADIO } from './radio/pack'
 import { SNOW } from './snow/pack'
 
-export const BUILTIN: Pack[] = [CICADA, BAND, SNOW, LOOP, RADIO, EQUALIA, MAUVE]
+export const BUILTIN: Pack[] = [CICADA, BAND, SNOW, LASTTRAIN, LOOP, RADIO, EQUALIA, MAUVE]

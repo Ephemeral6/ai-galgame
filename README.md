@@ -12,7 +12,7 @@ Humans write the story skeleton. Claude writes every scene live. You just press 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Claude Code plugin](https://img.shields.io/badge/Claude%20Code-plugin%20%2F%20mod-D97757)](#install)
 [![Languages](https://img.shields.io/badge/languages-English%20%7C%20%E4%B8%AD%E6%96%87-green)](README.zh-CN.md)
-[![Story packs](https://img.shields.io/badge/story%20packs-7-purple)](#bundled-story-packs)
+[![Story packs](https://img.shields.io/badge/story%20packs-8-purple)](#bundled-story-packs)
 [![Packs: CC licensed](https://img.shields.io/badge/packs-CC%20BY%20%2F%20CC0%20%2F%20BY--SA-lightgrey)](#license)
 
 <img src="docs/demo.gif" alt="Picking the library on the town map, the walk while Claude writes the scene, then the scene with its choices, in the Claude Code side pane" width="560">
@@ -116,6 +116,7 @@ Answer `y` to *Add marketplace?* and keep the default user scope. Or from a shel
 | **The Shelter Band & the River Fog Festival** | Original. A foggy southwestern river city, the summer after the college entrance exam; an underground band rehearsing in an old air-raid shelter, chasing the one newcomer slot at a festival. The narrator is 18. | 13 days × 3 slots · 4 romanceable + 5 supporting · 3 acts · 18 endings | CC BY 4.0 |
 | **Cicadas & Evening Study** | Original flagship. A county-town high school, fourteen days before summer break: a club about to be cut, a race on a bad knee, a departure, a school paper and a student council. | 14 × 3 · 5 + 6 · 3 acts · 22 endings | CC BY 4.0 |
 | **Last Train from Birch Ridge** | Original. A northeastern logging town, ten days before it empties. | 10 × 3 · 3 + 4 · 14 endings | CC BY 4.0 |
+| **00:47** | Original. The night shift at an old metro station, the last ten nights before its line closes: a driver losing her night vision, an art student with nowhere to sleep, a track worker who has been quietly mending the station mural. All adults; the narrator is 22. | 10 nights × 2 slots · 3 + 3 · 14 endings | CC BY 4.0 |
 | **Seven Tides** | Original. A typhoon week that keeps repeating; you remember, up to two loops. | 7 × 3 · 3 + 3 · 14 endings | CC BY 4.0 |
 | **Four Nights Before Sign-Off** | Original short. A school radio booth; a gentle fourth-wall story with an ending only on a second playthrough. | 4 × 2 · 1 + 2 · 6 endings | CC BY 4.0 |
 | **Bridge to eQualia** (adaptation) | From Blackle Mori's work of the same name; trust, not romance. | 7 days · 4 + 3 · 12 endings | CC0 1.0 |
