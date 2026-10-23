@@ -60,6 +60,25 @@
       "version": "1.1.0"
     },
     {
+      "id": "lasttrain",
+      "title": {
+        "zh": "零点四十七分",
+        "en": "00:47"
+      },
+      "author": "ai-galgame contributors",
+      "license": "CC-BY-4.0",
+      "lang": [
+        "zh",
+        "en"
+      ],
+      "summary": {
+        "zh": "沿江市老 7 号线 · 停运改造前的十个夜晚",
+        "en": "Old Line 7 in Yanjiang, ten nights before it closes"
+      },
+      "url": "https://raw.githubusercontent.com/Ephemeral6/ai-galgame/main/community/packs/lasttrain.json",
+      "version": "1.0.0"
+    },
+    {
       "id": "loop",
       "title": {
         "zh": "潮信七日",

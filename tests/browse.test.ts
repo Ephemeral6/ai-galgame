@@ -118,7 +118,7 @@ describe('下载剧本包', () => {
   })
 
   test('仓库自带的包都能按社区格式发布（与 community/index.json 的许可一致）', async () => {
-    const LICENSE: Record<string, string> = { cicada: 'CC-BY-4.0', band: 'CC-BY-4.0', snow: 'CC-BY-4.0', loop: 'CC-BY-4.0', radio: 'CC-BY-4.0', equalia: 'CC0-1.0', mauve: 'CC-BY-SA-4.0' }
+    const LICENSE: Record<string, string> = { cicada: 'CC-BY-4.0', band: 'CC-BY-4.0', snow: 'CC-BY-4.0', lasttrain: 'CC-BY-4.0', loop: 'CC-BY-4.0', radio: 'CC-BY-4.0', equalia: 'CC0-1.0', mauve: 'CC-BY-SA-4.0' }
     const files: Record<string, string> = {}
     for (const p of BUILTIN) files[`${BASE}/${p.id}.json`] = JSON.stringify(p)
     const { $ } = net(files)
