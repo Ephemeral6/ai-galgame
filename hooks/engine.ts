@@ -186,9 +186,10 @@ function lastChance(p: Pack, s: Story, b: BeatDef): boolean {
   return s.day === byOf(p, b) && s.slot === Math.max(...slots)
 }
 
-/** 已经过了最后机会（还没写到） */
+/** 到了或过了最后机会（还没写到）：by 之后，或 by 那天它允许的最后一个时段及以后 */
 function overdue(p: Pack, s: Story, b: BeatDef): boolean {
-  return s.day > byOf(p, b) || lastChance(p, s, b)
+  const slots = b.slots?.length ? b.slots : p.slots.map((_, i) => i)
+  return s.day > byOf(p, b) || (s.day === byOf(p, b) && s.slot >= Math.max(...slots))
 }
 
 /** 时段、地点是否合这个关键事件（没写限制就都合） */

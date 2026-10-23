@@ -292,6 +292,15 @@ describe('章节关键事件', () => {
     expect(validatePack(p).some(e => e.includes('beats[0].places'))).toBe(true) // 图书馆第 2 时段不开
   })
 
+  test('只限时段的关键事件错过了 by 那天的允许时段：当天后面的时段就算过期，最后一天也不会丢', () => {
+    const p = JSON.parse(JSON.stringify(P)) as Pack
+    const b = p.acts!.at(-1)!.beats.find(x => x.id === 'meteor')!
+    b.slots = [0]; b.day = p.days; b.by = p.days
+    const flags = allBeats(p).filter(x => x.id !== 'meteor').map(x => `beat:${x.id}`)
+    const s = { ...at(freshStory(p, 'zh'), p.days, 2), flags }
+    expect(dueBeat(p, s, [], 'classroom')?.id).toBe('meteor')
+  })
+
   test('跨幕时给出悬念钩子和下一幕的标题', () => {
     const r = advanceTime(P, { ...at(freshStory(P, 'zh'), 4, 2), phase: 'after' }, 'zh')
     expect(r.story.after).toContain('社团人数核查表')
