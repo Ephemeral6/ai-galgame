@@ -89,7 +89,8 @@ test('/gal new：后台生成，状态栏显示进度，id 冲突时自动改名
   await ui.unmount()
 })
 
-test('生成中可以取消（K 或 /gal cancel）', async ($, on) => {
+// advance(200_000) 要走完 200 秒的动画帧：本机约 2.4 秒，Windows CI 上超过默认的 5 秒
+test('生成中可以取消（K 或 /gal cancel）', { timeoutMs: 20_000 }, async ($, on) => {
   const w = world(on, { slowModel: true })
   const ui = await open($)
   await $.command.run(gal('new 慢慢来'))
