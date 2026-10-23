@@ -76,6 +76,8 @@ test('画面：标题卡、像素地图、氛围带、名牌、选项卡片与�
   expect(["{ key: 'card-title-cicada' }", !!(await ui.find({ key: 'card-title-cicada' }))]).toEqual(["{ key: 'card-title-cicada' }", true])
   await ui.press({ key: 'menu-new' })
   expect(["{ key: 'map' }", !!(await ui.find({ key: 'map' }))]).toEqual(["{ key: 'map' }", true])
+  expect(!!(await ui.find({ key: 'map-1' }))).toBe(true) // 两排房子，各一块
+  expect(!!(await ui.find({ type: 'Text', text: /^1$/ }))).toBe(true) // 房子下面的编号是文字，不是像素
   expect(["{ key: 'card-day-cicada-1-1' }", !!(await ui.find({ key: 'card-day-cicada-1-1' }))]).toEqual(["{ key: 'card-day-cicada-1-1' }", true])
   await ui.press({ key: 'go-5' })
   expect(["{ key: 'atmo' }", !!(await ui.find({ key: 'atmo' }))]).toEqual(["{ key: 'atmo' }", true])

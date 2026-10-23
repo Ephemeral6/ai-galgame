@@ -430,6 +430,41 @@ export function mapSize(n: number, w: number): { w: number; h: number } {
   return { w, h: Math.ceil(n / MAP_COLS) * CELL_H + 1 }
 }
 
+/** 地图一排房子的像素高度：按排切开画，排与排之间插一行文字标签 */
+export const MAP_ROW_H = CELL_H
+
+/** 第 i 个地点的房子在第几排、左边从第几列开始（一列像素 = 终端一格） */
+export function mapSlot(i: number, w: number): { row: number; x: number } {
+  const ox = Math.max(0, Math.floor((w - MAP_COLS * CELL_W) / 2))
+  return { row: Math.floor(i / MAP_COLS), x: ox + (i % MAP_COLS) * CELL_W + 2 }
+}
+
+/** 终端里的显示宽度：汉字、全角符号占两格 */
+export function cellWidth(s: string): number {
+  let n = 0
+  for (const ch of s) n += /[ᄀ-ᅟ⺀-꓏가-힣豈-﫿︰-﹏＀-｠￠-￦]/.test(ch) ? 2 : 1
+  return n
+}
+
+/**
+ * 一排房子下面的标签行：每栋开放的房子正下方写「数字 地名」，地名按显示宽度截到这一格放得下为止。
+ * 返回按列排好的片段（gap 是前面要空的格数），由界面层上色。
+ */
+export function mapLabelRow(names: { i: number; label: string; name: string }[], row: number, w: number): { gap: number; label: string; name: string }[] {
+  const out: { gap: number; label: string; name: string }[] = []
+  let col = 0
+  for (const n of names.filter(x => mapSlot(x.i, w).row === row).sort((a, b) => a.i - b.i)) {
+    const x = mapSlot(n.i, w).x
+    if (x < col) continue
+    const room = CELL_W - 1 - cellWidth(n.label) - 1
+    let name = ''
+    for (const ch of n.name) { if (cellWidth(name + ch) > room) break; name += ch }
+    out.push({ gap: x - col, label: n.label, name })
+    col = x + cellWidth(n.label) + (name ? 1 + cellWidth(name) : 0)
+  }
+  return out
+}
+
 /**
  * 小镇地图：每个地点一栋小房子。开放的亮着（窗户闪），关着的暗；
  * labels 是日程里这个地点的按键数字，maybe 是可能遇见的人的颜色小点。

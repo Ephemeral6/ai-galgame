@@ -29,7 +29,7 @@ import {
 import type { PlanOption } from './engine'
 import { ACHIEVEMENTS, EMPTY_FEATS, achievementsOnFinish, achievementsOnScene, dailyChallenge, dailyShare, okFeats } from './feats'
 import type { AchievementId, Feats } from './feats'
-import { BAND_H, CARD_FRAMES, DEFAULT_THEME, WALK_H, atmoBand, backdrop, backdropOf, backdropTop, cardFrame, endFx, fxOf, mapSize, over, relationGraph, stageDirections, themeOf, tint, titleScene, townMap, walkFrame } from './fx'
+import { BAND_H, CARD_FRAMES, DEFAULT_THEME, MAP_ROW_H, WALK_H, atmoBand, backdrop, backdropOf, backdropTop, cardFrame, endFx, fxOf, mapLabelRow, over, relationGraph, stageDirections, themeOf, tint, titleScene, townMap, walkFrame } from './fx'
 import type { CardSpec } from './fx'
 import { LANGS, helpLines, t } from './i18n'
 import type { UiKey } from './i18n'
@@ -1796,6 +1796,27 @@ export const register: Register = on => {
       opts.forEach((o, i) => { if (o.id) { labels[o.id] = String(i + 1); maybe[o.id] = o.maybe.map(rawColor) } })
       const mw = Math.max(40, Math.min(76, cols - 4))
       const showMap = !!Raster && !compact && st.map !== false && !forced
+      // 地图按排切开画，每排房子下面一行「数字 地名」：像素小牌子上的 3×5 数字在终端里认不出来
+      const mapRows = (mw: number, maybe: Record<string, string[]>, labels: Record<string, string>) => {
+        const open = new Set(opts.map(o => o.id ?? ''))
+        const names = p.places.map((pl, i) => ({ i, label: labels[pl.id] ?? '', name: T(pl.name) })).filter(x => x.label)
+        const rows = Math.ceil(p.places.length / 5)
+        const full = (tt: number) => townMap(p.places, open, {}, maybe, mw, tt)
+        return (
+          <Box flexDirection="column">
+            {Array.from({ length: rows }, (_, r) => (
+              <Box key={`maprow${r}`} flexDirection="column">
+                {raster(r === 0 ? 'map' : `map-${r}`, mw, MAP_ROW_H + (r === rows - 1 ? 1 : 0), tt => full(tt).slice(r * MAP_ROW_H, (r + 1) * MAP_ROW_H + (r === rows - 1 ? 1 : 0)))}
+                <Text>
+                  {mapLabelRow(names, r, mw).map((x, k) => (
+                    <Text key={`ml${r}-${k}`}>{' '.repeat(x.gap)}<Text color={TX.accent} bold>{x.label}</Text>{x.name ? <Text dimColor> {x.name}</Text> : null}</Text>
+                  ))}
+                </Text>
+              </Box>
+            ))}
+          </Box>
+        )
+      }
       return finishRender(
         <Box flexDirection="column">
           {header}
@@ -1811,7 +1832,7 @@ export const register: Register = on => {
           ) : null}
           {s.after ? <Text wrap="wrap">{s.after}</Text> : null}
           {open.map((x, i) => <Text key={`op${i}`} color={colorOf(x.heroine)} wrap="wrap">{x.key ? '★' : '○'} {L('promised', { name: shortOf(x.heroine), text: x.text, due: dayText(p, lang, x.due) })}</Text>)}
-          {showMap ? raster('map', mw, mapSize(p.places.length, mw).h, tt => townMap(p.places, new Set(opts.map(o => o.id ?? '')), labels, maybe, mw, tt)) : null}
+          {showMap ? mapRows(mw, maybe, labels) : null}
           <Box flexDirection="column" marginTop={1}>
             <Text bold>{forced ? L('mustGo') : L('where', { slot: T(p.slots[s.slot]) })}</Text>
             {lonely ? (
