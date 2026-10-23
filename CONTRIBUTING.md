@@ -76,8 +76,14 @@
 claude plugin validate .        # 清单、hooks 模块、状态契约
 claude plugin test .            # 全部测试；其中会校验所有内置包和空白模板
 bun tools/sim/beam.ts 1500 <包 id>   # 束搜索：每个结局能不能走到（不调模型，一个包几分钟到几十分钟）
+bun tools/sim/beam.ts 800 <包 id>:craft   # 每个预写场景、每条揭示能不能触发
 bun tools/sim/sim.ts 10              # 按几十种玩法策略整局模拟，统计结局、关键事件、预写场景的触发率
 ```
+
+写预写场景和揭示时，有三个坑校验器查不出来，要靠 `:craft` 去找：
+- 时段被固定事件占满，条件永远凑不齐。
+- `alone: true` 在两个主角色都出没的地点永远不成立。判断依据是「可能在场」的名单，不是实际上台的人。
+- 揭示不会在预写场景那一幕里出现。
 
 在游戏里：`/gal validate <路径.json>` 校验一个 JSON 剧本包。类型检查用插件类型文件头部给出的 tsconfig，`include` 加上 `hooks`、`types`、`tests`、`packs`。
 
@@ -123,4 +129,4 @@ bun tools/sim/sim.ts 10              # 按几十种玩法策略整局模拟，�
 
 **Engine**: keep `$.state` access in `hooks/register.tsx` and game logic as pure, tested functions in `hooks/engine.ts`. Never write state while drawing the pane (`ui.render`); migrate state and saves only in `command.run` and `session.start` (via `normalizeStory`), and show an unknown save format as unreadable instead of failing. Autoplay (`hooks/pilot.ts` for decisions, `autoStep` in `register.tsx` for scheduling) advances one step at a time with `$.clock.after`, writes state only in timer callbacks, and checks `autoGen` so a key press, toggle or reload cancels pending steps; decision prompts are short state summaries, uncached, counted in `usage.pilot*`. Wrap new buttons with `hit()` so a key press pauses autoplay. Keep the performance limits (blit-only sprite animation ≤ 5 fps, no typewriter timers) and the cost limits (≤ 1 writer + 1 checker call per scene, one rewrite at most, cached fixed prompt block).
 
-**Checks**: `claude plugin validate .` and `claude plugin test .` must pass. `bun tools/sim/beam.ts 1500 <pack id>` checks, without calling a model, that every ending of a pack can be reached.
+**Checks**: `claude plugin validate .` and `claude plugin test .` must pass. `bun tools/sim/beam.ts 1500 <pack id>` checks, without calling a model, that every ending of a pack can be reached. `bun tools/sim/beam.ts 800 <pack id>:craft` does the same for every set piece and reveal. The validator cannot catch three kinds of dead trigger: slots all taken by fixed events, `alone: true` at a place two main characters haunt, and a reveal that is due during a set-piece scene, since reveals never fire there.
