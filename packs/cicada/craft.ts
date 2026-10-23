@@ -234,7 +234,8 @@ export const CICADA_CRAFT: PackCraft = {
     {
       id: 'yn-two-drafts', who: 'yinuo', kind: 'confession', motif: 'two-drafts',
       title: { zh: '你说，我交哪一篇', en: 'Which One Do I File' },
-      trigger: { minStage: 3, places: ['council'], alone: true },
+      // 不加 alone：温璃也出没在行政楼，「可能在场」里总有两个人，alone 只在她主动来找时成立（而主动来找落在教室），束搜索 2026-10-23 找不到；台上的人由预写台词决定
+      trigger: { minStage: 3, places: ['council'] },
       staging: { zh: '放学后的校报编辑部，只剩她一个人，空调开得太足。抽屉拉开一半，两沓稿子并排；一沓上面压着红笔批注。她用「假设性问题」开口，说到「妈妈」时把笔帽咬裂了。', en: 'The paper\'s office after class, only her left, the air-con too cold. A drawer half open, two drafts side by side; one covered in red-pen notes. She opens with a "hypothetical", and bites her pen cap until it cracks when she says "mother".' },
       lines: [
         { who: 'yinuo', text: { zh: '学长，问你个假设性的问题。', en: 'Senior, a hypothetical question.' } },
@@ -262,7 +263,8 @@ export const CICADA_CRAFT: PackCraft = {
     {
       id: 'wl-stairs', who: 'wenli', kind: 'reveal', motif: 'ring-pull',
       title: { zh: '消防楼梯', en: 'The Fire Stairs' },
-      trigger: { minStage: 3, places: ['council', 'roof'], alone: true },
+      // 不加 alone：行政楼有一诺、天台有小满，「可能在场」里总有两个人，alone 只在她主动来找时成立（落在教室），束搜索 2026-10-23 找不到；台上的人由预写台词决定
+      trigger: { minStage: 3, places: ['council', 'roof'] },
       staging: { zh: '行政楼的消防楼梯，感应灯每三十秒灭一次，她一次也不去跺脚，就在黑里说。她用数字讲那一夜，不讲感受。讲完，她从口袋里摸出一个易拉罐拉环，转一圈，放回去。', en: 'The admin building\'s fire stairs; the motion light goes out every thirty seconds and she never stamps to wake it, just talks in the dark. She tells that night in numbers, not feelings. Afterwards she takes a ring-pull from her pocket, turns it once, and puts it back.' },
       lines: [
         { who: 'wenli', text: { zh: '去年八月，流星雨那晚，九点二十分。县医院三楼，走廊第七把椅子。', en: 'Last August, the meteor night, 9:20 p.m. County hospital, third floor, the seventh chair in the corridor.' } },
