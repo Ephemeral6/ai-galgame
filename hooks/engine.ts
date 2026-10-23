@@ -236,7 +236,8 @@ export function dueBeat(p: Pack, s: Story, present: string[], place?: string): B
 
 /** 另一个已经过期的关键事件：这一幕顺带补上（每幕最多一个），免得它挤占后面的时段或在终局时丢掉 */
 export function alsoBeat(p: Pack, s: Story, main: BeatDef | null): BeatDef | null {
-  return allBeats(p).filter(b => b.day <= s.day && b.id !== main?.id && !s.flags.includes(`beat:${b.id}`) && overdue(p, s, b)).sort((a, b) => a.day - b.day)[0] ?? null
+  // 带约定的关键事件不顺带：顺带补上的只提一两句，不出约定选项，关键约定就丢了；它留给 dueBeat 当主事件
+  return allBeats(p).filter(b => b.day <= s.day && b.id !== main?.id && !b.promise && !s.flags.includes(`beat:${b.id}`) && overdue(p, s, b)).sort((a, b) => a.day - b.day)[0] ?? null
 }
 
 /** 这一幕的上下文：关键事件（及顺带补上的过期事件）、随机事件，以及要放完整设定的人 */
@@ -332,7 +333,7 @@ export function applyChoice(p: Pack, s: Story, c: Choice, lang: Lang): ChoiceRes
   const owner = key && whoCast.length ? (best(whoCast.filter(onStage)) ?? best(whoCast) ?? lead) : lead
   if (c.kind === 'promise' && owner && castOf(p, owner)) {
     const dl = castOf(p, owner)!.deadline.day
-    promises.push({ text: c.promise || c.text, heroine: owner, day: s.day, due: clamp(dl, s.day + 1, p.days), status: 'open', made: sceneKey(s), ...(key ? { key } : {}) })
+    promises.push({ text: c.promise || c.text, heroine: owner, day: s.day, due: Math.min(clamp(dl, s.day + 1, p.days), p.days), status: 'open', made: sceneKey(s), ...(key ? { key } : {}) })
   }
   const advanced: string[] = []
   for (const ch of p.cast) {
@@ -824,7 +825,11 @@ export function withKeep(p: Pack, s: Story, sc: Scene, aiKeep: Choice | undefine
   if (!can.length) return rest.length ? rest : sc.choices
   const pr = can.sort((a, b) => a.due - b.due)[0]!
   const ok = aiKeep && (!aiKeep.keeps || can.some(x => x.heroine === aiKeep.keeps)) ? { ...aiKeep, keeps: aiKeep.keeps ?? pr.heroine } : null
-  const keep: Choice = ok ?? { text: t(lang, 'keepChoice', { text: pr.text }), kind: 'keep', tone: 'committed', effects: castOf(p, pr.heroine) ? { [pr.heroine]: 1 } : {}, keeps: pr.heroine, reaction: '' }
+  const who = castOf(p, pr.heroine)
+  const keep: Choice = ok ?? {
+    text: t(lang, 'keepChoice', { text: pr.text }), kind: 'keep', tone: 'committed', effects: who ? { [pr.heroine]: 1 } : {}, keeps: pr.heroine,
+    reaction: t(lang, 'keepReaction', { name: who ? packText(p, lang)(who.short) : '' }),
+  }
   return [...rest, keep]
 }
 
