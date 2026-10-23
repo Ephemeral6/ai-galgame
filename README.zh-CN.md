@@ -151,7 +151,7 @@ claude plugin install ai-galgame --marketplace Ephemeral6/ai-galgame
 | `endings` | 是 | 结局条件：`minStage`、`minAffection`、`maxAffection`、`maxBroken`、`minBroken`、`minKept`、`keptKey`（兑现某个关键约定）、`minKeepsakes`、`minLoop`（二周目）、`flags`（某个关键事件 / 随机事件发生过）；`kind` 标明真 / 好 / 普通 / 坏；要有一个无条件的兜底结局 |
 | `npcs` | 否 | 配角（0–8）：身份与关系 `role`、说话方式、示例台词、出没地点 `haunts`、可选立绘 |
 | `relations` | 否 | 人物关系：`a`、`b`（主角色、配角或 `me`）、`kind`、`text`；`hiddenUntil` 表示到某个阶段前只能暗示 |
-| `acts` | 否 | 分幕：`from`（第几天起）、`title`、`goal`、`beats`（关键事件：`day`、`by`、`who`、`kind`、`text`，可带 `promise` 关键约定）、`hook`（悬念）。写了 `acts` 可以省略 `chapters` |
+| `acts` | 否 | 分幕：`from`（第几天起）、`title`、`goal`、`beats`（关键事件：`day`、`by`、`who`、`kind`、`text`，可限 `slots`、`places`，可带 `promise` 关键约定）、`hook`（悬念）。写了 `acts` 可以省略 `chapters` |
 | `incidents` | 否 | 随机 / 条件事件：`text`、`chance`、`days`、`slots`、`places`、`who`、`need`（某人到某阶段）、`after`（先发生过什么）、`repeat` |
 | `craft` | 否 | 写作手法层：母题（同一件东西在不同阶段的意义）、人写的关键场景（核心台词 AI 逐字保留，缺了由程序拼回）、共通线与个人线、揭示、每天的生活细节、群像笑料、幕后八卦、人物的口癖与日记口吻。写法与设计见 [docs/NARRATIVE-CRAFT.md](docs/NARRATIVE-CRAFT.md) |
 

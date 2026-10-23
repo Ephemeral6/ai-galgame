@@ -134,7 +134,7 @@ A pack is the skeleton of a story; every text field may be `{ "zh": "…", "en":
 | `endings` | yes | Conditions (`minStage`, `minAffection`, `maxAffection`, `maxBroken`, `minBroken`, `minKept`, `keptKey`, `minKeepsakes`, `minLoop`, `flags`), `kind` (true / good / normal / bad), and one unconditional fallback |
 | `npcs` | no | Supporting characters (0–8) with role, voice, samples, haunts, optional sprite |
 | `relations` | no | `a`, `b` (cast, npc or `me`), `kind`, `text`; `hiddenUntil` keeps it a hint until a stage |
-| `acts` | no | Acts with `from`, `title`, `goal`, key `beats` (`day`, `by`, `who`, `kind`, `text`, optional key `promise`) and a `hook`; with acts, `chapters` may be omitted |
+| `acts` | no | Acts with `from`, `title`, `goal`, key `beats` (`day`, `by`, `who`, `kind`, `text`, optional `slots` / `places` and key `promise`) and a `hook`; with acts, `chapters` may be omitted |
 | `incidents` | no | Random or conditional events: `text`, `chance`, `days`, `slots`, `places`, `who`, `need`, `after`, `repeat` |
 | `craft` | no | The writing layer: motifs, hand-written set pieces, common and character routes, reveals, daily texture, gags, gossip, character tics and diary voices — see [docs/NARRATIVE-CRAFT.md](docs/NARRATIVE-CRAFT.md) |
 
