@@ -7,7 +7,7 @@ import { BAND_CRAFT } from './craft'
 
 export const BAND: Pack & CraftFields = {
   id: 'band',
-  version: '1.0.0',
+  version: '1.1.0',
   defaultLang: 'zh',
   langs: ['zh', 'en'],
   author: 'ai-galgame contributors',

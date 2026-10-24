@@ -19,7 +19,7 @@
         "en": "A county-town high school, fourteen days before summer break"
       },
       "url": "https://raw.githubusercontent.com/Ephemeral6/ai-galgame/main/community/packs/cicada.json",
-      "version": "2.0.0"
+      "version": "2.1.0"
     },
     {
       "id": "band",
@@ -38,7 +38,7 @@
         "en": "A foggy mountain river city, a rehearsal room in an old air-raid shelter, thirteen days after the exams"
       },
       "url": "https://raw.githubusercontent.com/Ephemeral6/ai-galgame/main/community/packs/band.json",
-      "version": "1.0.0"
+      "version": "1.1.0"
     },
     {
       "id": "snow",
@@ -57,7 +57,7 @@
         "en": "A northeastern logging town, ten days before it empties"
       },
       "url": "https://raw.githubusercontent.com/Ephemeral6/ai-galgame/main/community/packs/snow.json",
-      "version": "1.1.0"
+      "version": "1.2.0"
     },
     {
       "id": "lasttrain",
@@ -95,7 +95,7 @@
         "en": "A small southern seaside town, typhoon week, seven days that keep coming back"
       },
       "url": "https://raw.githubusercontent.com/Ephemeral6/ai-galgame/main/community/packs/loop.json",
-      "version": "1.1.0"
+      "version": "1.2.0"
     },
     {
       "id": "radio",
@@ -114,7 +114,7 @@
         "en": "A county-town school radio booth, four days before it goes silent"
       },
       "url": "https://raw.githubusercontent.com/Ephemeral6/ai-galgame/main/community/packs/radio.json",
-      "version": "1.1.0"
+      "version": "1.2.0"
     },
     {
       "id": "equalia",
@@ -133,7 +133,7 @@
         "zh": "一个网络侦探、一座被洗劫的幻想王国，和九个凭空消失的人"
       },
       "url": "https://raw.githubusercontent.com/Ephemeral6/ai-galgame/main/community/packs/equalia.json",
-      "version": "1.1.0"
+      "version": "1.2.0"
     },
     {
       "id": "mauve",
@@ -152,7 +152,7 @@
         "zh": "很久很久以前，在威尔逊大道 · 四天，一只狼，零耐心"
       },
       "url": "https://raw.githubusercontent.com/Ephemeral6/ai-galgame/main/community/packs/mauve.json",
-      "version": "1.1.0"
+      "version": "1.2.0"
     }
   ]
 }

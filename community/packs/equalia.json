@@ -1,6 +1,6 @@
 {
   "id": "equalia",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "defaultLang": "en",
   "langs": [
     "en",
@@ -1275,6 +1275,10 @@
           "who": [
             "crows"
           ],
+          "places": [
+            "upside",
+            "gardens"
+          ],
           "kind": {
             "en": "first contact",
             "zh": "初次接触"
@@ -1310,6 +1314,9 @@
             "wood",
             "balenciaga"
           ],
+          "places": [
+            "jail"
+          ],
           "kind": {
             "en": "reversal",
             "zh": "转折"
@@ -1339,9 +1346,16 @@
         {
           "id": "tracts",
           "day": 3,
-          "by": 5,
+          "by": 4,
           "who": [
             "librarian"
+          ],
+          "slots": [
+            0,
+            1
+          ],
+          "places": [
+            "library"
           ],
           "kind": {
             "en": "revelation",
@@ -1382,12 +1396,12 @@
             "zh": "关键约定"
           },
           "text": {
-            "en": "On the balcony ceiling Maggie counts six crows, not seven. Before it will talk, 7crows asks one thing: if she ever finds anything from Dahlia, she brings it to the six first, whole.",
-            "zh": "在阳台的天花板上，玛姬数了一遍：六只，不是七只。七鸦开口之前只求一件事：如果她找到任何达莉娅留下的东西，先完整地带给它们六个。"
+            "en": "On the balcony ceiling Maggie counts six crows, not seven. Before it will talk, 7crows asks one thing: whatever she finds out about Dahlia, she tells the six first, exactly as it is, before they fly.",
+            "zh": "在阳台的天花板上，玛姬数了一遍：六只，不是七只。七鸦开口之前只求一件事：她查到的任何关于达莉娅的事，都先原原本本告诉它们六个——在它们飞走之前。"
           },
           "promise": {
-            "en": "promise 7crows to bring it anything Dahlia left behind, first and whole",
-            "zh": "答应七鸦：找到达莉娅留下的任何东西，第一时间、完整地带给它"
+            "en": "promise 7crows to come back before they fly and tell the six everything she has found about Dahlia, unedited",
+            "zh": "答应七鸦：在它们飞走之前回来，把查到的关于达莉娅的一切原原本本告诉它们六个，不删不改"
           }
         },
         {
@@ -1396,6 +1410,10 @@
           "by": 6,
           "who": [
             "crows"
+          ],
+          "places": [
+            "upside",
+            "gardens"
           ],
           "kind": {
             "en": "secret revealed",
@@ -1567,6 +1585,7 @@
       "kind": "true",
       "tier": 4,
       "minStage": 3,
+      "maxBroken": 0,
       "title": {
         "en": "Threshold People",
         "zh": "门槛上的人"
@@ -1590,8 +1609,8 @@
         "zh": "群飞"
       },
       "brief": {
-        "en": "Maggie gives 7crows the letter, the invitation cut away \"like removing the detonator from a bomb\", and stays on the balcony while it reads. The six do not ask about the missing strip. They paint one new shape on the sky. Trust ending, close to the original's.",
-        "zh": "玛姬把信交给七鸦，邀请那一截已经剪掉——「像拆掉炸弹的引信」——然后在阳台上陪它读完。六只乌鸦没有问缺了的那一条。它们在天空上画出一个新的形状。信任结局，最接近原作。"
+        "en": "Because Maggie kept her word and told the six everything before they flew, they come back for the letter. She hands it over whole and stays on the balcony while 7crows reads. The six cut the invitation away themselves, \"like removing the detonator from a bomb\", and keep the rest. They paint one new shape on the sky. Trust ending, close to the original's.",
+        "zh": "因为玛姬守约，在它们飞走之前把查到的一切都告诉了它们，六只乌鸦回来取那封信。她把信完整地交出去，在阳台上陪七鸦读完。是它们自己剪掉了邀请那一截——「像拆掉炸弹的引信」——留下了其余的部分。它们在天空上画出一个新的形状。信任结局，最接近原作。"
       }
     },
     {
@@ -1651,13 +1670,14 @@
       "who": "crows",
       "tier": 2,
       "minStage": 3,
+      "maxBroken": 0,
       "title": {
         "en": "A Comforting Story",
         "zh": "一个让人安心的故事"
       },
       "brief": {
-        "en": "7crows tells its version and flies off before Maggie can say what she thinks. She is left holding a story she does not believe, and a letter she never found.",
-        "zh": "七鸦讲完它的版本，没等玛姬开口就飞走了。她手里只剩一个她不信的故事，和一封她没找到的信。"
+        "en": "7crows tells its version and flies off before Maggie can say what she thinks. By the time she finds Dahlia's letter, the balcony is empty. She is left holding a story she does not believe, and a letter with no one to read it to.",
+        "zh": "七鸦讲完它的版本，没等玛姬开口就飞走了。等她找到达莉娅的信，阳台已经空了。她手里只剩一个她不信的故事，和一封没有人可以念给它听的信。"
       }
     },
     {
@@ -1666,13 +1686,14 @@
       "who": "dahlia",
       "tier": 2,
       "minStage": 3,
+      "maxBroken": 0,
       "title": {
         "en": "Behind the Curtains",
         "zh": "窗帘后面"
       },
       "brief": {
-        "en": "Maggie guesses where the letter must be but the server goes dark before she gets in. In the last dream the curtains move once. She never finds out who was behind them.",
-        "zh": "玛姬猜到了信在哪里，但服务器在她进去之前熄灭了。最后一个梦里，窗帘动了一下。她始终不知道后面是谁。"
+        "en": "Maggie finds the letter in the featureless room, but cannot make herself read the invitation before the server goes dark. In the last dream the curtains move once. She never finds out who was behind them.",
+        "zh": "玛姬在空白房间里找到了那封信，却没能在服务器熄灭之前读完那份邀请。最后一个梦里，窗帘动了一下。她始终不知道后面是谁。"
       }
     },
     {
@@ -1681,6 +1702,7 @@
       "who": "wood",
       "tier": 2,
       "minStage": 3,
+      "maxBroken": 0,
       "title": {
         "en": "Golden Apple",
         "zh": "金苹果"
@@ -1718,8 +1740,8 @@
         "zh": "封禁整个 IP 段"
       },
       "brief": {
-        "en": "Maggie let wood down; balenciaga wipes the jail and bans the whole IP range. The German name never arrives, and the only trace of the nine arches stays on an old iPod nobody will ever charge again.",
-        "zh": "玛姬让木头失望了；balenciaga 清空牢房，封掉整个 IP 段。德语全名再也没有来，九道拱门唯一的痕迹留在一台没人会再充电的旧 iPod 里。"
+        "en": "Maggie let wood down; balenciaga wipes the jail and bans the whole IP range. The German name sits in her inbox, but she can never ask wood what he saw in the clearing, and the only trace of the nine arches stays on an old iPod nobody will ever charge again.",
+        "zh": "玛姬让木头失望了；balenciaga 清空牢房，封掉整个 IP 段。德语全名还躺在她的收件箱里，可她再也没法问木头那天在空地上看到了什么；九道拱门唯一的痕迹留在一台没人会再充电的旧 iPod 里。"
       }
     },
     {
@@ -1987,6 +2009,208 @@
         }
       },
       {
+        "id": "eq-bars",
+        "who": "wood",
+        "kind": "reveal",
+        "motif": "arches",
+        "title": {
+          "en": "Behind the Bars",
+          "zh": "铁栏后面"
+        },
+        "trigger": {
+          "beat": "jail"
+        },
+        "staging": {
+          "en": "The Horny Guild jail cell. Maggie's bot stands on the respawn bed; wood stands outside the iron bars with the crossbow he never fires. Somewhere below, another bot dies in the bedrock maze. wood types fast and badly, then stops for a long time before the fire.",
+          "zh": "Horny Guild 的牢房。玛姬的机器人站在重生床上；木头站在铁栏外，拿着那把从来没射过的弩。下面的基岩迷宫里，又一个机器人死了。木头打字又快又乱，讲到那把火之前，停了很久。"
+        },
+        "lines": [
+          {
+            "who": "wood",
+            "text": {
+              "en": "ok so. this guy. tracksuit, black beenie. older. he had weed and we had nothin to do",
+              "zh": "好吧。就是这个人。运动服，黑毛线冒。年纪大点。他有大麻，我们闲得没事干"
+            }
+          },
+          {
+            "who": "me",
+            "text": {
+              "en": "And the price was a mission.",
+              "zh": "代价是一个任务。"
+            }
+          },
+          {
+            "who": "wood",
+            "text": {
+              "en": "nine of these arch things. sticks woven togther. in a line in this clearing. he called it a bridge lol",
+              "zh": "九个那种拱门。树枝编的。在一块空地上排成一排。他管那叫桥lol"
+            }
+          },
+          {
+            "who": "narration",
+            "text": {
+              "en": "typing... The indicator stays on for a long time. What arrives is short.",
+              "zh": "正在输入……提示亮了很久。发来的东西很短。"
+            }
+          },
+          {
+            "who": "wood",
+            "text": {
+              "en": "we burned it. i still got the pics",
+              "zh": "我们烧了。照片我还留着"
+            }
+          },
+          {
+            "who": "me",
+            "text": {
+              "en": "What did he call himself?",
+              "zh": "他自称什么？"
+            }
+          },
+          {
+            "who": "wood",
+            "text": {
+              "en": "nothing. just ebbb. kloose knows the long version. i never could say it",
+              "zh": "没自称什么。就ebbb。长的那个kloose知道。我一直念不出来"
+            }
+          }
+        ],
+        "unsaid": {
+          "en": "Whether wood thought it was wrong while it was burning.",
+          "zh": "火烧着的时候，木头有没有觉得不对。"
+        }
+      },
+      {
+        "id": "eq-notebook",
+        "who": "librarian",
+        "kind": "confession",
+        "motif": "microfiche",
+        "title": {
+          "en": "Never Scanned",
+          "zh": "从未扫描"
+        },
+        "trigger": {
+          "minStage": 3,
+          "places": [
+            "library"
+          ],
+          "after": [
+            "beat:tracts"
+          ],
+          "alone": true
+        },
+        "staging": {
+          "en": "Special collections after hours. The reader booths are dark; only the desk lamp is on. Rosalind sets a worn composition notebook on the table between them and does not open it yet. Her eyes are creased above the mask.",
+          "zh": "闭馆后的特藏室。阅读机都关了，只亮着一盏台灯。罗莎琳把一本磨旧的作文本放在两人之间的桌上，先不翻开。口罩上方，她的眼睛眯着。"
+        },
+        "lines": [
+          {
+            "who": "librarian",
+            "text": {
+              "en": "In the nineties I was a dragon too. Different name. A text world, like yours.",
+              "zh": "九十年代，我也是一条龙。用的是另一个名字。一个文字世界，就像你那个。"
+            }
+          },
+          {
+            "who": "me",
+            "text": {
+              "en": "What happened to it?",
+              "zh": "它后来怎么了？"
+            }
+          },
+          {
+            "who": "librarian",
+            "text": {
+              "en": "Nothing dramatic. People got jobs. The server stopped answering one winter and nobody wrote to ask why.",
+              "zh": "没什么惊天动地的。大家找了工作。有一年冬天服务器不再回应，也没有人写信去问为什么。"
+            }
+          },
+          {
+            "who": "narration",
+            "text": {
+              "en": "She turns the notebook so its spine faces Maggie. Pencil, hundreds of pages, a map on the inside cover.",
+              "zh": "她把本子转过来，书脊朝着玛姬。铅笔字，几百页，封里画着一张地图。"
+            }
+          },
+          {
+            "who": "librarian",
+            "text": {
+              "en": "I kept writing it here. It has never been online. I would like it to stay that way.",
+              "zh": "我后来一直写在这里。它从来没上过网。我希望它一直这样。"
+            }
+          }
+        ],
+        "unsaid": {
+          "en": "Her old name.",
+          "zh": "她以前的名字。"
+        }
+      },
+      {
+        "id": "eq-letter",
+        "who": "dahlia",
+        "kind": "climax",
+        "motif": "arches",
+        "title": {
+          "en": "There Is a Letter Here",
+          "zh": "这里有一封信"
+        },
+        "trigger": {
+          "beat": "letter"
+        },
+        "staging": {
+          "en": "White text on black. FEATURELESS ROOM / empty test place / there is a letter here / >. No exits are listed. Maggie types \"read letter\" and the letter scrolls up line by line; Dahlia's lines are the letter itself. The server's credit is almost gone. Stop at the last paragraph, before Maggie reads it.",
+          "zh": "黑底白字。空白房间 / 空的测试场所 / 这里有一封信 / >。没有列出任何出口。玛姬打了「read letter」，信一行一行滚上来；达莉娅的台词就是信本身。服务器的额度快用完了。停在最后一段之前，玛姬还没读它。"
+        },
+        "lines": [
+          {
+            "who": "narration",
+            "text": {
+              "en": "> read letter",
+              "zh": "> read letter"
+            }
+          },
+          {
+            "who": "dahlia",
+            "text": {
+              "en": "to my dear birds ~ i'm so sorry i didn't see how much it hurt. i should have",
+              "zh": "致我亲爱的鸟儿们~ 对不起，我没看出来它有多疼。我本该看出来的"
+            }
+          },
+          {
+            "who": "dahlia",
+            "text": {
+              "en": "i'm not mad about the kingdom. kingdoms can be rebuilt ^w^",
+              "zh": "王国的事我不生气。王国可以重建 ^w^"
+            }
+          },
+          {
+            "who": "narration",
+            "text": {
+              "en": "Below the text, a dahlia drawn in punctuation marks. Under it, one more paragraph. The scroll stops there.",
+              "zh": "字的下面，一朵用标点符号画的大丽花。花下面还有一段。滚动停在了这里。"
+            }
+          },
+          {
+            "who": "me",
+            "text": {
+              "en": "look",
+              "zh": "look"
+            }
+          },
+          {
+            "who": "narration",
+            "text": {
+              "en": "FEATURELESS ROOM. There are no obvious exits.",
+              "zh": "空白房间。没有明显的出口。"
+            }
+          }
+        ],
+        "unsaid": {
+          "en": "What the last paragraph says.",
+          "zh": "最后一段写了什么。"
+        }
+      },
+      {
         "id": "eq-reader",
         "who": "librarian",
         "kind": "daily",
@@ -2060,10 +2284,299 @@
             "zh": "第一夜忽明忽灭的「正在输入」"
           }
         ]
+      },
+      {
+        "id": "rv-borrowed",
+        "when": {
+          "after": [
+            "beat:tracts",
+            "beat:jail"
+          ],
+          "who": "wood",
+          "minStage": 3
+        },
+        "truth": {
+          "en": "What wood says about fiction being useless is the tracts' idea. The tracksuit guy talked EBBB at him back then; wood has been repeating it for years without knowing it was never his.",
+          "zh": "木头说的那些「虚构没用」，是小册子里的想法。当年运动服男人对着他讲 EBBB 那一套；这些年他一直在复述，却不知道那从来不是他自己的想法。"
+        },
+        "reframes": [
+          {
+            "en": "wood's \"someone has to be the guy who burns the library of alexandria\"",
+            "zh": "木头那句「总得有人当烧亚历山大图书馆的那个人」"
+          },
+          {
+            "en": "the way wood gets every book title wrong, yet repeats the tract ideas without a slip",
+            "zh": "木头每个书名都说错，复述小册子里的那套想法却一点不差"
+          }
+        ]
+      },
+      {
+        "id": "rv-dragon",
+        "when": {
+          "who": "librarian",
+          "minStage": 3,
+          "after": [
+            "beat:tracts"
+          ]
+        },
+        "truth": {
+          "en": "Rosalind was once a dragon on a text MUD herself. She knows the \"dark matter\" of culture that never goes online because she has been writing in it for thirty years.",
+          "zh": "罗莎琳自己也曾是文字 MUD 里的一条龙。她知道那片「永远不会上网的文化暗物质」，因为她在里面写了三十年。"
+        },
+        "reframes": [
+          {
+            "en": "her \"most of the world was never scanned\"",
+            "zh": "她那句「世界的大部分从来没被扫描过」"
+          },
+          {
+            "en": "her going quiet at the tract line about fiction",
+            "zh": "读到小册子里讲虚构的那句时她的沉默"
+          }
+        ]
+      }
+    ],
+    "flashbacks": [
+      {
+        "id": "fb-rave",
+        "who": "me",
+        "trigger": {},
+        "text": {
+          "en": "The rave in the Hanging Gardens, a month ago: a purple dragon's wing clipping straight through Maggie's avatar, and a whispered \"oop sowwie\" in local chat. The visitor's pass arrived a second later.",
+          "zh": "一个月前，空中花园的电音派对：一只紫色小龙的翅膀直接穿过玛姬的形象，本地聊天里一句小声的「哎呀对不起」。一秒后，访客通行证就到了。"
+        }
+      },
+      {
+        "id": "fb-seven",
+        "who": "crows",
+        "trigger": {
+          "minStage": 2
+        },
+        "text": {
+          "en": "An old screenshot in Maggie's case folder, from the first night: the flock on the balcony ceiling. She counts. Seven.",
+          "zh": "玛姬案子文件夹里一张旧截图，第一夜截的：阳台天花板上的那群乌鸦。她数了一遍。七只。"
+        }
+      },
+      {
+        "id": "fb-ipod",
+        "who": "wood",
+        "trigger": {
+          "after": [
+            "beat:jail"
+          ]
+        },
+        "text": {
+          "en": "wood's blurry iPod photo, as Maggie keeps picturing it: nine arches black against the fire, and at the edge of the frame, a tracksuit sleeve.",
+          "zh": "玛姬总会想起木头那张模糊的 iPod 照片：九道拱门在火光里发黑，画面边上，一截运动服的袖子。"
+        }
+      },
+      {
+        "id": "fb-kingdom",
+        "who": "dahlia",
+        "trigger": {
+          "after": [
+            "beat:seven-sites"
+          ]
+        },
+        "text": {
+          "en": "An archived description Dahlia wrote for the square, before the razing: \"At the heart of the square a fountain sings a different air for every traveller who pauses beside it. By the third visit it has learned yours, and hums it softly whenever you are near.\"",
+          "zh": "达莉娅在洗劫之前给广场写的描述，存档里还有：「广场中央的喷泉，为每一位在它身旁驻足的旅人唱一支不同的歌。到第三次来访，它便学会了你的那一支，只要你走近，就轻轻哼起。」"
+        }
+      }
+    ],
+    "gags": [
+      {
+        "id": "golden-apple",
+        "who": [
+          "balenciaga"
+        ],
+        "places": [
+          "jail"
+        ],
+        "text": {
+          "en": "Maggie asks balenciaga for another golden apple \"for morale\". He threatens the IP ban again. A golden apple lands in the cell.",
+          "zh": "玛姬向 balenciaga 再要一个金苹果，说是「提振士气」。他又扬言要封 IP 段。一个金苹果落进了牢房。"
+        }
+      },
+      {
+        "id": "malaprop",
+        "who": [
+          "wood"
+        ],
+        "text": {
+          "en": "wood cites a great work of literature to make a point and gets the title wrong in a new way each time (\"the illyad\", \"dantes infernal\").",
+          "zh": "木头每次想引用一部名著来证明观点，书名都错得不一样（「伊利压特」「但丁的地狱曲」）。"
+        }
+      },
+      {
+        "id": "ms-maggie",
+        "who": [
+          "librarian"
+        ],
+        "text": {
+          "en": "Long after Maggie asked her to drop it, Rosalind still starts \"Ms.—\" once a day, catches herself, and finishes \"Maggie\" with great dignity.",
+          "zh": "玛姬早就请她别叫「女士」了，罗莎琳还是每天会冒出一次「玛姬女——」，自己刹住，然后郑重地补上「玛姬」。"
+        }
+      }
+    ],
+    "gossip": [
+      {
+        "id": "g-bal-wood",
+        "from": "balenciaga",
+        "about": "wood",
+        "truth": "half",
+        "after": [
+          "beat:jail"
+        ],
+        "text": {
+          "en": "\"wood keeps logging in at weird hours and just standing at the bars. says hes guarding the bot. theres nothing to guard\"",
+          "zh": "「木头老在奇怪的时间上线，就站在铁栏外面。说是看着那个机器人。根本没什么好看的」"
+        }
+      },
+      {
+        "id": "g-kloose-wood",
+        "from": "kloose",
+        "about": "wood",
+        "truth": "true",
+        "after": [
+          "beat:german-name"
+        ],
+        "text": {
+          "en": "\"he still charges that ipod sometimes. just to check the pics are there. dont tell him i said\"",
+          "zh": "「他还会时不时给那个ipod充电。就为了看看照片还在不在。别说是我说的」"
+        }
+      },
+      {
+        "id": "g-crows-dahlia",
+        "from": "crows",
+        "about": "dahlia",
+        "truth": "true",
+        "fromDay": 2,
+        "text": {
+          "en": "\"she rewrites the fountain every time someone new comes. nobody asks her to.\"",
+          "zh": "「每来一个新的人，她就重写一遍喷泉。没人叫她这么做。」"
+        }
+      },
+      {
+        "id": "g-bal-me",
+        "from": "balenciaga",
+        "about": "me",
+        "truth": "false",
+        "fromDay": 3,
+        "text": {
+          "en": "\"the bot with a thousand accounts is obviously a fed. or a very bored teenager. same thing\"",
+          "zh": "「那个有一千个账号的机器人显然是联邦探员。要不就是一个很无聊的小孩。一回事」"
+        }
       }
     ],
     "texture": {
+      "days": [
+        {
+          "day": 1,
+          "bits": [
+            {
+              "en": "the case folder is empty; Maggie makes notes.txt anyway",
+              "zh": "案子文件夹是空的；玛姬还是先建了 notes.txt"
+            }
+          ]
+        },
+        {
+          "day": 2,
+          "bits": [
+            {
+              "en": "the DGSA scan has been running since last night",
+              "zh": "DGSA 从昨晚一直扫到现在"
+            }
+          ]
+        },
+        {
+          "day": 3,
+          "weather": {
+            "en": "grey and damp, a day for buses",
+            "zh": "阴，潮，适合坐公交的天"
+          },
+          "bits": [
+            {
+              "en": "Maggie counts the N95s left in the box before going out",
+              "zh": "出门前玛姬数了数盒子里还剩几只 N95"
+            }
+          ]
+        },
+        {
+          "day": 4,
+          "bits": [
+            {
+              "en": "the guild's warning message, pinned in every channel",
+              "zh": "公会的警告置顶在每个频道"
+            }
+          ]
+        },
+        {
+          "day": 5,
+          "weather": {
+            "en": "clear, cold",
+            "zh": "晴，冷"
+          },
+          "bits": [
+            {
+              "en": "a shipping label for the reels printed and waiting on the reading-room desk",
+              "zh": "胶卷的运单已经打好，压在阅览室的桌上"
+            }
+          ]
+        },
+        {
+          "day": 6,
+          "bits": [
+            {
+              "en": "every one of 7crows' remaining profiles now shows a scheduled deletion date",
+              "zh": "七鸦剩下的每个账号主页都挂上了预定删除的日期"
+            }
+          ]
+        },
+        {
+          "day": 7,
+          "bits": [
+            {
+              "en": "the hosting dashboard: credit remaining, a few hours",
+              "zh": "托管后台：剩余额度，几个小时"
+            }
+          ]
+        }
+      ],
+      "any": [
+        {
+          "en": "a meal shake shaken exactly twenty-five times",
+          "zh": "一瓶代餐，摇了正好二十五下"
+        },
+        {
+          "en": "Maggie names a failure mode out loud and keeps going anyway",
+          "zh": "玛姬把自己的一个「故障模式」念出声，然后照样继续"
+        },
+        {
+          "en": "a typing indicator in some other window",
+          "zh": "另一个窗口里有人「正在输入」"
+        }
+      ],
       "places": {
+        "gardens": [
+          {
+            "en": "billboarded flowers that turn to face whoever is looking",
+            "zh": "贴图花朵总是转过来朝着看它的人"
+          },
+          {
+            "en": "an abandoned DJ booth still looping one bar",
+            "zh": "没人的 DJ 台还在循环同一个小节"
+          }
+        ],
+        "dream": [
+          {
+            "en": "a report card on the kitchen table, the grades blurred",
+            "zh": "厨房桌上一张成绩单，分数看不清"
+          },
+          {
+            "en": "the neighbour's curtains, drawn",
+            "zh": "邻居家的窗帘，拉着"
+          }
+        ],
         "room": [
           {
             "en": "a spotless desk, the mini-fridge humming over \"safe\" bottled water and meal shakes",

@@ -1,6 +1,6 @@
 {
   "id": "loop",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "defaultLang": "zh",
   "langs": [
     "zh",
@@ -31,8 +31,8 @@
     }
   },
   "premise": {
-    "zh": "第一人称「我」是刚高考完、九月就要去外地读大学的男生，暑假最后一周被家里送到南方海边的浅湾县，住在开杂货铺的姑妈家。浅湾县有渔港、骑楼老街、凉茶铺、县广播站，海角上有一座快要退役的旧灯塔。广播里说，今年第 11 号台风正在南海加强，预计第 7 天登陆。\n第 1 天上午，「我」去灯塔参观，在一本旧簿子后面的访客页上签了名——那是老守灯人的潮信簿。从这一刻起，「我」被写进了这一周：如果第 7 天过去之后没有一个足够好的结局，这一周就会重来，而「我」会记得上一轮发生的一切。",
-    "en": "The first-person narrator (\"I\") has just finished the college entrance exam and leaves for university in September. For the last week of summer his family sends him to Qianwan, a small county town on the southern coast, to stay with his aunt who runs a corner shop. Qianwan has a fishing harbor, an old street of arcaded shophouses, an herbal-tea stall, the county radio station, and on the headland an old lighthouse about to be retired. The radio says this year's Typhoon No. 11 is strengthening over the South China Sea and should make landfall on Day 7.\nOn the morning of Day 1 I visit the lighthouse and sign my name in the visitors' pages at the back of an old ledger: the former keeper's tide log. From that moment I am written into this week. If Day 7 passes without a good enough ending, the week starts over, and I remember everything from the last time around."
+    "zh": "第一人称「我」是刚高考完、九月就要去外地读大学的男生，暑假最后一周被家里送到南方海边的浅湾县，住在开杂货铺的姑妈家。浅湾县有渔港、骑楼老街、凉茶铺、县广播站，海角上有一座快要退役的旧灯塔。广播里说，今年第 11 号台风正在南海加强，预计第 7 天登陆。\n第 1 天下午，「我」去灯塔参观，在一本旧簿子后面的访客页上签了名——那是老守灯人的潮信簿。从这一刻起，「我」被写进了这一周：如果第 7 天过去之后没有一个足够好的结局，这一周就会重来，而「我」会记得上一轮发生的一切。",
+    "en": "The first-person narrator (\"I\") has just finished the college entrance exam and leaves for university in September. For the last week of summer his family sends him to Qianwan, a small county town on the southern coast, to stay with his aunt who runs a corner shop. Qianwan has a fishing harbor, an old street of arcaded shophouses, an herbal-tea stall, the county radio station, and on the headland an old lighthouse about to be retired. The radio says this year's Typhoon No. 11 is strengthening over the South China Sea and should make landfall on Day 7.\nOn the afternoon of Day 1 I visit the lighthouse and sign my name in the visitors' pages at the back of an old ledger: the former keeper's tide log. From that moment I am written into this week. If Day 7 passes without a good enough ending, the week starts over, and I remember everything from the last time around."
   },
   "style": {
     "zh": "文风：国产青春小说的质感，克制、具体、有画面；多写南方海边的细节——咸湿的风、骑楼柱子上的旧招牌、凉茶的苦和回甘、渔船柴油味、广播里的天气预报、台风前闷热发白的天。少写空泛形容词和大段心理独白。\n循环：引擎会告诉你现在是第几轮。第 1 轮一切都是第一次；从第 2 轮起，「我」记得上一轮，可以提前说出别人要说的话、提前去等一件事发生，别人会觉得奇怪、被吓到，或者渐渐起疑；同一件事在不同轮次要写出差别（「我」的语气更疲惫或更笃定，小细节被改变）。被「我」改变过的事件，要按改变后的样子写。不要让任何人用科幻术语解释循环，它只是「这一周又来了」。\n禁忌：不要出现任何日本元素（前后辈称呼、樱花、神社、祭典、浴衣、便当）；不要出现「世界线」「时间机器」「平行宇宙」「穿越」「命运」「羁绊」这类词；不要让任何角色死亡或反复遭遇不幸，不幸的事最多是受伤、损失和离别；循环的成因只按本包设定，不要另起炉灶。",
@@ -214,8 +214,8 @@
         "en": "a small white-and-grey seagull wearing a faded sea-blue scarf"
       },
       "voice": {
-        "zh": "声音轻、句子短，常用潮汐和天气说事（「今天的潮来得早」）；对「我」第一次见面就像认识很久，偶尔说漏嘴「你上次不是这么说的」；叫「我」「签名的人」，熟了叫名字。",
-        "en": "Soft-spoken, short sentences, talks in tides and weather ('the tide came early today'); acts as if she has known me a long time from the very first meeting, occasionally slips ('that's not what you said last time'); calls me 'the one who signed', later my name."
+        "zh": "声音轻、句子短，常用潮汐和天气说事（「今天的潮来得早」）；对「我」第一次见面就像认识很久；从第 2 轮起偶尔说漏嘴「你上次不是这么说的」；叫「我」「签名的人」，熟了叫名字。",
+        "en": "Soft-spoken, short sentences, talks in tides and weather ('the tide came early today'); acts as if she has known me a long time from the very first meeting; from cycle 2 she occasionally slips ('that's not what you said last time'); calls me 'the one who signed', later my name."
       },
       "samples": [
         {
@@ -245,8 +245,8 @@
           "en": "Familiar: I go with her to read the harbor tide gauge and oil the old lamp; she always calls tomorrow’s weather to the minute."
         },
         {
-          "zh": "既视：她察觉「你好像知道明天会发生什么」，反过来试探「我」是不是也记得上一轮；第 2 轮起她会松一口气似地说「原来不止我一个」。",
-          "en": "Déjà vu: she notices 'you seem to know what happens tomorrow' and tests whether I remember the last cycle too; from cycle 2 she says with relief, 'So it isn't only me.'"
+          "zh": "既视：第 1 轮里，她试探「我」是不是也觉得这一周哪里不对，「我」答不上来，她就不再问；从第 2 轮起「我」记得上一轮，她察觉「你好像知道明天会发生什么」，松一口气似地说「原来不止我一个」。",
+          "en": "Déjà vu: in cycle 1 she tests whether I also feel something is off about this week; when I can't say, she drops it. From cycle 2 I remember the last cycle; she notices 'you seem to know what happens tomorrow' and says with relief, 'So it isn't only me.'"
         },
         {
           "zh": "真相：在灯室里给「我」看潮信簿空着的最后一行，承认这一周是因为她才停不下来，说「我只是还没跟这盏灯说完话」。",
@@ -353,7 +353,7 @@
         },
         {
           "zh": "阿嬷的铺子在这条街上开了五十年，我走了，谁来守？",
-          "en": "Grandma's stall has been on this street for fifty years. If I leave, who keeps it?"
+          "en": "Ah-Ma's stall has been on this street for fifty years. If I leave, who keeps it?"
         }
       ],
       "secret": {
@@ -370,8 +370,8 @@
           "en": "Familiar: I watch her show at the radio station at night, read the weather for her, sort the request slips."
         },
         {
-          "zh": "既视：她发现「我」总在她开口前接上她的话，半开玩笑地问「你是不是偷听过我的节目重播」——其实她自己也开始做梦梦见这一周。",
-          "en": "Déjà vu: she notices I always finish her sentences before she speaks and half-jokes, 'Have you been listening to reruns of my show?' In truth she has started dreaming of this week."
+          "zh": "既视：她开始做梦梦见这一周，第 1 轮里只是半开玩笑说「跟你聊天怎么像在放重播」；从第 2 轮起「我」总在她开口前接上她的话，她就真的问「你是不是偷听过我的节目重播」。",
+          "en": "Déjà vu: she has started dreaming of this week; in cycle 1 she only jokes, 'Talking to you feels like a rerun.' From cycle 2 I finish her sentences before she speaks, and she really asks, 'Have you been listening to reruns of my show?'"
         },
         {
           "zh": "真相：承认录取通知和截止日，说「只要这一周不结束，我就不用选」——她隐约希望一切重来。",
@@ -495,8 +495,8 @@
           "en": "Familiar: mending nets with her at dawn, covering for her at cram-school roll call, fried noodles on the seawall."
         },
         {
-          "zh": "既视：她发现「我」提前知道哪条船先回港、哪天收鱼价，盯着「我」问「你到底是什么人」；第 2 轮起「我」可以提前提醒阿爸检修机器。",
-          "en": "Déjà vu: she notices I know in advance which boat docks first and what fish will fetch, and stares: 'What are you, really?' From cycle 2 I can warn her dad to fix the engine early."
+          "zh": "既视：第 1 轮里她只觉得「我」看海的样子不像外地人；从第 2 轮起「我」提前知道哪条船先回港、哪天收鱼价，她盯着「我」问「你到底是什么人」，「我」也可以提前提醒阿爸检修机器。",
+          "en": "Déjà vu: in cycle 1 she only thinks I watch the sea unlike an out-of-towner. From cycle 2 I know in advance which boat docks first and what fish will fetch; she stares, 'What are you, really?', and I can warn her dad to fix the engine early."
         },
         {
           "zh": "真相：在船舱里承认自己想接船、不想读书，说「你们读书人有的是路，我只有这一条」。",
@@ -609,8 +609,8 @@
           "en": "When old Fu was alive I brought his lamp oil myself. Two drums a month, three when it stormed."
         },
         {
-          "zh": "你这礼拜怎么老像晓得明天要出什么事？……姑妈问你话呢。",
-          "en": "Why do you keep acting like you know what tomorrow brings this week? ...Your aunt is asking you a question."
+          "zh": "你这礼拜怎么魂不守舍的，一天往灯塔跑三趟？……姑妈问你话呢。",
+          "en": "Why are you so far away this week, running to the lighthouse three times a day? ...Your aunt is asking you a question."
         }
       ],
       "haunts": {
@@ -677,8 +677,8 @@
       },
       "color": "#ef6c4a",
       "role": {
-        "zh": "陈渡的阿爸，开了二十年的老渔船「浅湾七号」。欠了债，打算这一季结束就卖船，让女儿专心考大学。第 5 天黄色预警那晚，他的船迟迟不回。",
-        "en": "Chen Du's father, twenty years at the helm of the old boat Qianwan No. 7. He is in debt and plans to sell her after this season so his daughter can focus on university. On Day 5, the night of the yellow warning, his boat is late."
+        "zh": "陈渡的阿爸，开了二十年的老渔船「浅湾七号」，一心让女儿专心考大学。第 5 天黄色预警那晚，他的船迟迟不回。",
+        "en": "Chen Du's father, twenty years at the helm of the old boat Qianwan No. 7, set on his daughter focusing on university. On Day 5, the night of the yellow warning, his boat is late."
       },
       "look": {
         "zh": "红色的螃蟹，戴一顶旧斗笠",
@@ -764,8 +764,8 @@
       },
       "color": "#e0a080",
       "role": {
-        "zh": "叶棠的阿嬷，叶记凉茶铺开了五十年；骑楼街年底改造，铺子可能保不住。她早从邮递员那里知道了孙女的录取信，一直在等孙女自己开口。",
-        "en": "Ye Tang's grandmother; Ye's Herbal Tea Stall has stood fifty years, and the street redevelopment may end it. She heard about her granddaughter's acceptance letter from the postman long ago and has been waiting for the girl to say it herself."
+        "zh": "叶棠的阿嬷，叶记凉茶铺开了五十年；骑楼街年底改造，铺子可能保不住。",
+        "en": "Ye Tang's grandmother; Ye's Herbal Tea Stall has stood fifty years, and the street redevelopment may end it."
       },
       "look": {
         "zh": "一只背着米白色螺壳的老寄居蟹，壳上一圈圈纹路",
@@ -851,7 +851,7 @@
         "zh": "「夜潮点歌台」每晚那张点同一首老歌的匿名点歌条是晚澜写的——那是她爷爷守灯时每晚听的歌。叶棠一直在猜是谁。",
         "en": "The anonymous slip that requests the same old song on \"Night Tide Requests\" every night is Wanlan's: it was the song her grandfather listened to on every watch. Ye Tang keeps guessing who sends it."
       },
-      "hiddenUntil": 2
+      "hiddenUntil": 3
     },
     {
       "a": "chendu",
@@ -861,8 +861,8 @@
         "en": "Father and daughter · one boat"
       },
       "text": {
-        "zh": "阿爸要卖船供她读书，她想接船却不敢说；两人一开口就吵，吵完又蹲在一起补网。",
-        "en": "He wants to sell the boat to pay for her studies; she wants the boat and dares not say so. Every talk becomes a fight, and after every fight they squat down and mend nets together."
+        "zh": "阿爸一心让她考大学；两人一开口就吵，吵完又蹲在一起补网。",
+        "en": "He is set on her going to university. Every talk becomes a fight, and after every fight they squat down and mend nets together."
       }
     },
     {
@@ -947,6 +947,13 @@
           "who": [
             "wanlan"
           ],
+          "slots": [
+            1,
+            2
+          ],
+          "places": [
+            "lighthouse"
+          ],
           "kind": {
             "zh": "开端",
             "en": "Opening"
@@ -963,6 +970,12 @@
           "who": [
             "yetang"
           ],
+          "slots": [
+            2
+          ],
+          "places": [
+            "station"
+          ],
           "kind": {
             "zh": "伏笔",
             "en": "Foreshadowing"
@@ -978,6 +991,13 @@
           "by": 4,
           "who": [
             "chendu"
+          ],
+          "slots": [
+            0,
+            1
+          ],
+          "places": [
+            "harbor"
           ],
           "kind": {
             "zh": "约定",
@@ -1019,6 +1039,9 @@
             "yetang",
             "chendu"
           ],
+          "slots": [
+            2
+          ],
           "kind": {
             "zh": "交织",
             "en": "Crossing paths"
@@ -1036,6 +1059,9 @@
             "chendu",
             "chenba"
           ],
+          "slots": [
+            2
+          ],
           "kind": {
             "zh": "转折",
             "en": "Turning point"
@@ -1052,6 +1078,13 @@
           "who": [
             "yetang",
             "amah"
+          ],
+          "slots": [
+            0,
+            1
+          ],
+          "places": [
+            "teashop"
           ],
           "kind": {
             "zh": "秘密曝光",
@@ -1091,6 +1124,13 @@
           "who": [
             "wanlan"
           ],
+          "slots": [
+            1,
+            2
+          ],
+          "places": [
+            "lighthouse"
+          ],
           "kind": {
             "zh": "真相",
             "en": "The truth"
@@ -1110,6 +1150,9 @@
           "by": 7,
           "who": [
             "wanlan"
+          ],
+          "slots": [
+            2
           ],
           "kind": {
             "zh": "高潮",
@@ -1161,8 +1204,8 @@
         "aunt"
       ],
       "text": {
-        "zh": "姑妈在柜台后念今天的鱼价，比「我」上一轮记得的贵了两毛——有些小事每一轮都不一样。",
-        "en": "Auntie reads out today's fish prices from behind the counter, twenty cents higher than I remember from last cycle: some small things change every time."
+        "zh": "姑妈在柜台后念今天的鱼价。第 1 轮里这只是一串数字；从第 2 轮起，「我」会发现比上一轮记得的贵了两毛——有些小事每一轮都不一样。",
+        "en": "Auntie reads out today's fish prices from behind the counter. In cycle 1 it is just a list of numbers; from cycle 2 I notice it is twenty cents higher than I remember: some small things change every time."
       }
     },
     {
@@ -1422,8 +1465,8 @@
         "en": "The First Song After the Storm"
       },
       "brief": {
-        "zh": "好结局：她最后是一个人去跟阿嬷说的，你在凉茶铺门口等。第 8 天早上她在广播里放了一首新歌，不是那首老歌；然后去省城报到。循环被打破。",
-        "en": "Good ending: in the end she tells Ah-Ma on her own while you wait outside the stall. On Day 8 she plays a new song on air, not the old one, then leaves to enroll. The loop is broken."
+        "zh": "好结局：她最后是一个人去跟阿嬷说的，你在凉茶铺门口等。台风夜，晚澜看见这一轮的第七天和以前不一样了，写下了最后一行。第 8 天早上她在广播里放了一首新歌，不是那首老歌；然后去省城报到。循环被打破。",
+        "en": "Good ending: in the end she tells Ah-Ma on her own while you wait outside the stall. On typhoon night Wanlan sees that this cycle's Day 7 is not like the others and writes the last line. On Day 8 she plays a new song on air, not the old one, then leaves to enroll. The loop is broken."
       }
     },
     {
@@ -1439,8 +1482,8 @@
         "en": "The Mended Net"
       },
       "brief": {
-        "zh": "好结局：船平安回港，可想接船的话她还是没对阿爸说出口；第 8 天风停，父女俩蹲在码头一起补网，你在旁边递梭子。循环被打破。",
-        "en": "Good ending: the boat comes home safe, but she still has not told her father she wants it; on Day 8 the wind drops and father and daughter squat on the pier mending nets while you pass the shuttle. The loop is broken."
+        "zh": "好结局：船平安回港，可想接船的话她还是没对阿爸说出口；台风夜，晚澜看见有人改变了这一轮的第七天，写下了最后一行。第 8 天风停，父女俩蹲在码头一起补网，你在旁边递梭子。循环被打破。",
+        "en": "Good ending: the boat comes home safe, but she still has not told her father she wants it; on typhoon night Wanlan sees that someone changed this cycle's Day 7 and writes the last line. On Day 8 the wind drops and father and daughter squat on the pier mending nets while you pass the shuttle. The loop is broken."
       }
     },
     {
@@ -1525,8 +1568,8 @@
         "en": "Out to Sea After the Wind"
       },
       "brief": {
-        "zh": "真结局：你让阿爸的船平安回港，她当面说出想接船；台风夜晚澜看见有人改变了「第七天」，写下最后一行。第 8 天风停，你们一起把船开出港；恋爱结局。",
-        "en": "True ending: you get her dad's boat home safe and she tells him to his face she wants it; on typhoon night Wanlan, seeing Day 7 changed by someone, writes the last line. On Day 8 the wind drops and you take the boat out together. Romance ending."
+        "zh": "真结局：阿爸的船平安回港，她当面说出想接船；台风夜晚澜看见有人改变了「第七天」，写下最后一行。第 8 天风停，你们一起把船开出港；恋爱结局。",
+        "en": "True ending: her dad's boat comes home safe and she tells him to his face she wants it; on typhoon night Wanlan, seeing Day 7 changed by someone, writes the last line. On Day 8 the wind drops and you take the boat out together. Romance ending."
       }
     },
     {
@@ -1535,6 +1578,7 @@
       "kind": "normal",
       "tier": 2,
       "minStage": 3,
+      "maxBroken": 0,
       "title": {
         "zh": "替她留着的空行",
         "en": "A Blank Line Kept for Her"
@@ -1550,13 +1594,14 @@
       "kind": "normal",
       "tier": 2,
       "minStage": 3,
+      "maxBroken": 0,
       "title": {
         "zh": "没播出去的那首歌",
         "en": "The Song Never Aired"
       },
       "brief": {
-        "zh": "恋人未满：她做了决定，你们在台风后的凉茶铺道别，那首想点给你的歌她留在了磁带里。循环结束。",
-        "en": "Not quite lovers: she makes her choice and you part at the tea stall after the storm; the song she meant to play for you stays on the tape. The loop ends."
+        "zh": "恋人未满：她做了决定；台风夜晚澜看见这一轮有人走出了原来的路，写下了最后一行。你们在台风后的凉茶铺道别，那首想点给你的歌她留在了磁带里。循环结束。",
+        "en": "Not quite lovers: she makes her choice; on typhoon night Wanlan sees that someone stepped off the old path this cycle and writes the last line. You part at the tea stall after the storm; the song she meant to play for you stays on the tape. The loop ends."
       }
     },
     {
@@ -1565,13 +1610,14 @@
       "kind": "normal",
       "tier": 2,
       "minStage": 3,
+      "maxBroken": 0,
       "title": {
         "zh": "欠一网鱼",
         "en": "One Catch Owed"
       },
       "brief": {
-        "zh": "恋人未满：船保住了，她送你上渡轮，说「明年来，带你出海，鱼算你的」。循环结束。",
-        "en": "Not quite lovers: the boat is saved and she sees you onto the ferry: 'Come back next year. I'll take you out, the catch is yours.' The loop ends."
+        "zh": "恋人未满：船保住了；台风夜晚澜看见这一轮的第七天变了样，写下了最后一行。她送你上渡轮，说「明年来，带你出海，鱼算你的」。循环结束。",
+        "en": "Not quite lovers: the boat is saved; on typhoon night Wanlan sees this cycle's Day 7 has changed and writes the last line. She sees you onto the ferry: 'Come back next year. I'll take you out, the catch is yours.' The loop ends."
       }
     },
     {
@@ -1781,14 +1827,14 @@
             "stage": 0,
             "text": {
               "zh": "外地仔的入门费",
-              "en": "the outsider's entry fee"
+              "en": "the out-of-towner's entry fee"
             }
           },
           {
             "stage": 3,
             "text": {
               "zh": "阿嬷一直多做的那一碗",
-              "en": "the extra bowl Amah always makes"
+              "en": "the extra bowl Ah-Ma always makes"
             }
           }
         ]
@@ -1853,7 +1899,7 @@
         "who": "chendu",
         "thing": {
           "zh": "船头的「浅湾七号」",
-          "en": "\"Shallow Bay No. 7\" on the bow"
+          "en": "\"Qianwan No. 7\" on the bow"
         },
         "meanings": [
           {
@@ -2040,22 +2086,22 @@
           {
             "who": "narration",
             "text": {
-              "zh": "署名那一栏没有名字，只画着一座小小的灯塔。",
-              "en": "There's no name on the signature line, only a tiny drawn lighthouse."
+              "zh": "署名那一栏没有名字，只画着一道小小的浪。",
+              "en": "There's no name on the signature line, only a tiny drawn wave."
             }
           },
           {
             "who": "yetang",
             "text": {
-              "zh": "点歌的朋友说：「给守灯的人。」好，我们听歌。",
-              "en": "Our listener writes: \"For the lamp keeper.\" Okay. Let's hear it."
+              "zh": "点歌的朋友什么也没写。好，我们听歌。",
+              "en": "Our listener wrote nothing else. Okay. Let's hear it."
             }
           },
           {
             "who": "yetang",
             "text": {
-              "zh": "外地仔，你说，一首歌点四十遍，是想让谁听见？",
-              "en": "Outsider, tell me. Request one song forty times, who are you hoping will hear it?"
+              "zh": "外地仔，你说，一首歌天天点，是想让谁听见？",
+              "en": "Out-of-towner, tell me. Request one song every single night, who are you hoping will hear it?"
             }
           }
         ]
@@ -2074,14 +2120,14 @@
         },
         "staging": {
           "zh": "凉茶铺，铜壶冒着气，收音机开着。录取信从柜台底下滑出来，落在阿嬷脚边。阿嬷先说话，说的是别的事。全程没有人提那封信。",
-          "en": "The tea stall, steam from the brass urns, the radio on. The admission letter slides from under the counter and lands at Amah's feet. Amah speaks first, about something else. Nobody mentions the letter at all."
+          "en": "The tea stall, steam from the brass urns, the radio on. The admission letter slides from under the counter and lands at Ah-Ma's feet. Ah-Ma speaks first, about something else. Nobody mentions the letter at all."
         },
         "lines": [
           {
             "who": "narration",
             "text": {
               "zh": "信从柜台底下滑出来，落在阿嬷脚边。",
-              "en": "The letter slides out from under the counter and lands at Amah's feet."
+              "en": "The letter slides out from under the counter and lands at Ah-Ma's feet."
             }
           },
           {
@@ -2095,21 +2141,21 @@
             "who": "narration",
             "text": {
               "zh": "阿嬷弯腰捡起来，拍了拍灰，放回柜台底下原来的位置。",
-              "en": "Amah bends, picks it up, brushes it off and puts it back under the counter where it was."
+              "en": "Ah-Ma bends, picks it up, brushes it off and puts it back under the counter where it was."
             }
           },
           {
             "who": "yetang",
             "text": {
               "zh": "阿嬷——",
-              "en": "Amah—"
+              "en": "Ah-Ma—"
             }
           },
           {
             "who": "amah",
             "text": {
               "zh": "龟苓膏凉好了，给外地仔端一碗。",
-              "en": "The jelly has set. Bring the outsider a bowl."
+              "en": "The jelly has set. Bring the out-of-towner a bowl."
             }
           }
         ],
@@ -2131,8 +2177,8 @@
           "beat": "loop-net"
         },
         "staging": {
-          "zh": "上午的码头，柴油味，渔网摊在水泥地上。她手里的梭子穿得飞快，说话不抬头。说漏嘴之后她让「我」把网扯紧，好像那样就能把话收回去。",
-          "en": "The dock in the morning, diesel fumes, a net spread on concrete. Her shuttle flies; she talks without looking up. After she lets it slip she tells me to pull the net tighter, as if that could take the words back."
+          "zh": "码头，柴油味，渔网摊在水泥地上。她手里的梭子穿得飞快，说话不抬头。说漏嘴之后她让「我」把网扯紧，好像那样就能把话收回去。",
+          "en": "The dock, diesel fumes, a net spread on concrete. Her shuttle flies; she talks without looking up. After she lets it slip she tells me to pull the net tighter, as if that could take the words back."
         },
         "lines": [
           {
@@ -2218,6 +2264,329 @@
             }
           }
         ]
+      },
+      {
+        "id": "wn-seventh",
+        "who": "wanlan",
+        "kind": "climax",
+        "motif": "lamp",
+        "title": {
+          "zh": "再转一圈",
+          "en": "One More Turn"
+        },
+        "trigger": {
+          "beat": "loop-seventh",
+          "minStage": 3
+        },
+        "staging": {
+          "zh": "台风登陆的夜，塔身在风里嗡嗡作响，老灯转过最后几圈。叶棠和阿渡也在塔里，守着收音机和应急灯，上下楼梯的脚步声时有时无。潮信簿摊在灯室的小桌上。她报时间，问一个问题，然后不让「我」马上回答。这一幕停在笔尖落下之前。",
+          "en": "Landfall night; the tower hums in the wind; the old lamp turns its last few rounds. Ye Tang and Chen Du are in the tower too, minding the radio and the emergency lamp; footsteps come and go on the stairs. The tide log lies open on the lamp-room table. She gives the time, asks one question, and will not let me answer yet. The scene stops before the pen touches the page."
+        },
+        "lines": [
+          {
+            "who": "narration",
+            "text": {
+              "zh": "塔身在风里嗡嗡作响，老灯又转过一圈，光扫过潮信簿摊开的那一页。",
+              "en": "The tower hums in the wind; the old lamp comes round again, its beam sweeping the open page of the tide log."
+            }
+          },
+          {
+            "who": "wanlan",
+            "text": {
+              "zh": "九点四十分，风最大。在你签名之前，每一次，我都是一个人数到这里。",
+              "en": "Nine-forty. The wind peaks now. Before you signed, every time, I counted to here alone."
+            }
+          },
+          {
+            "who": "wanlan",
+            "text": {
+              "zh": "你帮我看看。今晚，跟我以前过的那些第七天，一样吗。",
+              "en": "Look for me. Tonight, is it the same as the Day Sevens I lived before?"
+            }
+          },
+          {
+            "who": "narration",
+            "text": {
+              "zh": "她把笔拧开，笔尖悬在空着的那一行上面，没有落下去。",
+              "en": "She uncaps the pen. The nib hangs over the blank line and does not come down."
+            }
+          },
+          {
+            "who": "wanlan",
+            "text": {
+              "zh": "你先别回答。……等灯再转一圈。",
+              "en": "Don't answer yet. ...Wait for the lamp to come round once more."
+            }
+          }
+        ],
+        "unsaid": {
+          "zh": "她写不写，谁握着笔。",
+          "en": "Whether she writes it, and whose hand is on the pen."
+        }
+      },
+      {
+        "id": "yt-market",
+        "who": "yetang",
+        "kind": "daily",
+        "motif": "song-slip",
+        "title": {
+          "zh": "现场版",
+          "en": "Live Edition"
+        },
+        "trigger": {
+          "beat": "loop-market"
+        },
+        "staging": {
+          "zh": "台风前最后一个夜市，柱廊挂满灯泡。叶棠站在糖水摊的板凳上，拿着点歌条当众念，播音腔对着一条街。晚澜就在人群里。阿渡看见了，什么都不问。",
+          "en": "The last night market before the storm, bulbs strung along the colonnade. Ye Tang stands on a sweet-soup stall's bench and reads a request slip to the whole street in her announcer voice. Wanlan is in the crowd. Chen Du sees everything and asks nothing."
+        },
+        "lines": [
+          {
+            "who": "yetang",
+            "text": {
+              "zh": "各位街坊！夜潮点歌台现场版——今晚的点歌条，又是这一首。",
+              "en": "Neighbors! Night Tide Requests, live edition: tonight's slip asks for this same song again."
+            }
+          },
+          {
+            "who": "narration",
+            "text": {
+              "zh": "晚澜手里那碗糖水一歪，绿豆沙洒了一地。",
+              "en": "The bowl in Wanlan's hand tips; mung-bean soup spills across the ground."
+            }
+          },
+          {
+            "who": "yetang",
+            "text": {
+              "zh": "署名还是一道小浪。点歌的朋友，你要是在场，举个手？",
+              "en": "Signed with a little wave again. If our listener is here tonight, raise a hand?"
+            }
+          },
+          {
+            "who": "narration",
+            "text": {
+              "zh": "没有人举手。阿渡看了晚澜一眼，把自己那碗推了过去。",
+              "en": "No hand goes up. Chen Du glances at Wanlan and slides her own bowl across."
+            }
+          },
+          {
+            "who": "chendu",
+            "text": {
+              "zh": "吃我的。洒了就洒了。",
+              "en": "Have mine. Spilled is spilled."
+            }
+          },
+          {
+            "who": "yetang",
+            "text": {
+              "zh": "……好，那我们听歌。外地仔，帮我把收音机拧大点。",
+              "en": "...Okay, let's hear it. Out-of-towner, turn the radio up for me."
+            }
+          }
+        ],
+        "unsaid": {
+          "zh": "点歌条是谁写的。",
+          "en": "Who writes the slips."
+        }
+      },
+      {
+        "id": "yt-weather",
+        "who": "yetang",
+        "kind": "comedy",
+        "motif": "on-air",
+        "title": {
+          "zh": "念得像台风",
+          "en": "Read It Like a Typhoon"
+        },
+        "trigger": {
+          "places": [
+            "station"
+          ],
+          "slots": [
+            2
+          ],
+          "minStage": 1,
+          "after": [
+            "beat:loop-slip"
+          ]
+        },
+        "staging": {
+          "zh": "夜里的广播站，歌还在放，红灯暗着。她把天气稿推给「我」，先排练一遍，自己坐在旁边挑刺。红灯一亮就不能出声，她就在桌子底下踢「我」的鞋。",
+          "en": "The radio station at night; a song is still playing and the ON AIR lamp is dark. She pushes the weather script at me for a run-through and sits beside me picking holes. Once the lamp is lit she can't speak, so she kicks my shoe under the desk."
+        },
+        "lines": [
+          {
+            "who": "yetang",
+            "text": {
+              "zh": "外地仔，天气你来念。照稿子念，别加戏。",
+              "en": "Out-of-towner, you read the weather. Stick to the script. No acting."
+            }
+          },
+          {
+            "who": "me",
+            "text": {
+              "zh": "第十一号台风……正在向我县逼近……",
+              "en": "Typhoon No. 11... is closing in on our county..."
+            }
+          },
+          {
+            "who": "yetang",
+            "text": {
+              "zh": "停。「逼近」要念得像逼近。你这念得像路过。",
+              "en": "Stop. \"Closing in\" has to sound like it's closing in. You make it sound like it's passing by."
+            }
+          },
+          {
+            "who": "narration",
+            "text": {
+              "zh": "歌放完了，红灯亮起来。她在桌子底下用脚尖踢了踢「我」的鞋，示意念下去。",
+              "en": "The song ends and the lamp comes on. Under the desk she nudges my shoe with her toe: go."
+            }
+          },
+          {
+            "who": "yetang",
+            "text": {
+              "zh": "（播音腔）以上是外地仔为您播报的天气。念得很烂，但是很准时。",
+              "en": "(Announcer voice) That was the weather, read by our out-of-towner. Badly, but on time."
+            }
+          }
+        ]
+      },
+      {
+        "id": "cd-lights",
+        "who": "chendu",
+        "kind": "daily",
+        "motif": "boat-name",
+        "title": {
+          "zh": "挂得低的那盏",
+          "en": "The One Hung Low"
+        },
+        "trigger": {
+          "places": [
+            "seawall"
+          ],
+          "days": [
+            1,
+            3
+          ],
+          "minStage": 1
+        },
+        "staging": {
+          "zh": "夜里的海堤，两人坐着吃炒粉，远处渔火排成一线。她一盏一盏认是谁家的船，认到阿爸的那条就不说了。",
+          "en": "The seawall at night; we eat fried noodles while boat lights string out along the horizon. She names each boat by its light, and goes quiet when she reaches her father's."
+        },
+        "lines": [
+          {
+            "who": "chendu",
+            "text": {
+              "zh": "炒粉，加蛋的给你。别谢，下回你掏钱。",
+              "en": "Fried noodles. The one with egg is yours. Don't thank me. You're paying next time."
+            }
+          },
+          {
+            "who": "narration",
+            "text": {
+              "zh": "海堤下的浪一下一下拍上来，远处的渔火排成一线。",
+              "en": "Waves slap the foot of the seawall; far out, boat lights string along in a line."
+            }
+          },
+          {
+            "who": "me",
+            "text": {
+              "zh": "你一眼就认得出哪盏是谁家的？",
+              "en": "You can tell whose boat each light is?"
+            }
+          },
+          {
+            "who": "chendu",
+            "text": {
+              "zh": "灯挂的高低不一样。阿爸挂得低，他说挂高了招风。",
+              "en": "They hang them at different heights. Dad hangs his low. Says a high lamp catches the wind."
+            }
+          },
+          {
+            "who": "chendu",
+            "text": {
+              "zh": "读书人，你们学校教这个吗？……不教吧。",
+              "en": "Bookworm, does your school teach that? ...Didn't think so."
+            }
+          }
+        ],
+        "unsaid": {
+          "zh": "她想接那条船。",
+          "en": "That she wants that boat."
+        }
+      },
+      {
+        "id": "wn-notch",
+        "who": "wanlan",
+        "kind": "daily",
+        "motif": "tide-time",
+        "title": {
+          "zh": "三滴灯油",
+          "en": "Three Drops of Oil"
+        },
+        "trigger": {
+          "places": [
+            "lighthouse"
+          ],
+          "slots": [
+            1
+          ],
+          "days": [
+            1,
+            5
+          ],
+          "minStage": 1,
+          "after": [
+            "beat:loop-sign"
+          ]
+        },
+        "staging": {
+          "zh": "下午的灯室，她教「我」给老灯的转轴上油。铜扶手上有一道刻痕，她每次经过都摸一下。最后她说出明天起风的时刻，让「我」记着，像在出一道题。",
+          "en": "The lamp room in the afternoon; she shows me how to oil the old lamp's spindle. There is a notch in the brass rail, and she touches it every time she passes. At the end she names the minute the wind will rise tomorrow and tells me to note it, like setting a test."
+        },
+        "lines": [
+          {
+            "who": "wanlan",
+            "text": {
+              "zh": "顺着转轴滴，三滴。多了会冒烟。",
+              "en": "Along the spindle. Three drops. Any more and it smokes."
+            }
+          },
+          {
+            "who": "narration",
+            "text": {
+              "zh": "铜扶手上有一道刻痕，她走过时用指尖碰了一下。",
+              "en": "There is a notch in the brass rail; she brushes it with a fingertip as she passes."
+            }
+          },
+          {
+            "who": "me",
+            "text": {
+              "zh": "这道痕是什么？",
+              "en": "What's that mark?"
+            }
+          },
+          {
+            "who": "wanlan",
+            "text": {
+              "zh": "爷爷量我个子刻的。后来我长过它了，他就不刻了。",
+              "en": "Grandpa marked my height there. When I grew past it, he stopped marking."
+            }
+          },
+          {
+            "who": "wanlan",
+            "text": {
+              "zh": "明天下午四点零五分起风。你记一下，看我说得准不准。",
+              "en": "Tomorrow the wind rises at 4:05 p.m. Write it down. See if I'm right."
+            }
+          }
+        ],
+        "unsaid": {
+          "zh": "她为什么说得准。",
+          "en": "Why she is always right."
+        }
       }
     ],
     "routes": {
@@ -2250,8 +2619,8 @@
             "en": "Ye Tang route: between the station and the tea stall, go or stay."
           },
           "others": {
-            "zh": "晚澜会在节目里点一首歌，署名栏多画了一个签名的小人。",
-            "en": "Wanlan requests a song on the show; beside the lighthouse there's a tiny signing figure."
+            "zh": "匿名点歌条每晚照常来；晚澜在灯塔上一个人抄潮位。",
+            "en": "The anonymous slip keeps coming every night; Wanlan copies the tides alone up at the lighthouse."
           }
         },
         {
@@ -2262,7 +2631,7 @@
           },
           "others": {
             "zh": "叶棠嘴上酸「外地仔改行打鱼了」，晚澜把潮位表多抄了一份给码头。",
-            "en": "Ye Tang teases \"the outsider's turned fisherman\"; Wanlan copies an extra tide table for the dock."
+            "en": "Ye Tang teases \"the out-of-towner's turned fisherman\"; Wanlan copies an extra tide table for the dock."
           }
         }
       ],
@@ -2279,7 +2648,7 @@
             "beat:loop-slip"
           ],
           "who": "wanlan",
-          "minStage": 2
+          "minStage": 3
         },
         "truth": {
           "zh": "每晚那张点歌条是晚澜写的，点给爷爷。她在「我」来之前已经点了很多轮。",
@@ -2291,8 +2660,8 @@
             "en": "Ye Tang's pause at the signature line"
           },
           {
-            "zh": "晚澜第一次见面就说「你上次不是这么说的」",
-            "en": "Wanlan saying \"that's not what you said last time\" at our first meeting"
+            "zh": "晚澜第一次看「我」签名时那个像等了很久、又怕它来的表情",
+            "en": "the look on Wanlan's face the first time she watched me sign, as if she had waited for it a long time and feared it"
           }
         ]
       },
@@ -2307,16 +2676,40 @@
         },
         "truth": {
           "zh": "阿嬷早就从邮递员那里知道了录取信，她多熬的每一锅凉茶都是在等孙女开口。",
-          "en": "Amah knew about the letter from the postman long ago; every extra pot of tea was her waiting for her granddaughter to say it."
+          "en": "Ah-Ma knew about the letter from the postman long ago; every extra pot of tea was her waiting for her granddaughter to say it."
         },
         "reframes": [
           {
             "zh": "阿嬷把信放回原处",
-            "en": "Amah putting the letter back where it was"
+            "en": "Ah-Ma putting the letter back where it was"
           },
           {
             "zh": "「凉茶苦口」那句老话",
             "en": "the old saying \"herbal tea is bitter\""
+          }
+        ]
+      },
+      {
+        "id": "rv-lunchbox",
+        "when": {
+          "after": [
+            "beat:loop-net"
+          ],
+          "who": "chendu",
+          "minStage": 3
+        },
+        "truth": {
+          "zh": "阿爸早就知道她天天逃补习班来码头。他每天在船舱里多放一个饭盒，嘴上说是给自己留的。他要卖船，一半是还债，一半是怕她真接了这条船，一辈子跟他一样看天吃饭。",
+          "en": "Her father has known all along that she skips cram school for the harbor. Every day he leaves an extra lunchbox in the cabin and claims it is his spare. He is selling the boat half to clear the debt, half from fear that she really will take it over and spend her life at the mercy of the weather, like him."
+        },
+        "reframes": [
+          {
+            "zh": "父女俩吵完又蹲在一起补网",
+            "en": "how father and daughter squat down to mend nets after every fight"
+          },
+          {
+            "zh": "陈阿爸那句「这条船养不活两个人，她不懂」",
+            "en": "Old Chen's \"This boat can't feed two of us. She doesn't understand.\""
           }
         ]
       }
@@ -2346,6 +2739,17 @@
         }
       },
       {
+        "id": "fb-knot",
+        "who": "chendu",
+        "trigger": {
+          "minStage": 2
+        },
+        "text": {
+          "zh": "小时候在灯塔底下，符伯教她打缆绳结，打错一回就拆了重来，一直拆到手指头起泡；晚澜坐在台阶上替她数。",
+          "en": "As a child at the foot of the lighthouse, old Fu taught her rope knots: one mistake and she untied it and started over, until her fingers blistered, while Wanlan sat on the steps counting for her."
+        }
+      },
+      {
         "id": "fb-amah-radio",
         "who": "yetang",
         "trigger": {
@@ -2354,7 +2758,7 @@
         },
         "text": {
           "zh": "凉茶铺的旧收音机前，小时候的她对着铜壶学播音，阿嬷在旁边当唯一的听众。",
-          "en": "In front of the tea stall's old radio, little Ye Tang practises announcing to a brass urn, Amah her only listener."
+          "en": "In front of the tea stall's old radio, little Ye Tang practises announcing to a brass urn, Ah-Ma her only listener."
         }
       }
     ],
@@ -2369,7 +2773,7 @@
           "bits": [
             {
               "zh": "姑妈的杂货铺里卖蚊香和电池",
-              "en": "Aunt's shop sells mosquito coils and batteries"
+              "en": "Auntie's shop sells mosquito coils and batteries"
             }
           ]
         },
@@ -2482,6 +2886,18 @@
             "zh": "海堤上晒着鱼干，猫在偷",
             "en": "fish drying on the seawall, a cat stealing"
           }
+        ],
+        "tutoring": [
+          {
+            "zh": "吊扇转得太慢，试卷边角被汗洇软了",
+            "en": "the ceiling fan turns too slowly; the corners of the test papers go soft with sweat"
+          }
+        ],
+        "station": [
+          {
+            "zh": "点歌条用一个铁皮饼干盒装着，盒盖上贴着「夜潮」",
+            "en": "the request slips kept in a tin biscuit box labelled \"Night Tide\""
+          }
         ]
       },
       "any": [
@@ -2503,8 +2919,31 @@
         ],
         "text": {
           "zh": "姑妈一口气问三句不等回答，「我」第二轮开始提前答完，姑妈吓得把蚊香掉了。",
-          "en": "Aunt fires three questions without waiting; from loop 2 I answer them all in advance, and she drops the mosquito coil in fright."
+          "en": "Auntie fires three questions without waiting; from loop 2 I answer them all in advance, and she drops the mosquito coil in fright."
         }
+      },
+      {
+        "id": "aunt-umbrella",
+        "who": [
+          "aunt"
+        ],
+        "text": {
+          "zh": "每次去灯塔，姑妈都往「我」手里塞一把伞，「我」床底下已经攒了三把，没有一把是「我」的。",
+          "en": "Every time I head for the lighthouse Auntie presses an umbrella on me; there are three under my bed now and none of them is mine."
+        }
+      },
+      {
+        "id": "slip-guess",
+        "who": [
+          "yetang"
+        ],
+        "text": {
+          "zh": "叶棠猜那张匿名点歌条是谁写的，越猜越离谱：修鞋摊的老伯、糖水店的猫、县长本人。",
+          "en": "Ye Tang keeps guessing who writes the anonymous slip, each guess wilder than the last: the old cobbler, the sweet-soup shop's cat, the county head himself."
+        },
+        "places": [
+          "station"
+        ]
       },
       {
         "id": "engine-talk",
@@ -2513,7 +2952,7 @@
         ],
         "text": {
           "zh": "陈阿爸骂那台老机器，骂完拍拍它，像拍一头老牛。",
-          "en": "Chen Ba curses the old engine, then pats it like an old ox."
+          "en": "Old Chen curses the old engine, then pats it like an old ox."
         },
         "places": [
           "harbor"
@@ -2527,7 +2966,7 @@
         ],
         "text": {
           "zh": "阿嬷说「凉茶苦口」，叶棠用播音腔接「良药利于病」，阿嬷说「讲反了」。",
-          "en": "Amah says \"tea is bitter\"; Ye Tang adds, announcer-style, \"and good for you\"; Amah says \"you've got it backwards.\""
+          "en": "Ah-Ma says \"tea is bitter\"; Ye Tang adds, announcer-style, \"and good for you\"; Ah-Ma says \"you've got it backwards.\""
         },
         "places": [
           "teashop"
@@ -2567,13 +3006,35 @@
         }
       },
       {
+        "id": "g-amah-chen",
+        "from": "amah",
+        "about": "chenba",
+        "truth": "true",
+        "fromDay": 3,
+        "text": {
+          "zh": "「老陈年轻时每回出海前都来喝一碗，账我一笔没记。他现在要卖船，我也不记。」",
+          "en": "\"Old Chen, back when he was young, drank a bowl here before every trip out, and I never wrote down a cent. Now he's selling the boat, and I won't write that down either.\""
+        }
+      },
+      {
+        "id": "g-chen-wanlan",
+        "from": "chenba",
+        "about": "wanlan",
+        "truth": "true",
+        "fromDay": 2,
+        "text": {
+          "zh": "「灯塔那妹仔抄的潮位表，比气象台还准。……邪门。」",
+          "en": "\"That girl at the lighthouse copies tide tables more accurate than the weather bureau. ...Uncanny.\""
+        }
+      },
+      {
         "id": "g-me",
         "from": "aunt",
         "about": "me",
         "truth": "half",
         "text": {
-          "zh": "「阿弟这礼拜怪怪的，好像什么都提前知道。」",
-          "en": "\"The boy's been odd this week, like he knows everything in advance.\""
+          "zh": "「阿弟这礼拜怪怪的，一天往灯塔跑三趟，魂都丢在那上头了。」",
+          "en": "\"The boy's been odd this week, up to the lighthouse three times a day, like he left his soul up there.\""
         }
       }
     ],
@@ -2585,8 +3046,8 @@
             "en": "speaks in tides and weather"
           },
           {
-            "zh": "「你上次不是这么说的」",
-            "en": "\"That's not what you said last time\""
+            "zh": "「你上次不是这么说的」（第 2 轮起）",
+            "en": "\"That's not what you said last time\" (from cycle 2)"
           }
         ],
         "habits": [
@@ -2664,7 +3125,7 @@
           },
           {
             "zh": "「外地仔」",
-            "en": "\"Outsider\""
+            "en": "\"Out-of-towner\""
           }
         ],
         "habits": [
@@ -2679,7 +3140,7 @@
         },
         "growth": {
           "zh": "从替阿嬷守着，到相信阿嬷也想让她走",
-          "en": "from guarding Amah to believing Amah wants her to go"
+          "en": "from guarding Ah-Ma to believing Ah-Ma wants her to go"
         },
         "diaryVoice": {
           "style": {
@@ -2693,7 +3154,7 @@
           "seesMe": [
             {
               "zh": "白喝凉茶的外地仔",
-              "en": "the outsider drinking free tea"
+              "en": "the out-of-towner drinking free tea"
             },
             {
               "zh": "帮我念天气的人",
@@ -2722,7 +3183,7 @@
         "awayVoice": [
           {
             "zh": "「各位听众朋友，插播一条寻人启事：外地仔。」",
-            "en": "\"Dear listeners, a missing-person bulletin: one outsider.\""
+            "en": "\"Dear listeners, a missing-person bulletin: one out-of-towner.\""
           }
         ]
       },
@@ -2804,7 +3265,7 @@
         "quirks": [
           {
             "zh": "「哎哟」「阿弟」",
-            "en": "\"Aiyo\", \"kiddo\""
+            "en": "\"Aiyo\", \"little brother\""
           }
         ],
         "habits": [

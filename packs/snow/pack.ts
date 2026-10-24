@@ -7,7 +7,7 @@ import { SNOW_CRAFT } from './craft'
 
 export const SNOW: Pack & CraftFields = {
   id: 'snow',
-  version: '1.1.0',
+  version: '1.2.0',
   defaultLang: 'zh',
   langs: ['zh', 'en'],
   author: 'ai-galgame contributors',

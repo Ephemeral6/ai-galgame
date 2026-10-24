@@ -8,7 +8,7 @@ import { CICADA_CRAFT } from './craft'
 
 export const CICADA: Pack & CraftFields = {
   id: 'cicada',
-  version: '2.0.0',
+  version: '2.1.0',
   defaultLang: 'zh',
   langs: ['zh', 'en'],
   author: 'ai-galgame contributors',

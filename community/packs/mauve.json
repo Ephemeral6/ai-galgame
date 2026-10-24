@@ -1,6 +1,6 @@
 {
   "id": "mauve",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "defaultLang": "en",
   "langs": [
     "en",
@@ -645,11 +645,6 @@
           "zh": "小姐，下次再有陌生人在 SocialBook 上问你外婆的地址，先给我们打电话。然后拉黑他。"
         }
       ],
-      "haunts": {
-        "1": [
-          "hallway"
-        ]
-      },
       "sprite": {
         "pal": {
           "C": "#2d4b8e",
@@ -732,11 +727,6 @@
           "zh": "小姐，您说得对，她完全糊涂了。我们会严密看护。"
         }
       ],
-      "haunts": {
-        "1": [
-          "hallway"
-        ]
-      },
       "sprite": {
         "pal": {
           "L": "#7cb342",
@@ -968,7 +958,6 @@
         "zh": "外婆，你的黄瓜片好大呀"
       },
       "cast": [
-        "granny",
         "wolf"
       ]
     }
@@ -1009,6 +998,13 @@
           "who": [
             "wolf"
           ],
+          "slots": [
+            0
+          ],
+          "places": [
+            "boulevard",
+            "icecream"
+          ],
           "kind": {
             "en": "inciting incident",
             "zh": "起因"
@@ -1023,6 +1019,9 @@
           "day": 2,
           "by": 2,
           "who": [
+            "granny"
+          ],
+          "places": [
             "granny"
           ],
           "kind": {
@@ -1075,17 +1074,23 @@
           "who": [
             "granny"
           ],
+          "slots": [
+            0
+          ],
+          "places": [
+            "granny"
+          ],
           "kind": {
             "en": "key promise",
             "zh": "关键约定"
           },
           "text": {
-            "en": "Granny, spry and suspicious-cheerful, shows Mo' \"Suzie\" under her pillow and mentions the salesman will \"drop by Saturday\". Something about it makes Mo' uneasy.",
-            "zh": "外婆灵活得可疑，乐呵呵地给阿紫看枕头底下的「苏西」，说那个推销员「周六顺路过来」。阿紫心里有点不踏实。"
+            "en": "Friday afternoon at No. 173: Granny, spry and suspicious-cheerful, shows Mo' \"Suzie\" under her pillow and mentions the salesman will \"drop by Saturday\". Something about it makes Mo' uneasy.",
+            "zh": "周五下午在 173 号：外婆灵活得可疑，乐呵呵地给阿紫看枕头底下的「苏西」，说那个推销员「周六顺路过来」。阿紫心里有点不踏实。"
           },
           "promise": {
-            "en": "promise Granny to come by Saturday before the salesman and check who is at her door together",
-            "zh": "答应外婆周六赶在推销员之前过来，一起看清门外是谁"
+            "en": "promise Granny to find out tonight who this \"salesman\" really is and come back to tell her before Saturday",
+            "zh": "答应外婆今晚就查清那个「推销员」到底是谁，周六之前回来告诉她"
           }
         }
       ],
@@ -1111,7 +1116,12 @@
           "day": 4,
           "by": 4,
           "who": [
-            "wolf",
+            "wolf"
+          ],
+          "slots": [
+            0
+          ],
+          "places": [
             "granny"
           ],
           "kind": {
@@ -1119,8 +1129,8 @@
             "zh": "高潮"
           },
           "text": {
-            "en": "\"Granny\" lies in bed with cucumber slices on her face and says \"Pull out the peg and the latch will fall, darling.\" Mo' must decide: don't upset Granny, or put on her glasses, even if she's ugly with them.",
-            "zh": "「外婆」躺在床上，脸上敷着黄瓜片，说：「拉一下门闩，门就开了，宝贝。」阿紫得决定：别惹外婆不高兴，还是戴上眼镜——哪怕戴着很丑。"
+            "en": "(The one in bed is Wolf in disguise — id \"wolf\"; the real Granny is not on stage.) \"Granny\" lies in bed with cucumber slices on her face and says \"Pull out the peg and the latch will fall, darling.\" Mo' must decide: don't upset Granny, or put on her glasses, even if she's ugly with them.",
+            "zh": "（床上的是假扮外婆的狼，id 为 wolf；真外婆不在台上。）「外婆」躺在床上，脸上敷着黄瓜片，说：「拉一下门闩，门就开了，宝贝。」阿紫得决定：别惹外婆不高兴，还是戴上眼镜——哪怕戴着很丑。"
           }
         },
         {
@@ -1129,6 +1139,12 @@
           "by": 4,
           "who": [
             "mom"
+          ],
+          "slots": [
+            1
+          ],
+          "places": [
+            "kitchen"
           ],
           "kind": {
             "en": "resolution",
@@ -1154,6 +1170,9 @@
       ],
       "who": [
         "wolf"
+      ],
+      "after": [
+        "beat:hello"
       ],
       "text": {
         "en": "Midnight notification: \"Loup3769 liked your status.\" Then another. Then a message: \"party details soon, kay? where r u saturday?\"",
@@ -1198,6 +1217,9 @@
       ],
       "who": [
         "wolf"
+      ],
+      "after": [
+        "beat:hello"
       ],
       "text": {
         "en": "The \"little detour\" for an ice cream: Wolf happens to be on the bench by the kiosk, again, as if he knew.",
@@ -1245,6 +1267,7 @@
       "minStage": 2,
       "minAffection": 4,
       "maxBroken": 0,
+      "keptKey": "warn-granny",
       "title": {
         "en": "GOOD ENDING (for the whole family — bad ending for Wolf!) · THREE GENERATIONS",
         "zh": "好结局（全家都好——狼除外！）· 三代同堂"
@@ -1275,16 +1298,16 @@
       "kind": "true",
       "who": "granny",
       "tier": 3,
-      "minStage": 4,
-      "minAffection": 7,
+      "minStage": 3,
+      "minAffection": 6,
       "keptKey": "warn-granny",
       "title": {
         "en": "GOOD ENDING (...well, bad ending for Wolf!) · JAIL SPACE",
         "zh": "好结局（……对狼来说是坏结局！）· 牢房格"
       },
       "brief": {
-        "en": "The original's pepper-spray ending, earned: because Mo' kept her promise and warned Granny, Granny is ready. \"Sir, meet Suzie, my faithful little pepper spray. Suzie, introduce yourself again.\" Wolf howls twice; the police congratulate Granny on her cool head. Mo' and Granny finish the Scrabble game while the sirens fade.",
-        "zh": "原作的喷雾结局，这次是挣来的：阿紫守约提前提醒了外婆，外婆早有准备。「先生，这位是苏西，我忠实的小防狼喷雾。苏西，再跟先生打个招呼。」狼惨叫两回；警察夸外婆临危不乱。警笛声远去，祖孙俩把那盘拼字游戏下完。"
+        "en": "The original's pepper-spray ending, earned: because Mo' kept her promise and came back on Friday night to tell Granny the \"salesman\" is Loup3769, Granny is ready. \"Sir, meet Suzie, my faithful little pepper spray. Suzie, introduce yourself again.\" Wolf howls twice; the police congratulate Granny on her cool head. Mo' and Granny finish the Scrabble game while the sirens fade.",
+        "zh": "原作的喷雾结局，这次是挣来的：阿紫守约，周五晚上回来告诉外婆那个「推销员」就是 Loup3769，外婆早有准备。「先生，这位是苏西，我忠实的小防狼喷雾。苏西，再跟先生打个招呼。」狼惨叫两回；警察夸外婆临危不乱。警笛声远去，祖孙俩把那盘拼字游戏下完。"
       }
     },
     {
@@ -1292,8 +1315,8 @@
       "kind": "good",
       "who": "mom",
       "tier": 3,
-      "minStage": 4,
-      "minAffection": 7,
+      "minStage": 3,
+      "minAffection": 6,
       "maxBroken": 0,
       "title": {
         "en": "GOOD ENDING · SATURDAY NIGHT",
@@ -1310,13 +1333,14 @@
       "who": "granny",
       "tier": 2,
       "minStage": 2,
+      "maxBroken": 0,
       "title": {
         "en": "QUIET ENDING · GAMES",
         "zh": "平静结局 · 游戏"
       },
       "brief": {
-        "en": "The original's quiet ending: Mo' hurries to Granny's instead of lingering, never adds the stranger (\"was he high or something?\"), and the afternoon becomes a Scrabble rematch. Wolf is never heard from again — this time. Final line: \"Double word score!\"",
-        "zh": "原作的平静结局：阿紫没在路上逗留，径直去了外婆家，也没加那个陌生人（「他是嗑多了吧？」），下午变成一场拼字游戏复仇赛。狼再也没出现——至少这一次。最后一句：「双倍词分！」"
+        "en": "The original's quiet ending: Mo' never lingers and never adds the stranger (\"was he high or something?\"). On Saturday the \"Granny\" in bed sounds wrong from the doorway; Mo' backs out, finds the real Granny in the wardrobe, and the two of them lock the door from the outside and call the police from the hallway. The rest of the afternoon becomes a Scrabble rematch. Wolf is never heard from again — this time. Final line: \"Double word score!\"",
+        "zh": "原作的平静结局：阿紫没在路上逗留，也没加那个陌生人（「他是嗑多了吧？」）。周六床上那个「外婆」一开口，她在门口就觉得不对，退出来在衣柜里找到真外婆，祖孙俩从外面锁上门、在走廊报了警。下午剩下的时间变成一场拼字游戏复仇赛。狼再也没出现——至少这一次。最后一句：「双倍词分！」"
       }
     },
     {
@@ -1324,7 +1348,10 @@
       "kind": "bad",
       "who": "wolf",
       "tier": 1,
-      "minStage": 2,
+      "maxAffection": 3,
+      "flags": [
+        "beat:cucumbers"
+      ],
       "title": {
         "en": "BAD ENDING · CLOSE CALL",
         "zh": "坏结局 · 险些出事"
@@ -1346,8 +1373,8 @@
         "zh": "坏结局（对拼字盘来说）· 没有复仇赛"
       },
       "brief": {
-        "en": "Mo' promised to come early on Saturday and didn't. Granny met the \"salesman\" alone, with Suzie; Wolf fled down the hallway howling, and the police took her statement. Nobody was hurt, but Granny is hurt in a quieter way: she puts the Scrabble box back on the shelf and says \"Another time, darling.\" Non-graphic; a small sad comedy.",
-        "zh": "阿紫答应周六早点来，结果没来。外婆一个人、带着苏西见了那位「推销员」；狼嚎叫着逃出走廊，警察给外婆做了笔录。谁都没受伤，可外婆心里有点受伤：她把拼字游戏盒放回架子上，说「下次吧，宝贝。」不露骨，一出有点心酸的小喜剧。"
+        "en": "Mo' promised to find out who the \"salesman\" was and come back to tell Granny, and didn't. Granny met him alone, with Suzie; Wolf fled down the hallway howling, and the police took her statement. Nobody was hurt, but Granny is hurt in a quieter way: she puts the Scrabble box back on the shelf and says \"Another time, darling.\" Non-graphic; a small sad comedy.",
+        "zh": "阿紫答应查清那个「推销员」是谁、回来告诉外婆，结果没回来。外婆一个人、带着苏西见了他；狼嚎叫着逃出走廊，警察给外婆做了笔录。谁都没受伤，可外婆心里有点受伤：她把拼字游戏盒放回架子上，说「下次吧，宝贝。」不露骨，一出有点心酸的小喜剧。"
       }
     },
     {
@@ -1597,28 +1624,28 @@
           {
             "who": "me",
             "text": {
-              "en": "Since when do you say \"kay\", Granny?",
-              "zh": "外婆你什么时候开始说「好吧」了？"
+              "en": "Granny? You sound... different.",
+              "zh": "外婆？你声音……怪怪的。"
             }
           },
           {
             "who": "wolf",
             "text": {
-              "en": "Picked it up on TV. All the young people say it.",
-              "zh": "电视里学的。年轻人都这么说。"
+              "en": "It's the cold, darling. Come closer, kay?",
+              "zh": "着凉了，宝贝。过来点，好吧？"
             }
           },
           {
             "who": "narration",
             "text": {
-              "en": "A cucumber slice slides off and lands on the pillow. Mo's hand closes around the glasses in her pocket.",
-              "zh": "一片黄瓜滑下来，掉在枕头上。阿紫的手在口袋里握住了那副眼镜。"
+              "en": "A cucumber slice slides off and lands on the pillow. In Mo's pocket, the glasses case.",
+              "zh": "一片黄瓜滑下来，掉在枕头上。阿紫口袋里，是那个眼镜盒。"
             }
           }
         ],
         "unsaid": {
-          "en": "That she already knows.",
-          "zh": "她其实已经知道了。"
+          "en": "How much she has already noticed.",
+          "zh": "她到底已经看出了多少。"
         }
       },
       {
@@ -1656,29 +1683,330 @@
           {
             "who": "mom",
             "text": {
-              "en": "One question. Who is Loup3769?",
-              "zh": "就问一件事。Loup3769 是谁？"
+              "en": "Saturday. Your father and I want to hear it from you. Take your time.",
+              "zh": "周六的事。我和你爸想听你自己说。慢慢说。"
+            }
+          },
+          {
+            "who": "narration",
+            "text": {
+              "en": "Mo's phone lies face down on the table between them. Nobody reaches for it yet.",
+              "zh": "阿紫的手机扣在两人中间的桌上。谁都还没去碰它。"
+            }
+          }
+        ],
+        "unsaid": {
+          "en": "What Mom went through at Mo's age.",
+          "zh": "妈妈在阿紫这个年纪经历过什么。"
+        }
+      },
+      {
+        "id": "mv-hello",
+        "who": "wolf",
+        "kind": "daily",
+        "motif": "kay",
+        "title": {
+          "en": "Hello!",
+          "zh": "哈喽！"
+        },
+        "trigger": {
+          "beat": "hello"
+        },
+        "staging": {
+          "en": "Wilson Boulevard in the afternoon, plane trees, the basket on Mo's arm, her phone in the other hand. Wolf falls into step beside her as if they had arranged it. He is all smiles; every question he asks bends back toward \"where\". Comic, a little uneasy; Mo' is mostly annoyed.",
+          "zh": "下午的威尔逊大道，梧桐，阿紫一手挎篮子一手拿手机。狼像约好了似的走到她旁边。他满脸笑，每个问题都会拐回「去哪」。好笑，又有点不对劲；阿紫主要是嫌烦。"
+        },
+        "lines": [
+          {
+            "who": "wolf",
+            "text": {
+              "en": "Hello! Let me guess: errand for the family again?",
+              "zh": "哈喽！让我猜猜：又替家里跑腿？"
             }
           },
           {
             "who": "me",
             "text": {
-              "en": "...Just someone online.",
-              "zh": "……就一个网友。"
+              "en": "Is it that obvious?",
+              "zh": "有那么明显吗？"
             }
           },
           {
-            "who": "mom",
+            "who": "wolf",
             "text": {
-              "en": "When I was your age, I had a \"just someone\" too.",
-              "zh": "我在你这个年纪，也有过一个「就一个」。"
+              "en": "Young, lively, pretty, and stuck carrying butter. Parents forget how to live, kay?",
+              "zh": "年轻、有活力、漂亮，却被派来送黄油。家长都忘了怎么活，好吧？"
             }
+          },
+          {
+            "who": "wolf",
+            "text": {
+              "en": "So where are we headed? Far? Which number?",
+              "zh": "那我们这是去哪？远吗？几号？"
+            }
+          },
+          {
+            "who": "narration",
+            "text": {
+              "en": "The pot of butter in the basket has started to go soft.",
+              "zh": "篮子里那一小罐黄油，开始变软了。"
+            }
+          }
+        ],
+        "unsaid": {
+          "en": "That she already posted the number.",
+          "zh": "门牌号她早就发出去了。"
+        }
+      },
+      {
+        "id": "mv-suzie",
+        "who": "granny",
+        "kind": "reveal",
+        "motif": "suzie",
+        "title": {
+          "en": "Meet Suzie",
+          "zh": "这位是苏西"
+        },
+        "trigger": {
+          "beat": "warn-granny"
+        },
+        "staging": {
+          "en": "Friday afternoon at No. 173. The TV is muted for once. Granny sits up far too easily for someone stuck in bed, lifts her pillow, and presents a small pepper spray like a grandchild. The Scrabble box waits on the blanket. Keep it cosy and funny; the unease comes from the salesman, not from Granny.",
+          "zh": "周五下午的 173 号。电视难得静了音。外婆坐起来，对一个卧床的人来说太轻松了点；她掀起枕头，像介绍孙辈一样亮出一小罐防狼喷雾。拼字游戏盒放在被子上。气氛温馨好笑；不安来自那个推销员，不来自外婆。"
+        },
+        "lines": [
+          {
+            "who": "granny",
+            "text": {
+              "en": "Darling, I'd like you to meet Suzie. She sleeps under my pillow. Hihi!",
+              "zh": "宝贝，给你介绍一下苏西。她就睡在我枕头底下。嘻嘻！"
+            }
+          },
+          {
+            "who": "me",
+            "text": {
+              "en": "Granny. That's pepper spray.",
+              "zh": "外婆。那是防狼喷雾。"
+            }
+          },
+          {
+            "who": "granny",
+            "text": {
+              "en": "And that charming salesman is dropping by tomorrow with the whole box set. Such a silver tongue.",
+              "zh": "那个嘴很甜的推销员明天要带着整套全集过来。真会说话。"
+            }
+          },
+          {
+            "who": "me",
+            "text": {
+              "en": "Did he say how he got your number?",
+              "zh": "他说过他怎么有你的电话吗？"
+            }
+          },
+          {
+            "who": "granny",
+            "text": {
+              "en": "He didn't say. I didn't ask. Now, Scrabble?",
+              "zh": "他没说。我也没问。好了，下盘拼字？"
+            }
+          }
+        ],
+        "unsaid": {
+          "en": "That Granny is less ill than she lets on.",
+          "zh": "外婆其实没病得那么厉害。"
+        }
+      }
+    ],
+    "reveals": [
+      {
+        "id": "rv-one-man",
+        "when": {
+          "after": [
+            "beat:salesman"
+          ],
+          "who": "wolf",
+          "minStage": 2
+        },
+        "truth": {
+          "en": "The \"salesman\" who keeps phoning No. 173 and Loup3769 are the same man.",
+          "zh": "一直往 173 号打电话的「推销员」和 Loup3769 是同一个人。"
+        },
+        "reframes": [
+          {
+            "en": "Granny's \"you silver-tongued devil, hehe!\" on the phone",
+            "zh": "外婆在电话里那句「哎哟，你这张甜嘴，嘻嘻！」"
+          },
+          {
+            "en": "Wolf on the kiosk bench, \"as if he knew\"",
+            "zh": "狼坐在小亭长椅上，「好像早知道她会来」"
+          }
+        ]
+      },
+      {
+        "id": "rv-binge",
+        "when": {
+          "who": "granny",
+          "minStage": 3
+        },
+        "truth": {
+          "en": "Granny was never really bedridden: she stayed up two nights binge-watching detective shows and let the family believe she was ill, so Mo' would keep coming.",
+          "zh": "外婆根本没有卧床不起：她连熬两夜追侦探剧，顺水推舟让家里以为她病了，好让阿紫一直来看她。"
+        },
+        "reframes": [
+          {
+            "en": "the TV guide circled all over in pen",
+            "zh": "电视节目单上画满的圈"
+          },
+          {
+            "en": "\"stuck in bed for two days\"",
+            "zh": "「卧床两天了」"
+          },
+          {
+            "en": "how easily she sat up to show Suzie",
+            "zh": "她亮出苏西时坐起来得那么轻松"
           }
         ]
       }
     ],
+    "flashbacks": [
+      {
+        "id": "fb-status",
+        "who": "me",
+        "trigger": {
+          "after": [
+            "beat:basket"
+          ]
+        },
+        "text": {
+          "en": "Wednesday, one thumb, no thought: \"off to Granny's AGAIN #173WilsonBlvd #ugh\". Posted. Public.",
+          "zh": "周三，单手，没过脑子：「又去外婆家了 #威尔逊大道173号 #烦」。已发布。公开。"
+        }
+      },
+      {
+        "id": "fb-mom-fifteen",
+        "who": "mom",
+        "trigger": {
+          "minStage": 3
+        },
+        "text": {
+          "en": "Mom at fifteen, in a photo nobody shows: a jean jacket, a scooter at the kerb, and a boy who called her \"pretty\" before he knew her name.",
+          "zh": "十五岁的妈妈，一张没人拿出来看的照片：牛仔外套，路边一辆小摩托，一个还不知道她名字就叫她「美女」的男孩。"
+        }
+      },
+      {
+        "id": "fb-scrabble",
+        "who": "granny",
+        "trigger": {
+          "motif": "door"
+        },
+        "text": {
+          "en": "Years ago, Mo' aged six on Granny's lap, spelling C-A-T with three tiles and being told it was worth a thousand points.",
+          "zh": "很多年前，六岁的阿紫坐在外婆腿上，用三块牌拼出 C-A-T，外婆说这值一千分。"
+        }
+      }
+    ],
+    "gossip": [
+      {
+        "id": "g-dad-mom",
+        "from": "dad",
+        "about": "mom",
+        "truth": "true",
+        "fromDay": 2,
+        "text": {
+          "en": "(text) Your mother has checked your SocialBook three times tonight. She thinks I didn't notice.",
+          "zh": "（短信）你妈今晚看了三次你的 SocialBook。她以为我没发现。"
+        }
+      },
+      {
+        "id": "g-dad-granny",
+        "from": "dad",
+        "about": "granny",
+        "truth": "true",
+        "fromDay": 2,
+        "text": {
+          "en": "(text) Granny called to ask if \"qi\" is a real word. It is. She already knew. She just wanted to tell someone she played it.",
+          "zh": "（短信）外婆打电话问我「qi」算不算一个词。算。她早知道。她就是想找个人说她摆出来了。"
+        }
+      },
+      {
+        "id": "g-granny-dad",
+        "from": "granny",
+        "about": "dad",
+        "truth": "false",
+        "text": {
+          "en": "\"Your father proposed with a Scrabble word that doesn't exist. I let it count. Hihi.\"",
+          "zh": "「你爸求婚的时候摆了一个根本不存在的拼字词。我还是给他算分了。嘻嘻。」"
+        }
+      }
+    ],
     "texture": {
+      "days": [
+        {
+          "day": 1,
+          "weather": {
+            "en": "a warm Wednesday, too nice for errands",
+            "zh": "暖和的周三，好天气不该拿来跑腿"
+          },
+          "bits": [
+            {
+              "en": "the rice cake wrapped in cling film twice",
+              "zh": "米饼裹了两层保鲜膜"
+            }
+          ]
+        },
+        {
+          "day": 2,
+          "bits": [
+            {
+              "en": "Thursday homework nobody has started",
+              "zh": "没人动过的周四作业"
+            }
+          ]
+        },
+        {
+          "day": 3,
+          "bits": [
+            {
+              "en": "everyone at school talking about weekend parties",
+              "zh": "学校里人人都在聊周末派对"
+            }
+          ]
+        },
+        {
+          "day": 4,
+          "weather": {
+            "en": "Saturday, bright, the boulevard full of shoppers",
+            "zh": "周六，晴，大道上满是逛街的人"
+          },
+          "bits": [
+            {
+              "en": "Mo's party outfit laid out on the bed, just in case",
+              "zh": "派对要穿的衣服摊在床上，以防万一"
+            }
+          ]
+        }
+      ],
+      "any": [
+        {
+          "en": "a hashtag typed and deleted",
+          "zh": "打了又删的一个话题标签"
+        },
+        {
+          "en": "the glasses case, still unopened in a pocket",
+          "zh": "口袋里的眼镜盒，还没打开过"
+        }
+      ],
       "places": {
+        "hallway": [
+          {
+            "en": "the name plate \"Margaret Little\", first door on the right",
+            "zh": "姓名牌「玛格丽特·小」，右手第一间"
+          },
+          {
+            "en": "the light that flickers on every third second",
+            "zh": "每隔三秒闪一下的灯"
+          }
+        ],
         "kitchen": [
           {
             "en": "the organic rice cakes nobody likes",
@@ -1737,6 +2065,32 @@
         "text": {
           "en": "Dad's texts always end with a full stop, which Mo' reads as a threat.",
           "zh": "爸爸的消息永远以句号结尾，阿紫把它读成威胁。"
+        }
+      },
+      {
+        "id": "hashtags",
+        "who": [
+          "mom"
+        ],
+        "places": [
+          "kitchen"
+        ],
+        "text": {
+          "en": "Mom reads one of Mo's statuses aloud in a flat voice, hashtags included: \"hashtag ugh. hashtag mom.\"",
+          "zh": "妈妈用毫无起伏的语调把阿紫的一条动态念出来，连话题标签一起：「井号烦。井号老妈。」"
+        }
+      },
+      {
+        "id": "rice-cake",
+        "who": [
+          "granny"
+        ],
+        "places": [
+          "granny"
+        ],
+        "text": {
+          "en": "Granny asks Mo' to read the ingredients on the organic rice cake aloud, slowly, like evidence in a detective show. \"Brown rice... and what else? Suspicious.\"",
+          "zh": "外婆让阿紫把有机米饼的配料表慢慢念出来，像侦探剧里念证物。「糙米……还有呢？可疑。」"
         }
       }
     ],
