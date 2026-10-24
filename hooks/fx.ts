@@ -204,7 +204,8 @@ const BACKDROP_RULES: [RegExp, Backdrop][] = [
   [/小卖部|供销社|铺|小亭|店|夜市|琴行|\b(shop|store|stall|kiosk|market)\b/i, 'shop'],
   [/江|河|海|码头|港|湖|冰场|灯塔|堤|\b(river|riverside|harbou?r|sea|seawall|lake|pier|lighthouse|frozen|ice-lantern)\b/i, 'water'],
   [/操场|球场|体育场|广场|花园|\b(field|court|stadium|square|gardens?|park)\b/i, 'field'],
-  [/街|大道|梯|站|缆车|公交|路|桥|\b(street|boulevard|steps|station|bus|road|platform)\b/i, 'street'],
+  // 隧道没有专门的背景：一排路灯比带窗户的屋子更像
+  [/街|大道|梯|站|缆车|公交|路|桥|隧道|\b(street|boulevard|steps|station|bus|road|platform|tunnel)\b/i, 'street'],
 ]
 
 /** 按地名（中英都可）推背景种类；都不中就当室内 */
