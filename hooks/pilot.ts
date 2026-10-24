@@ -44,9 +44,10 @@ export function pilotPrompt(
   const focus = strategy === 'focus' && target ? `\nTarget: ${target} ${T(castOf(p, target)?.name)}` : ''
   const habits = strategy === 'self' ? `\nThe player's habits: ${profileLine(s) || 'not much to go on yet; pick what feels natural'}.` : ''
   const ask = kind === 'target' ? 'Which character do you want to pursue?' : kind === 'place' ? 'Where do I go now?' : 'What do I do?'
+  const kinds = kind === 'choice' ? '\n[observe] only notices a detail and moves no one; [reply], [promise] and [keep] are what change how people feel and where the story goes.' : ''
   return `[Autoplay] You make one choice for the player of the visual novel "${T(p.title)}". ${STRATEGY[strategy]}
 ${dayText(p, lang, s.day)} of ${p.days}, ${T(p.slots[s.slot])}. People: ${people}.
-Open promises: ${promises}. Last scenes: ${last}.${collect}${focus}${habits}
+Open promises: ${promises}. Last scenes: ${last}.${collect}${focus}${habits}${kinds}
 ${ask}
 ${options.map((o, i) => `${i + 1}. ${o}`).join('\n')}
 Reply with JSON only: {"pick": <option number>, "why": "<one short sentence${lang === 'zh' ? ' in Simplified Chinese' : ' in English'}>"}`

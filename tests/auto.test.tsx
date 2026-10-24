@@ -85,6 +85,12 @@ describe('决策（模型 mock）', () => {
     expect(collect).not.toContain('各自的暑假') // 已解锁的不列
   })
 
+  test('选项提示说明观察不动人，选地点时不说', () => {
+    // 实测：不说明时「随心」偏向观察，6 幕全选观察、好感全 0
+    expect(pilotPrompt(CICADA, s, 'choice', ['[reply] 嗯', '[observe] 看她'], 'whim', '', meta, 'zh')).toContain('[observe] only notices a detail and moves no one')
+    expect(pilotPrompt(CICADA, s, 'place', opts, 'whim', '', meta, 'zh')).not.toContain('[observe]')
+  })
+
   test('只要编号和一句理由；读不懂时有退路', () => {
     expect(parsePick('{"pick": 2, "why": "想看她会不会说出秘密"}', 3)).toEqual({ index: 1, why: '想看她会不会说出秘密' })
     expect(parsePick('3：去天文社看看', 3)).toEqual({ index: 2, why: '去天文社看看' })
